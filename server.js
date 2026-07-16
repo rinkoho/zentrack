@@ -377,7 +377,8 @@ wss.on('connection', (ws, req) => {
   });
 
   ws.on('close', () => {
-    console.log('[WebSocket] Mobile client disconnected');
+    console.log('[WebSocket] Mobile client disconnected. Releasing modifier keys for safety...');
+    sendXdotoolCommand('keyup Super_L keyup Super_R keyup Control_L keyup Control_R keyup Alt_L keyup Alt_R keyup Shift_L keyup Shift_R');
   });
 });
 
