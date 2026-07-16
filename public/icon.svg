@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080b11" />
+      <stop offset="100%" stop-color="#101623" />
+    </linearGradient>
+    
+    <!-- Neon Cyan Glow -->
+    <filter id="cyan-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Neon Purple Glow -->
+    <filter id="purple-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg-grad)" />
+  
+  <!-- Outer glowing trackpad border -->
+  <rect x="76" y="76" width="360" height="360" rx="48" fill="none" stroke="#00f2fe" stroke-width="8" filter="url(#cyan-glow)" opacity="0.85" />
+  
+  <!-- Subtle inner grid lines representing precision -->
+  <line x1="256" y1="76" x2="256" y2="436" stroke="rgba(0, 242, 254, 0.15)" stroke-width="2" stroke-dasharray="8,8" />
+  <line x1="76" y1="256" x2="436" y2="256" stroke="rgba(0, 242, 254, 0.15)" stroke-width="2" stroke-dasharray="8,8" />
+
+  <!-- Neon Purple Touch Ripple in Center -->
+  <circle cx="256" cy="256" r="48" fill="none" stroke="#b927fc" stroke-width="6" filter="url(#purple-glow)" />
+  <circle cx="256" cy="256" r="88" fill="none" stroke="#b927fc" stroke-width="3" filter="url(#purple-glow)" opacity="0.5" />
+  <circle cx="256" cy="256" r="14" fill="#00f2fe" filter="url(#cyan-glow)" />
+</svg>

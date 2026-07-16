@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ZenTrack - Trackpad Virtual</title>
+  <!-- Google Fonts Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080b11">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Favicon placeholder to avoid 404 logs -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖱️</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header: Status & Info -->
+    <header class="app-header">
+      <div class="logo-area">
+        <button class="menu-btn" id="sidebar-toggle" aria-label="Menú">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <span class="logo-icon">✨</span>
+        <div class="logo-text-group">
+          <h1>ZenTrack</h1>
+          <span class="subtitle">Virtual Trackpad</span>
+        </div>
+      </div>
+      
+      <div class="status-panel">
+        <div class="status-badge disconnected" id="status-badge">
+          <span class="status-dot"></span>
+          <span class="status-text" id="status-text">Desconectado</span>
+        </div>
+        <div class="latency-badge" id="latency-badge" style="display: none;">
+          <span class="latency-label">Ping:</span>
+          <span class="latency-value" id="latency-value">0ms</span>
+        </div>
+        <button class="settings-btn" id="settings-toggle" aria-label="Ajustes">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      <!-- The Trackpad Interface -->
+      <div class="trackpad-wrapper">
+        <div class="trackpad" id="trackpad-surface">
+          <!-- Main pointer region -->
+          <div class="touch-area" id="pointer-area">
+            <!-- Floating controls for Hybrid Profile (menu, settings, status) -->
+            <div class="hybrid-controls" id="hybrid-controls">
+              <button class="hybrid-btn" id="hybrid-sidebar-toggle" aria-label="Menú">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              </button>
+              <div class="hybrid-status" id="hybrid-status-badge">
+                <span class="status-dot"></span>
+                <span class="hybrid-status-text" id="hybrid-status-text">Desconectado</span>
+                <span class="hybrid-ping" id="hybrid-ping-value" style="display: none;">0ms</span>
+              </div>
+              <button class="hybrid-btn" id="hybrid-settings-toggle" aria-label="Ajustes">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              </button>
+            </div>
+            
+            <div class="trackpad-instructions">
+              <p>Desliza para mover</p>
+              <div class="gesture-hints">
+                <span>🖱️ Tap: Click</span>
+                <span>•</span>
+                <span>✌️ 2 Taps: Click Der</span>
+                <span>•</span>
+                <span>↕️ 2 Dedos: Scroll</span>
+              </div>
+            </div>
+          </div>
+          <!-- Vertical Scroll Strip on the right -->
+          <div class="scroll-strip" id="scroll-wheel-strip">
+            <div class="scroll-arrows">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="18 15 12 9 6 15"></polyline></svg>
+              <span>Scroll</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 65% Mechanical Keyboard Surface -->
+        <div class="keyboard-surface" id="keyboard-surface" style="display: none;">
+          <!-- Keycaps will be dynamically injected here to prevent code clutter -->
+        </div>
+      </div>
+
+      <!-- Mouse Clicks Bar -->
+      <div class="mouse-buttons-row">
+        <button class="mouse-btn" id="mouse-btn-left">
+          <span class="btn-indicator"></span>
+          <span>Click Izq</span>
+        </button>
+        <button class="mouse-btn middle-btn" id="mouse-btn-middle">
+          <div class="scroll-wheel-icon"></div>
+        </button>
+        <button class="mouse-btn" id="mouse-btn-right">
+          <span class="btn-indicator"></span>
+          <span>Click Der</span>
+        </button>
+      </div>
+
+      <!-- Control Panel / Shortcuts Grid -->
+      <section class="shortcuts-panel">
+        <div class="shortcuts-header">
+          <h2>Atajos BSPWM</h2>
+          <span class="panel-tag">X11 Control</span>
+        </div>
+        
+        <!-- Sticky Modifier Keys -->
+        <div class="modifiers-row">
+          <button class="mod-btn" id="mod-ctrl" data-key="ctrl">Ctrl</button>
+          <button class="mod-btn" id="mod-alt" data-key="alt">Alt</button>
+          <button class="mod-btn" id="mod-shift" data-key="shift">Shift</button>
+          <button class="mod-btn" id="mod-super" data-key="super">Super</button>
+        </div>
+
+        <!-- Quick System Launcher Grid -->
+        <div class="launcher-grid">
+          <button class="launch-btn" data-action="terminal">
+            <span class="launch-icon">💻</span>
+            <span class="launch-label">Terminal</span>
+          </button>
+          <button class="launch-btn" data-action="browser">
+            <span class="launch-icon">🌐</span>
+            <span class="launch-label">Navegador</span>
+          </button>
+          <button class="launch-btn" data-action="file_manager">
+            <span class="launch-icon">📁</span>
+            <span class="launch-label">Archivos</span>
+          </button>
+          <button class="launch-btn" data-action="rofi">
+            <span class="launch-icon">🔍</span>
+            <span class="launch-label">Menú Rofi</span>
+          </button>
+          <button class="launch-btn danger" data-action="close_window">
+            <span class="launch-icon">✕</span>
+            <span class="launch-label">Cerrar App</span>
+          </button>
+          <button class="launch-btn secondary" data-action="powermenu">
+            <span class="launch-icon">⚡</span>
+            <span class="launch-label">Power</span>
+          </button>
+          <button class="launch-btn secondary" data-action="wallselect">
+            <span class="launch-icon">🖼️</span>
+            <span class="launch-label">Wallpapers</span>
+          </button>
+          <button class="launch-btn secondary" data-action="workspace_left">
+            <span class="launch-icon">⬅️</span>
+            <span class="launch-label">Escritorio I</span>
+          </button>
+          <button class="launch-btn secondary" data-action="workspace_right">
+            <span class="launch-icon">➡️</span>
+            <span class="launch-label">Escritorio D</span>
+          </button>
+          <button class="launch-btn secondary" id="btn-toggle-bar">
+            <span class="launch-icon">📊</span>
+            <span class="launch-label">Polybar</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Slide-up Settings Drawer -->
+    <div class="settings-drawer" id="settings-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <h3>Ajustes de Control</h3>
+          <p>Personaliza la velocidad y retroalimentación</p>
+        </div>
+        <button class="close-drawer-btn" id="settings-close">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <div class="drawer-body">
+        <!-- Sensitivity Slider -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-name">Sensibilidad del Cursor</span>
+            <span class="setting-value" id="val-sensitivity">1.2x</span>
+          </div>
+          <div class="slider-wrapper">
+            <span class="slider-limit">0.5</span>
+            <input type="range" id="slider-sensitivity" min="0.5" max="3" step="0.1" value="1.2">
+            <span class="slider-limit">3.0</span>
+          </div>
+        </div>
+
+        <!-- Acceleration Intensity Slider -->
+        <div class="setting-item" id="item-acc-intensity">
+          <div class="setting-info">
+            <span class="setting-name">Intensidad de Aceleración</span>
+            <span class="setting-value" id="val-acceleration">1.0x</span>
+          </div>
+          <div class="slider-wrapper">
+            <span class="slider-limit">0.1</span>
+            <input type="range" id="slider-acceleration" min="0.1" max="3" step="0.1" value="1.0">
+            <span class="slider-limit">3.0</span>
+          </div>
+        </div>
+
+        <!-- Scroll Sensitivity Slider -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-name">Sensibilidad de Scroll</span>
+            <span class="setting-value" id="val-scroll">1.0x</span>
+          </div>
+          <div class="slider-wrapper">
+            <span class="slider-limit">0.5</span>
+            <input type="range" id="slider-scroll" min="0.5" max="3" step="0.1" value="1.0">
+            <span class="slider-limit">3.0</span>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-name">Volumen del Teclado</span>
+            <span class="setting-value" id="val-sound-volume">80%</span>
+          </div>
+          <div class="slider-wrapper">
+            <span class="slider-limit">0%</span>
+            <input type="range" id="slider-sound-volume" min="0" max="1" step="0.05" value="0.8">
+            <span class="slider-limit">100%</span>
+          </div>
+        </div>
+
+        <div class="setting-item" style="margin-bottom: 8px;">
+          <div class="setting-info">
+            <span class="setting-name">Perfil de Sonido de Teclas</span>
+          </div>
+          <select id="select-sound-profile" class="styled-select">
+            <option value="cherry-blue">Cherry MX Blue (Clicky)</option>
+            <option value="chocolate">Chocolate (Crujiente Snap)</option>
+            <option value="cherry-red">Cherry MX Red (Thocky)</option>
+            <option value="box-navy">Kailh Box Navy (Ultra Clicky)</option>
+            <option value="buckling-spring">Buckling Spring (IBM Model M)</option>
+            <option value="topre">Topre (Capacitivo Plop)</option>
+            <option value="membrane">Membrana (Silencioso)</option>
+            <option value="bubble-wrap">Burbujas (Bubble Wrap)</option>
+          </select>
+        </div>
+
+        <!-- Toggle Options -->
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Vibración Háptica</span>
+              <p class="toggle-desc">Respuesta física al hacer click</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-vibration" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Mantener Pantalla Activa</span>
+              <p class="toggle-desc">Evita que la pantalla se apague (WakeLock)</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-wakelock" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Aceleración del Cursor</span>
+              <p class="toggle-desc">Cursor viaja más distancia en gestos rápidos</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-acceleration" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Desplazamiento Natural</span>
+              <p class="toggle-desc">Invierte la dirección de scroll (estilo celular/macOS)</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-naturalscroll" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Alta Frecuencia (500Hz)</span>
+              <p class="toggle-desc">Coalesce y micro-stepping para suavizar el cursor</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-highpolling" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Botones de Click Físicos</span>
+              <p class="toggle-desc">Muestra u oculta los clicks inferiores</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-showbuttons" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Barra de Scroll Lateral</span>
+              <p class="toggle-desc">Muestra u oculta la barra de scroll lateral</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-showscroll" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Pantalla Completa</span>
+              <p class="toggle-desc">Oculta barras del navegador mediante pantalla completa nativa</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-fullscreen">
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-name">Sonido Mecánico</span>
+              <p class="toggle-desc">Sonido de switch mecánico Cherry MX de baja latencia</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-key-sound" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Drawer Overlay Backing -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+  </div>
+
+  <!-- Sidebar Menu for Profiles -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="sidebar-icon">⚡</span>
+        <h3>Menú ZenTrack</h3>
+      </div>
+      <button class="close-sidebar-btn" id="sidebar-close" aria-label="Cerrar menú">&times;</button>
+    </div>
+    <div class="sidebar-body">
+      <div class="menu-section">
+        <h4>Perfiles de Control</h4>
+        <button class="menu-item active" data-profile="control-total">
+          <span class="menu-item-icon">🛠️</span>
+          <div class="menu-item-text">
+            <span>Control Total</span>
+            <p>Trackpad + atajos rápidos de BSPWM</p>
+          </div>
+        </button>
+        <button class="menu-item" data-profile="trackpad-only">
+          <span class="menu-item-icon">🎛️</span>
+          <div class="menu-item-text">
+            <span>Solo Trackpad</span>
+            <p>Área táctil a pantalla completa</p>
+          </div>
+        </button>
+        <button class="menu-item" data-profile="keyboard-65">
+          <span class="menu-item-icon">⌨️</span>
+          <div class="menu-item-text">
+            <span>Teclado 65%</span>
+            <p>Teclado mecánico virtual modular</p>
+          </div>
+        </button>
+        <button class="menu-item" data-profile="hybrid-65">
+          <span class="menu-item-icon">⚡</span>
+          <div class="menu-item-text">
+            <span>Híbrido (Teclado + Trackpad)</span>
+            <p>Teclado abajo y Trackpad de baja latencia arriba</p>
+          </div>
+        </button>
+      </div>
+      <div class="sidebar-info-card">
+        <h5>Servidor Activo</h5>
+        <p id="sidebar-ip-display">Buscando IP...</p>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <span>ZenTrack v1.2.0</span>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <script src="client.js"></script>
+</body>
+</html>
