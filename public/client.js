@@ -15,7 +15,8 @@ const settings = {
   soundProfile: 'cherry-blue',
   soundVolume: 0.8,
   keyboardTheme: 'carbon',
-  syncTheme: false
+  syncTheme: false,
+  keyCaster: true
 };
 
 // Apply layout modifiers to body based on settings
@@ -42,23 +43,27 @@ function applyLayoutSettings() {
     body.classList.add('profile-trackpad-only');
     document.getElementById('trackpad-surface').style.display = 'flex';
     document.getElementById('keyboard-surface').style.display = 'none';
+    document.getElementById('keyboard-dashboard').style.display = 'none';
   } else if (settings.profile === 'keyboard-65') {
     body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-hybrid-65');
     body.classList.add('profile-keyboard-65');
     document.getElementById('trackpad-surface').style.display = 'none';
     document.getElementById('keyboard-surface').style.display = 'flex';
+    document.getElementById('keyboard-dashboard').style.display = settings.keyCaster ? 'flex' : 'none';
     renderKeyboard();
   } else if (settings.profile === 'hybrid-65') {
     body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-keyboard-65');
     body.classList.add('profile-hybrid-65');
     document.getElementById('trackpad-surface').style.display = 'flex';
     document.getElementById('keyboard-surface').style.display = 'flex';
+    document.getElementById('keyboard-dashboard').style.display = 'none';
     renderKeyboard();
   } else {
     body.classList.remove('profile-trackpad-only', 'profile-keyboard-65', 'profile-hybrid-65');
     body.classList.add('profile-control-total');
     document.getElementById('trackpad-surface').style.display = 'flex';
     document.getElementById('keyboard-surface').style.display = 'none';
+    document.getElementById('keyboard-dashboard').style.display = 'none';
   }
 
   // 4. Highlight active profile item in the sidebar
@@ -70,12 +75,27 @@ function applyLayoutSettings() {
     }
   });
 
-  // Apply keyboard theme class
+  // Apply keyboard theme class to surface, dashboard and HUD
   const kbSurface = document.getElementById('keyboard-surface');
+  const kbDashboard = document.getElementById('keyboard-dashboard');
+  const hudCaster = document.getElementById('hud-caster');
+  const theme = settings.keyboardTheme || 'carbon';
+
   if (kbSurface) {
     kbSurface.className = 'keyboard-surface';
-    const theme = settings.keyboardTheme || 'carbon';
     kbSurface.classList.add(`theme-${theme}`);
+  }
+  if (kbDashboard) {
+    kbDashboard.className = 'keyboard-dashboard';
+    kbDashboard.classList.add(`theme-${theme}`);
+    const dbStatusTheme = document.getElementById('db-status-theme');
+    if (dbStatusTheme) {
+      dbStatusTheme.innerText = theme;
+    }
+  }
+  if (hudCaster) {
+    hudCaster.className = 'hud-caster';
+    hudCaster.classList.add(`theme-${theme}`);
   }
 
   // Force trigger browser layout calculations (essential for landscape swaps)
@@ -139,6 +159,14 @@ function loadSettings() {
       const toggleSyncTheme = document.getElementById('toggle-sync-theme');
       if (toggleSyncTheme) {
         toggleSyncTheme.checked = !!settings.syncTheme;
+      }
+
+      if (settings.keyCaster === undefined) {
+        settings.keyCaster = true;
+      }
+      const toggleKeyCaster = document.getElementById('toggle-keycaster');
+      if (toggleKeyCaster) {
+        toggleKeyCaster.checked = !!settings.keyCaster;
       }
     } catch (e) {
       console.error('Error loading settings:', e);
@@ -1662,6 +1690,16 @@ if (toggleSyncThemeElement) {
   });
 }
 
+const toggleKeyCasterElement = document.getElementById('toggle-keycaster');
+if (toggleKeyCasterElement) {
+  toggleKeyCasterElement.addEventListener('change', (e) => {
+    settings.keyCaster = e.target.checked;
+    saveSettings();
+    applyLayoutSettings();
+    triggerHaptic('click');
+  });
+}
+
 const syncFullscreenCheckbox = () => {
   const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
   toggleFullscreen.checked = isFS;
@@ -1798,6 +1836,171 @@ const KEYBOARD_LAYOUT = [
   ]
 ];
 
+// --- Key Caster / HUD Overlay Logic ---
+const activeModifiers = new Set();
+let typedBuffer = '';
+const recentShortcuts = [];
+let hudFadeTimeout = null;
+let capsLockActive = false;
+
+const KEY_LABELS = {
+  'Escape': 'Esc',
+  'BackSpace': 'Backspace',
+  'Delete': 'DEL',
+  'Tab': 'Tab',
+  'Caps_Lock': 'Caps',
+  'Return': 'Enter',
+  'Shift_L': 'Shift',
+  'Shift_R': 'Shift',
+  'Control_L': 'Ctrl',
+  'Control_R': 'Ctrl',
+  'Alt_L': 'Alt',
+  'Alt_R': 'Alt',
+  'Super_L': 'Super',
+  'space': 'Espacio',
+  'Left': '←',
+  'Right': '→',
+  'Up': '↑',
+  'Down': '↓',
+  'Prior': 'PgUp',
+  'Next': 'PgDn',
+  'End': 'End',
+  'minus': '-',
+  'equal': '+',
+  'bracketleft': '[',
+  'bracketright': ']',
+  'backslash': '\\',
+  'semicolon': ';',
+  'apostrophe': '\'',
+  'comma': ',',
+  'period': '.',
+  'slash': '/'
+};
+
+function isModifier(code) {
+  return ['Shift_L', 'Shift_R', 'Control_L', 'Control_R', 'Alt_L', 'Alt_R', 'Super_L', 'Fn'].includes(code);
+}
+
+function handleCasterPress(code, label) {
+  if (!settings.keyCaster) return;
+
+  const hudCaster = document.getElementById('hud-caster');
+  const hudText = document.getElementById('hud-text');
+  const dbText = document.getElementById('db-text');
+  const dbHistory = document.getElementById('db-history');
+
+  // Trigger HUD fade-in for trackpad overlay profiles
+  if (hudCaster) {
+    hudCaster.style.opacity = '1';
+    hudCaster.style.transform = 'translateX(-50%) translateY(0)';
+    if (hudFadeTimeout) clearTimeout(hudFadeTimeout);
+    hudFadeTimeout = setTimeout(() => {
+      hudCaster.style.opacity = '0';
+      hudCaster.style.transform = 'translateX(-50%) translateY(10px)';
+    }, 3000);
+  }
+
+  // 1. Caps Lock State
+  if (code === 'Caps_Lock') {
+    capsLockActive = !capsLockActive;
+    const dbCaps = document.getElementById('db-status-caps');
+    if (dbCaps) {
+      if (capsLockActive) {
+        dbCaps.innerText = 'ON';
+        dbCaps.classList.add('caps-on');
+      } else {
+        dbCaps.innerText = 'OFF';
+        dbCaps.classList.remove('caps-on');
+      }
+    }
+  }
+
+  // 2. Modifiers
+  if (isModifier(code)) {
+    const modLabel = KEY_LABELS[code] || label;
+    activeModifiers.add(modLabel);
+    updateDisplay();
+    return;
+  }
+
+  // 3. Normal typing or shortcuts
+  let displayValue = '';
+
+  if (activeModifiers.size > 0) {
+    const modsArray = Array.from(activeModifiers);
+    const keyName = KEY_LABELS[code] || label;
+    displayValue = modsArray.map(m => `[${m}]`).join(' + ') + ` + [${keyName}]`;
+    
+    recentShortcuts.unshift(displayValue);
+    if (recentShortcuts.length > 3) recentShortcuts.pop();
+    
+    if (dbHistory) {
+      dbHistory.innerHTML = '';
+      recentShortcuts.forEach(sc => {
+        const item = document.createElement('div');
+        item.className = 'db-history-item';
+        item.innerText = sc;
+        dbHistory.appendChild(item);
+      });
+    }
+
+    if (hudText) hudText.innerText = displayValue;
+    if (dbText) dbText.innerText = displayValue;
+  } else {
+    if (code === 'BackSpace') {
+      typedBuffer = typedBuffer.slice(0, -1);
+    } else if (code === 'Return') {
+      typedBuffer = '';
+    } else if (code === 'space') {
+      typedBuffer += ' ';
+    } else if (code === 'Escape') {
+      typedBuffer = '';
+    } else if (code.length === 1) {
+      let char = label;
+      if (capsLockActive) {
+        char = char.toUpperCase();
+      } else {
+        char = char.toLowerCase();
+      }
+      typedBuffer += char;
+    } else {
+      const friendlyName = KEY_LABELS[code] || label;
+      displayValue = `[${friendlyName}]`;
+      if (hudText) hudText.innerText = displayValue;
+      if (dbText) dbText.innerText = displayValue;
+      return;
+    }
+
+    updateDisplay();
+  }
+}
+
+function handleCasterRelease(code) {
+  if (isModifier(code)) {
+    const modLabel = KEY_LABELS[code] || code;
+    activeModifiers.delete(modLabel);
+    updateDisplay();
+  }
+}
+
+function updateDisplay() {
+  const hudText = document.getElementById('hud-text');
+  const dbText = document.getElementById('db-text');
+
+  let textToDisplay = typedBuffer;
+
+  if (textToDisplay === '' && activeModifiers.size > 0) {
+    textToDisplay = Array.from(activeModifiers).map(m => `[${m}]`).join(' + ') + ' + ...';
+  }
+
+  if (textToDisplay === '') {
+    textToDisplay = 'Listo para escribir...';
+  }
+
+  if (hudText) hudText.innerText = textToDisplay;
+  if (dbText) dbText.innerText = textToDisplay;
+}
+
 function renderKeyboard() {
   const container = document.getElementById('keyboard-surface');
   if (!container) return;
@@ -1845,6 +2048,9 @@ function renderKeyboard() {
         triggerHaptic('click');
         playSwitchSound(true, key.code); // Actuate synthetic switch click & bottom-out thock
         
+        // Trigger HUD / Dashboard visual keycaster press
+        handleCasterPress(key.code, key.label);
+
         if (key.code !== 'Fn') {
           sendSocket({ type: 'keydown', key: key.code });
         }
@@ -1859,6 +2065,9 @@ function renderKeyboard() {
         keyEl.classList.remove('active');
         playSwitchSound(false, key.code); // Return synthetic switch click
         
+        // Trigger HUD / Dashboard visual keycaster release
+        handleCasterRelease(key.code);
+
         if (key.code !== 'Fn') {
           sendSocket({ type: 'keyup', key: key.code });
         }
@@ -1873,6 +2082,9 @@ function renderKeyboard() {
         keyEl.classList.remove('active');
         playSwitchSound(false, key.code); // Return synthetic switch click
         
+        // Trigger HUD / Dashboard visual keycaster release
+        handleCasterRelease(key.code);
+
         if (key.code !== 'Fn') {
           sendSocket({ type: 'keyup', key: key.code });
         }

@@ -2055,3 +2055,237 @@ body.profile-hybrid-65 .trackpad-instructions p {
   }
 }
 
+/* ======================================================== */
+/*                  KEY CASTER & HUD STYLES                 */
+/* ======================================================== */
+
+/* 1. HUD Floating Caster (For Hybrid/Trackpad Profiles) */
+.hud-caster {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(16, 22, 35, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  max-width: 85%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+.hud-text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--key-red-bg, #00f2fe);
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+}
+
+.hud-cursor {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--key-red-bg, #00f2fe);
+  animation: flash 1s infinite;
+  transition: color 0.3s;
+}
+
+/* 2. Full Keyboard Dashboard (For Keyboard-Only Profile) */
+.keyboard-dashboard {
+  display: none;
+  width: 100%;
+  height: 80px;
+  min-height: 80px;
+  background: rgba(16, 22, 35, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+  font-family: var(--font-mono);
+  transition: border-color 0.3s;
+}
+
+body.profile-keyboard-65 .keyboard-dashboard {
+  display: flex;
+}
+
+/* Apply active theme border to Dashboard and HUD */
+.keyboard-dashboard.theme-carbon, .hud-caster.theme-carbon { border-color: rgba(226, 232, 240, 0.2); }
+.keyboard-dashboard.theme-laser, .hud-caster.theme-laser { border-color: #db2777; }
+.keyboard-dashboard.theme-olivia, .hud-caster.theme-olivia { border-color: #e99f91; }
+.keyboard-dashboard.theme-botanical, .hud-caster.theme-botanical { border-color: #a3b899; }
+.keyboard-dashboard.theme-retro-classic, .hud-caster.theme-retro-classic { border-color: #4b5563; }
+.keyboard-dashboard.theme-dolch, .hud-caster.theme-dolch { border-color: #4b5563; }
+.keyboard-dashboard.theme-isabel, .hud-caster.theme-isabel { border-color: #4889be; }
+.keyboard-dashboard.theme-andrea, .hud-caster.theme-andrea { border-color: #161616; }
+
+/* Dashboard Sections */
+.db-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.db-title {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+/* Live Text area */
+.db-text-area {
+  flex: 2;
+  min-width: 0;
+}
+
+.db-content {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  height: 38px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.db-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--key-red-bg, #00f2fe);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  transition: color 0.3s;
+}
+
+.db-cursor {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--key-red-bg, #00f2fe);
+  animation: flash 1s infinite;
+  margin-left: 2px;
+  transition: color 0.3s;
+}
+
+/* History area */
+.db-history-area {
+  flex: 1.2;
+  min-width: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  padding-left: 12px;
+}
+
+.db-history {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  height: 38px;
+  max-height: 38px;
+  font-size: 10px;
+}
+
+.db-history-item {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: slide-in 0.2s ease-out;
+}
+
+.db-history-empty {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 9px;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Status area */
+.db-status-area {
+  flex: 0.8;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  padding-left: 12px;
+  min-width: 90px;
+}
+
+.db-status-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 9px;
+}
+
+.db-status-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.db-status-item .lbl {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.db-status-item .val {
+  font-weight: 700;
+  color: var(--key-red-bg, var(--accent-purple));
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+#db-status-caps.caps-on {
+  color: #10b981 !important;
+  text-shadow: 0 0 6px #10b981;
+  font-weight: 900;
+}
+
+/* Height distribution overrides for full keyboard profile */
+body.profile-keyboard-65 .trackpad-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+body.profile-keyboard-65 #keyboard-surface {
+  flex: 1 !important;
+  height: calc(100% - 88px) !important;
+}
+
+/* Flash and Slide-in Animations */
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes slide-in {
+  from { transform: translateY(4px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+
