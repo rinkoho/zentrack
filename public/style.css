@@ -2350,5 +2350,27 @@ body.profile-keyboard-65 #keyboard-surface {
   }
 }
 
+/* osu!lazer style bouncy character pop-in animation */
+.char-span {
+  display: inline-block;
+  transform-origin: bottom center;
+}
+
+.char-appear {
+  animation: osu-bounce 0.14s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes osu-bounce {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+
 
 

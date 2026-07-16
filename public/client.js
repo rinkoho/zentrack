@@ -1976,8 +1976,8 @@ function handleCasterPress(key) {
       });
     }
 
-    if (hudText) hudText.innerText = displayValue;
-    if (dbText) dbText.innerText = displayValue;
+    renderAnimatedText('hud-text', displayValue);
+    renderAnimatedText('db-text', displayValue);
     
     // In full keyboard profile, keep the Live Text area showing the typedBuffer instead of shortcut combo
     if (settings.profile === 'keyboard-65') {
@@ -2006,8 +2006,8 @@ function handleCasterPress(key) {
     } else {
       const friendlyName = KEY_LABELS[code] || label;
       displayValue = `[${friendlyName}]`;
-      if (hudText) hudText.innerText = displayValue;
-      if (dbText) dbText.innerText = displayValue;
+      renderAnimatedText('hud-text', displayValue);
+      renderAnimatedText('db-text', displayValue);
       return;
     }
 
@@ -2029,9 +2029,6 @@ function handleCasterRelease(code) {
 }
 
 function updateDisplay() {
-  const hudText = document.getElementById('hud-text');
-  const dbText = document.getElementById('db-text');
-
   let textToDisplay = typedBuffer;
 
   if (textToDisplay === '' && activeModifiers.size > 0) {
@@ -2042,8 +2039,67 @@ function updateDisplay() {
     textToDisplay = 'Listo para escribir...';
   }
 
-  if (hudText) hudText.innerText = textToDisplay;
-  if (dbText) dbText.innerText = textToDisplay;
+  renderAnimatedText('hud-text', textToDisplay);
+  renderAnimatedText('db-text', textToDisplay);
+}
+
+function renderAnimatedText(containerId, text) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Render whole combinations/shortcuts/placeholders as single bouncing elements
+  const isShortcut = text.startsWith('[') || text === 'Listo para escribir...';
+
+  if (isShortcut) {
+    container.innerHTML = `<span class="char-appear">${text}</span>`;
+    return;
+  }
+
+  // Normal character typing: append or remove individual char spans to keep animations clean
+  const chars = Array.from(text);
+  const currentSpans = container.querySelectorAll('.char-span');
+  const N = chars.length;
+  const M = currentSpans.length;
+
+  if (N > M) {
+    // If the container holds placeholder or shortcuts, clear it first
+    if (container.firstElementChild && !container.firstElementChild.classList.contains('char-span')) {
+      container.innerHTML = '';
+    }
+    // Append only newly added character spans to prevent re-triggering existing ones
+    for (let i = M; i < N; i++) {
+      const span = document.createElement('span');
+      span.className = 'char-span char-appear';
+      span.innerHTML = chars[i] === ' ' ? '&nbsp;' : chars[i];
+      container.appendChild(span);
+    }
+  } else if (N < M) {
+    // Character deleted: remove from the end
+    for (let i = M - 1; i >= N; i--) {
+      if (currentSpans[i]) {
+        currentSpans[i].remove();
+      }
+    }
+  } else {
+    // N === M: check if characters are identical
+    let match = true;
+    for (let i = 0; i < N; i++) {
+      const currentText = currentSpans[i].innerHTML === '&nbsp;' ? ' ' : currentSpans[i].innerText;
+      if (currentText !== chars[i]) {
+        match = false;
+        break;
+      }
+    }
+    if (!match) {
+      container.innerHTML = '';
+      chars.forEach(c => {
+        const span = document.createElement('span');
+        span.className = 'char-span char-appear';
+        span.innerHTML = c === ' ' ? '&nbsp;' : c;
+        container.appendChild(span);
+      });
+    }
+  }
 }
 
 function renderKeyboard() {
