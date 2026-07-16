@@ -1198,6 +1198,9 @@ body.profile-keyboard-65 .trackpad-wrapper {
   position: relative;
   justify-content: space-between;
   overflow: hidden;
+}
+
+.keyboard-surface.theme-changing {
   transition: background 0.4s ease, border-color 0.4s ease;
 }
 
@@ -1248,6 +1251,9 @@ body.profile-keyboard-65 .trackpad-wrapper {
   height: 100%;
   border: 1px solid rgba(255,255,255,0.03);
   pointer-events: none; /* Touches fall through to keycap-container hitbox */
+}
+
+.keyboard-surface.theme-changing .keycap {
   transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -2287,5 +2293,62 @@ body.profile-keyboard-65 #keyboard-surface {
   from { transform: translateY(4px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Landscape mode overrides for keyboard dashboard */
+@media (orientation: landscape) {
+  body.profile-keyboard-65 .trackpad-wrapper {
+    gap: 4px !important;
+  }
+
+  body.profile-keyboard-65 #keyboard-surface {
+    height: calc(100% - 40px) !important;
+  }
+
+  .keyboard-dashboard {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    gap: 8px !important;
+  }
+
+  .db-title {
+    display: none !important;
+  }
+
+  .db-content {
+    height: 28px !important;
+    padding: 3px 8px !important;
+  }
+
+  .db-text {
+    font-size: 11px !important;
+  }
+
+  .db-cursor {
+    font-size: 11px !important;
+  }
+
+  .db-history-area {
+    display: none !important;
+  }
+
+  .db-status-area {
+    border-left: none !important;
+    padding-left: 0 !important;
+    min-width: unset !important;
+    flex: unset !important;
+  }
+
+  .db-status-grid {
+    flex-direction: row !important;
+    gap: 8px !important;
+  }
+
+  .db-status-item {
+    gap: 2px !important;
+  }
+}
+
 
 

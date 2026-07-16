@@ -82,8 +82,19 @@ function applyLayoutSettings() {
   const theme = settings.keyboardTheme || 'carbon';
 
   if (kbSurface) {
+    const isThemeChanged = !kbSurface.classList.contains(`theme-${theme}`);
     kbSurface.className = 'keyboard-surface';
+    if (isThemeChanged) {
+      kbSurface.classList.add('theme-changing');
+    }
     kbSurface.classList.add(`theme-${theme}`);
+    
+    if (isThemeChanged) {
+      if (window.themeChangeTimeout) clearTimeout(window.themeChangeTimeout);
+      window.themeChangeTimeout = setTimeout(() => {
+        kbSurface.classList.remove('theme-changing');
+      }, 500);
+    }
   }
   if (kbDashboard) {
     kbDashboard.className = 'keyboard-dashboard';
@@ -1841,6 +1852,7 @@ const activeModifiers = new Set();
 let typedBuffer = '';
 const recentShortcuts = [];
 let hudFadeTimeout = null;
+let casterClearTimeout = null;
 let capsLockActive = false;
 
 const KEY_LABELS = {
@@ -1899,6 +1911,13 @@ function handleCasterPress(code, label) {
       hudCaster.style.transform = 'translateX(-50%) translateY(10px)';
     }, 3000);
   }
+
+  // Auto-clear buffer after 1.2s of inactivity (no key typed)
+  if (casterClearTimeout) clearTimeout(casterClearTimeout);
+  casterClearTimeout = setTimeout(() => {
+    typedBuffer = '';
+    updateDisplay();
+  }, 1200);
 
   // 1. Caps Lock State
   if (code === 'Caps_Lock') {
@@ -1969,6 +1988,11 @@ function handleCasterPress(code, label) {
       if (hudText) hudText.innerText = displayValue;
       if (dbText) dbText.innerText = displayValue;
       return;
+    }
+
+    // Limit buffer to a sliding window of max 15 characters
+    if (typedBuffer.length > 15) {
+      typedBuffer = typedBuffer.slice(-15);
     }
 
     updateDisplay();
@@ -2054,6 +2078,18 @@ function renderKeyboard() {
         if (key.code !== 'Fn') {
           sendSocket({ type: 'keydown', key: key.code });
         }
+
+        // Setup key repeat simulation for client-side caster (buffer, delete, etc.)
+        if (containerEl.repeatTimeout) clearTimeout(containerEl.repeatTimeout);
+        if (containerEl.repeatInterval) clearInterval(containerEl.repeatInterval);
+
+        if (!isModifier(key.code)) {
+          containerEl.repeatTimeout = setTimeout(() => {
+            containerEl.repeatInterval = setInterval(() => {
+              handleCasterPress(key.code, key.label);
+            }, 80);
+          }, 400);
+        }
       });
 
       containerEl.addEventListener('pointerup', (e) => {
@@ -2065,6 +2101,10 @@ function renderKeyboard() {
         keyEl.classList.remove('active');
         playSwitchSound(false, key.code); // Return synthetic switch click
         
+        // Clear repeat timers
+        if (containerEl.repeatTimeout) clearTimeout(containerEl.repeatTimeout);
+        if (containerEl.repeatInterval) clearInterval(containerEl.repeatInterval);
+
         // Trigger HUD / Dashboard visual keycaster release
         handleCasterRelease(key.code);
 
@@ -2082,6 +2122,10 @@ function renderKeyboard() {
         keyEl.classList.remove('active');
         playSwitchSound(false, key.code); // Return synthetic switch click
         
+        // Clear repeat timers
+        if (containerEl.repeatTimeout) clearTimeout(containerEl.repeatTimeout);
+        if (containerEl.repeatInterval) clearInterval(containerEl.repeatInterval);
+
         // Trigger HUD / Dashboard visual keycaster release
         handleCasterRelease(key.code);
 
