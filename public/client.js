@@ -14,7 +14,8 @@ const settings = {
   keySound: true,
   soundProfile: 'cherry-blue',
   soundVolume: 0.8,
-  keyboardTheme: 'carbon'
+  keyboardTheme: 'carbon',
+  syncTheme: false
 };
 
 // Apply layout modifiers to body based on settings
@@ -133,6 +134,11 @@ function loadSettings() {
       const selectKeyboardTheme = document.getElementById('select-keyboard-theme');
       if (selectKeyboardTheme) {
         selectKeyboardTheme.value = settings.keyboardTheme || 'carbon';
+      }
+
+      const toggleSyncTheme = document.getElementById('toggle-sync-theme');
+      if (toggleSyncTheme) {
+        toggleSyncTheme.checked = !!settings.syncTheme;
       }
     } catch (e) {
       console.error('Error loading settings:', e);
@@ -814,6 +820,19 @@ function connectWebSocket() {
           settings.highPolling = data.highPolling;
           document.getElementById('toggle-highpolling').checked = settings.highPolling;
           saveSettings();
+        }
+      } else if (data.type === 'rice_update') {
+        // Cache the latest theme received from the server
+        window.lastServerRice = data.rice;
+        
+        if (settings.syncTheme) {
+          settings.keyboardTheme = data.rice;
+          const selectKeyboardTheme = document.getElementById('select-keyboard-theme');
+          if (selectKeyboardTheme) {
+            selectKeyboardTheme.value = data.rice;
+          }
+          saveSettings();
+          applyLayoutSettings();
         }
       }
     } catch (e) {
@@ -1620,6 +1639,25 @@ if (selectKeyboardThemeElement) {
     settings.keyboardTheme = e.target.value;
     saveSettings();
     applyLayoutSettings();
+    triggerHaptic('click');
+  });
+}
+
+const toggleSyncThemeElement = document.getElementById('toggle-sync-theme');
+if (toggleSyncThemeElement) {
+  toggleSyncThemeElement.addEventListener('change', (e) => {
+    settings.syncTheme = e.target.checked;
+    
+    if (settings.syncTheme && window.lastServerRice) {
+      settings.keyboardTheme = window.lastServerRice;
+      const selectKeyboardTheme = document.getElementById('select-keyboard-theme');
+      if (selectKeyboardTheme) {
+        selectKeyboardTheme.value = window.lastServerRice;
+      }
+      applyLayoutSettings();
+    }
+    
+    saveSettings();
     triggerHaptic('click');
   });
 }

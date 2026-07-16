@@ -210,6 +210,52 @@ const server = http.createServer((req, res) => {
 // Setup the WebSocket Server on top of the HTTP server
 const wss = new WebSocket.Server({ server });
 
+// Path to the active bspwm rice configuration file
+const RICE_FILE = path.join(os.homedir(), '.config', 'bspwm', '.rice');
+
+// Read the currently active rice from the file
+function getActiveRice() {
+  if (fs.existsSync(RICE_FILE)) {
+    try {
+      return fs.readFileSync(RICE_FILE, 'utf8').trim();
+    } catch (e) {
+      console.error('[ThemeSync] Error reading .rice file:', e);
+    }
+  }
+  return null;
+}
+
+// Broadcast JSON message to all open WebSocket clients
+function broadcast(payload) {
+  const msg = JSON.stringify(payload);
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(msg);
+    }
+  });
+}
+
+// Watch for changes in active bspwm rice
+let watchTimeout = null;
+if (fs.existsSync(RICE_FILE)) {
+  console.log(`[ThemeSync] Watching for active rice changes in ${RICE_FILE}`);
+  
+  const handleRiceChange = () => {
+    const activeRice = getActiveRice();
+    if (activeRice) {
+      console.log(`[ThemeSync] Active rice changed to: ${activeRice}`);
+      broadcast({ type: 'rice_update', rice: activeRice });
+    }
+  };
+
+  fs.watch(RICE_FILE, (eventType) => {
+    if (watchTimeout) clearTimeout(watchTimeout);
+    watchTimeout = setTimeout(handleRiceChange, 100);
+  });
+} else {
+  console.warn(`[ThemeSync] Active rice file not found at ${RICE_FILE}`);
+}
+
 wss.on('connection', (ws, req) => {
   const clientIP = req.socket.remoteAddress;
 
@@ -227,6 +273,12 @@ wss.on('connection', (ws, req) => {
 
   // Send current settings state on connect
   ws.send(JSON.stringify({ type: 'sync_settings', highPolling }));
+
+  // Send the currently active rice upon connection so the client can synchronize if desired
+  const activeRice = getActiveRice();
+  if (activeRice) {
+    ws.send(JSON.stringify({ type: 'rice_update', rice: activeRice }));
+  }
 
   ws.on('message', (message) => {
     try {
