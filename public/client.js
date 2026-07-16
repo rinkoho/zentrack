@@ -1899,8 +1899,15 @@ function isPrintable(code, label) {
   return label.length === 1;
 }
 
-function handleCasterPress(code, label) {
+function hasActiveCommandModifiers() {
+  return Array.from(activeModifiers).some(m => ['Ctrl', 'Alt', 'Super', 'Fn'].includes(m));
+}
+
+function handleCasterPress(key) {
   if (!settings.keyCaster) return;
+  const code = key.code;
+  const label = key.label;
+  const sublabel = key.sublabel;
 
   const hudCaster = document.getElementById('hud-caster');
   const hudText = document.getElementById('hud-text');
@@ -1951,7 +1958,7 @@ function handleCasterPress(code, label) {
   // 3. Normal typing or shortcuts
   let displayValue = '';
 
-  if (activeModifiers.size > 0) {
+  if (activeModifiers.size > 0 && hasActiveCommandModifiers()) {
     const modsArray = Array.from(activeModifiers);
     const keyName = KEY_LABELS[code] || label;
     displayValue = modsArray.map(m => `[${m}]`).join(' + ') + ` + [${keyName}]`;
@@ -1971,6 +1978,11 @@ function handleCasterPress(code, label) {
 
     if (hudText) hudText.innerText = displayValue;
     if (dbText) dbText.innerText = displayValue;
+    
+    // In full keyboard profile, keep the Live Text area showing the typedBuffer instead of shortcut combo
+    if (settings.profile === 'keyboard-65') {
+      updateDisplay();
+    }
   } else {
     if (code === 'BackSpace') {
       typedBuffer = typedBuffer.slice(0, -1);
@@ -1982,8 +1994,13 @@ function handleCasterPress(code, label) {
       typedBuffer = '';
     } else if (isPrintable(code, label)) {
       let char = label;
-      if (/[a-zA-Z]/.test(char)) {
-        char = capsLockActive ? char.toUpperCase() : char.toLowerCase();
+      const shiftActive = activeModifiers.has('Shift');
+      
+      if (shiftActive && sublabel) {
+        char = sublabel; // Use shifted character layout (e.g. '1' -> '!', '-' -> '_')
+      } else if (/[a-zA-Z]/.test(char)) {
+        const shouldBeUpper = capsLockActive !== shiftActive;
+        char = shouldBeUpper ? char.toUpperCase() : char.toLowerCase();
       }
       typedBuffer += char;
     } else {
@@ -2077,7 +2094,7 @@ function renderKeyboard() {
         playSwitchSound(true, key.code); // Actuate synthetic switch click & bottom-out thock
         
         // Trigger HUD / Dashboard visual keycaster press
-        handleCasterPress(key.code, key.label);
+        handleCasterPress(key);
 
         if (key.code !== 'Fn') {
           sendSocket({ type: 'keydown', key: key.code });
@@ -2090,7 +2107,7 @@ function renderKeyboard() {
         if (!isModifier(key.code)) {
           containerEl.repeatTimeout = setTimeout(() => {
             containerEl.repeatInterval = setInterval(() => {
-              handleCasterPress(key.code, key.label);
+              handleCasterPress(key);
             }, 80);
           }, 400);
         }
