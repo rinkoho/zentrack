@@ -1474,6 +1474,358 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(197, 171, 255, 0.2) 0%, rgba(245, 238, 230, 0.05) 75%, transparent 100%);
 }
 
+/* 9. Aline (gh0stzk Rice - Rose Pine Dawn Light) */
+.keyboard-surface.theme-aline {
+  --key-white-bg: #ffffff;
+  --key-white-color: #575279;
+  --key-white-shadow: #f2e9e1;
+  --key-white-active-bg: #f2e9e1;
+
+  --key-grey-bg: #f2e9e1;
+  --key-grey-color: #575279;
+  --key-grey-shadow: #e4dcd3;
+  --key-grey-active-bg: #e4dcd3;
+
+  --key-red-bg: #907aa9;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #715e87;
+  --key-red-active-bg: #7f6c96;
+
+  background: #faf4ed;
+  border-color: #286983;
+  --kb-underglow: radial-gradient(circle at center, rgba(144, 122, 169, 0.15) 0%, rgba(86, 148, 159, 0.05) 75%, transparent 100%);
+}
+
+/* 10. Brenda (gh0stzk Rice - Everforest Dark) */
+.keyboard-surface.theme-brenda {
+  --key-white-bg: #343f44;
+  --key-white-color: #d3c6aa;
+  --key-white-shadow: #232a2e;
+  --key-white-active-bg: #3d494e;
+
+  --key-grey-bg: #272f35;
+  --key-grey-color: #a7c080;
+  --key-grey-shadow: #1d2327;
+  --key-grey-active-bg: #313a40;
+
+  --key-red-bg: #a7c080;
+  --key-red-color: #2d353b;
+  --key-red-shadow: #8ba36c;
+  --key-red-active-bg: #97af76;
+
+  background: #2d353b;
+  border-color: #7fbbb3;
+  --kb-underglow: radial-gradient(circle at center, rgba(167, 192, 128, 0.15) 0%, rgba(127, 187, 179, 0.05) 75%, transparent 100%);
+}
+
+/* 11. Cristina (gh0stzk Rice - Rose Pine Dark) */
+.keyboard-surface.theme-cristina {
+  --key-white-bg: #2a283e;
+  --key-white-color: #e0def4;
+  --key-white-shadow: #1a1829;
+  --key-white-active-bg: #33314c;
+
+  --key-grey-bg: #1f1d2e;
+  --key-grey-color: #9bced7;
+  --key-grey-shadow: #12111d;
+  --key-grey-active-bg: #2a283c;
+
+  --key-red-bg: #c3a5e6;
+  --key-red-color: #232136;
+  --key-red-shadow: #9c80bd;
+  --key-red-active-bg: #af92d6;
+
+  background: #232136;
+  border-color: #34738e;
+  --kb-underglow: radial-gradient(circle at center, rgba(195, 165, 230, 0.15) 0%, rgba(52, 115, 142, 0.05) 75%, transparent 100%);
+}
+
+/* 12. Cynthia (gh0stzk Rice - Gray Green Kanagawa) */
+.keyboard-surface.theme-cynthia {
+  --key-white-bg: #222020;
+  --key-white-color: #c5c9c5;
+  --key-white-shadow: #0f0e0e;
+  --key-white-active-bg: #2d2a2a;
+
+  --key-grey-bg: #111010;
+  --key-grey-color: #8a9a7b;
+  --key-grey-shadow: #050505;
+  --key-grey-active-bg: #191818;
+
+  --key-red-bg: #938aa9;
+  --key-red-color: #181616;
+  --key-red-shadow: #716987;
+  --key-red-active-bg: #827899;
+
+  background: #181616;
+  border-color: #8ba4b0;
+  --kb-underglow: radial-gradient(circle at center, rgba(147, 138, 169, 0.15) 0%, rgba(139, 164, 176, 0.05) 75%, transparent 100%);
+}
+
+/* 13. Daniela (gh0stzk Rice - Catppuccin Mocha) */
+.keyboard-surface.theme-daniela {
+  --key-white-bg: #1e1e2e;
+  --key-white-color: #CDD6F4;
+  --key-white-shadow: #11111b;
+  --key-white-active-bg: #252538;
+
+  --key-grey-bg: #11111b;
+  --key-grey-color: #89b4fa;
+  --key-grey-shadow: #09090f;
+  --key-grey-active-bg: #161622;
+
+  --key-red-bg: #94e2d5;
+  --key-red-color: #11111b;
+  --key-red-shadow: #73bfae;
+  --key-red-active-bg: #82d6c6;
+
+  background: #181825;
+  border-color: #89b4fa;
+  --kb-underglow: radial-gradient(circle at center, rgba(148, 226, 213, 0.15) 0%, rgba(137, 180, 250, 0.05) 75%, transparent 100%);
+}
+
+/* 14. Emilia (gh0stzk Rice - Tokyonight) */
+.keyboard-surface.theme-emilia {
+  --key-white-bg: #20212e;
+  --key-white-color: #c0caf5;
+  --key-white-shadow: #12131c;
+  --key-white-active-bg: #2a2b3b;
+
+  --key-grey-bg: #16161e;
+  --key-grey-color: #7aa2f7;
+  --key-grey-shadow: #0b0b12;
+  --key-grey-active-bg: #1f202b;
+
+  --key-red-bg: #bb9af7;
+  --key-red-color: #16161e;
+  --key-red-shadow: #9273c9;
+  --key-red-active-bg: #a685e3;
+
+  background: #1a1b26;
+  border-color: #7aa2f7;
+  --kb-underglow: radial-gradient(circle at center, rgba(187, 154, 247, 0.15) 0%, rgba(122, 162, 247, 0.05) 75%, transparent 100%);
+}
+
+/* 15. H4ck3r (gh0stzk Rice - Matrix Green) */
+.keyboard-surface.theme-h4ck3r {
+  --key-white-bg: #121824;
+  --key-white-color: #00ff59;
+  --key-white-shadow: #06080d;
+  --key-white-active-bg: #1b2335;
+
+  --key-grey-bg: #1b2333;
+  --key-grey-color: #1947e0;
+  --key-grey-shadow: #0e121b;
+  --key-grey-active-bg: #243047;
+
+  --key-red-bg: #76ea00;
+  --key-red-color: #0c1018;
+  --key-red-shadow: #5ab300;
+  --key-red-active-bg: #6bd400;
+
+  background: #0c1018;
+  border-color: #1947e0;
+  --kb-underglow: radial-gradient(circle at center, rgba(118, 234, 0, 0.15) 0%, rgba(25, 71, 224, 0.08) 75%, transparent 100%);
+}
+
+/* 16. Jan (gh0stzk Rice - Cyber Cyan) */
+.keyboard-surface.theme-jan {
+  --key-white-bg: #0e062e;
+  --key-white-color: #27fbfe;
+  --key-white-shadow: #02000c;
+  --key-white-active-bg: #180b4e;
+
+  --key-grey-bg: #472575;
+  --key-grey-color: #19bffe;
+  --key-grey-shadow: #240f40;
+  --key-grey-active-bg: #5e329c;
+
+  --key-red-bg: #fb007a;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #bc005b;
+  --key-red-active-bg: #db006b;
+
+  background: #070219;
+  border-color: #27fbfe;
+  --kb-underglow: radial-gradient(circle at center, rgba(251, 0, 122, 0.18) 0%, rgba(39, 251, 254, 0.08) 75%, transparent 100%);
+}
+
+/* 17. Karla (gh0stzk Rice - Purple Crimson) */
+.keyboard-surface.theme-karla {
+  --key-white-bg: #161b1f;
+  --key-white-color: #afb1db;
+  --key-white-shadow: #050608;
+  --key-white-active-bg: #20272c;
+
+  --key-grey-bg: #353c52;
+  --key-grey-color: #e7034a;
+  --key-grey-shadow: #1d212e;
+  --key-grey-active-bg: #454f6b;
+
+  --key-red-bg: #e7034a;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #a30234;
+  --key-red-active-bg: #c4023e;
+
+  background: #0e1113;
+  border-color: #5884d4;
+  --kb-underglow: radial-gradient(circle at center, rgba(231, 3, 74, 0.15) 0%, rgba(88, 132, 212, 0.05) 75%, transparent 100%);
+}
+
+/* 18. Marisol (gh0stzk Rice - Dracula) */
+.keyboard-surface.theme-marisol {
+  --key-white-bg: #343746;
+  --key-white-color: #f8f8f2;
+  --key-white-shadow: #1a1b23;
+  --key-white-active-bg: #3f4355;
+
+  --key-grey-bg: #21222c;
+  --key-grey-color: #ff79c6;
+  --key-grey-shadow: #121319;
+  --key-grey-active-bg: #2f313f;
+
+  --key-red-bg: #bd93f9;
+  --key-red-color: #282a36;
+  --key-red-shadow: #926bca;
+  --key-red-active-bg: #a479eb;
+
+  background: #282a36;
+  border-color: #bd93f9;
+  --kb-underglow: radial-gradient(circle at center, rgba(189, 147, 249, 0.15) 0%, rgba(255, 121, 198, 0.05) 75%, transparent 100%);
+}
+
+/* 19. Melissa (gh0stzk Rice - Nord) */
+.keyboard-surface.theme-melissa {
+  --key-white-bg: #3b4252;
+  --key-white-color: #d8dee9;
+  --key-white-shadow: #242932;
+  --key-white-active-bg: #475063;
+
+  --key-grey-bg: #2e3440;
+  --key-grey-color: #81a1c1;
+  --key-grey-shadow: #1c2027;
+  --key-grey-active-bg: #3c4454;
+
+  --key-red-bg: #88c0d0;
+  --key-red-color: #2e3440;
+  --key-red-shadow: #5c9aa9;
+  --key-red-active-bg: #70b2c4;
+
+  background: #2e3440;
+  border-color: #81a1c1;
+  --kb-underglow: radial-gradient(circle at center, rgba(136, 192, 208, 0.15) 0%, rgba(129, 161, 193, 0.05) 75%, transparent 100%);
+}
+
+/* 20. Pamela (gh0stzk Rice - Dark Slate) */
+.keyboard-surface.theme-pamela {
+  --key-white-bg: #282a36;
+  --key-white-color: #fdfdfd;
+  --key-white-shadow: #15161d;
+  --key-white-active-bg: #353748;
+
+  --key-grey-bg: #1d1f28;
+  --key-grey-color: #5adecd;
+  --key-grey-shadow: #0d0e12;
+  --key-grey-active-bg: #2d303f;
+
+  --key-red-bg: #8897f4;
+  --key-red-color: #1d1f28;
+  --key-red-shadow: #5b69c4;
+  --key-red-active-bg: #707ecc;
+
+  background: #1d1f28;
+  border-color: #8897f4;
+  --kb-underglow: radial-gradient(circle at center, rgba(136, 151, 244, 0.15) 0%, rgba(90, 222, 205, 0.05) 75%, transparent 100%);
+}
+
+/* 21. Silvia (gh0stzk Rice - Gruvbox) */
+.keyboard-surface.theme-silvia {
+  --key-white-bg: #3c3836;
+  --key-white-color: #fbf1c7;
+  --key-white-shadow: #201e1d;
+  --key-white-active-bg: #4d4845;
+
+  --key-grey-bg: #1d2021;
+  --key-grey-color: #fe8019;
+  --key-grey-shadow: #0c0d0e;
+  --key-grey-active-bg: #2e3234;
+
+  --key-red-bg: #fabd2f;
+  --key-red-color: #282828;
+  --key-red-shadow: #c29220;
+  --key-red-active-bg: #dbab32;
+
+  background: #282828;
+  border-color: #ebdbb2;
+  --kb-underglow: radial-gradient(circle at center, rgba(250, 189, 47, 0.15) 0%, rgba(251, 241, 199, 0.05) 75%, transparent 100%);
+}
+
+/* 22. Varinka (gh0stzk Rice - Monochrome Dark) */
+.keyboard-surface.theme-varinka {
+  --key-white-bg: #2c3136;
+  --key-white-color: #f8f9fa;
+  --key-white-shadow: #16191c;
+  --key-white-active-bg: #3b4249;
+
+  --key-grey-bg: #1a1d20;
+  --key-grey-color: #f8f9fa;
+  --key-grey-shadow: #0d0e10;
+  --key-grey-active-bg: #272c30;
+
+  --key-red-bg: #f8f9fa;
+  --key-red-color: #212529;
+  --key-red-shadow: #ced4da;
+  --key-red-active-bg: #e9ecef;
+
+  background: #212529;
+  border-color: #ced4da;
+  --kb-underglow: radial-gradient(circle at center, rgba(248, 249, 250, 0.15) 0%, rgba(206, 212, 218, 0.05) 75%, transparent 100%);
+}
+
+/* 23. Yael (gh0stzk Rice - Minimal Black & White) */
+.keyboard-surface.theme-yael {
+  --key-white-bg: #262626;
+  --key-white-color: #ffffff;
+  --key-white-shadow: #0c0c0c;
+  --key-white-active-bg: #353535;
+
+  --key-grey-bg: #161616;
+  --key-grey-color: #3ddbd9;
+  --key-grey-shadow: #040404;
+  --key-grey-active-bg: #2a2a2a;
+
+  --key-red-bg: #42be65;
+  --key-red-color: #161616;
+  --key-red-shadow: #2e8546;
+  --key-red-active-bg: #37a155;
+
+  background: #161616;
+  border-color: #ff7eb6;
+  --kb-underglow: radial-gradient(circle at center, rgba(66, 190, 101, 0.15) 0%, rgba(255, 126, 182, 0.05) 75%, transparent 100%);
+}
+
+/* 24. Z0mbi3 (gh0stzk Rice - Red Cyberpunk) */
+.keyboard-surface.theme-z0mbi3 {
+  --key-white-bg: #171a29;
+  --key-white-color: #a5b6cf;
+  --key-white-shadow: #06070a;
+  --key-white-active-bg: #24283f;
+
+  --key-grey-bg: #0d0f18;
+  --key-grey-color: #dd6777;
+  --key-grey-shadow: #030305;
+  --key-grey-active-bg: #1a1e30;
+
+  --key-red-bg: #93cee9;
+  --key-red-color: #0d0f18;
+  --key-red-shadow: #6da5bf;
+  --key-red-active-bg: #7dbad6;
+
+  background: #0d0f18;
+  border-color: #86aaec;
+  --kb-underglow: radial-gradient(circle at center, rgba(147, 206, 233, 0.15) 0%, rgba(134, 170, 236, 0.05) 75%, transparent 100%);
+}
+
 /* Legend Text Styling */
 .keycap-label {
   display: flex;
