@@ -1893,6 +1893,12 @@ function isModifier(code) {
   return ['Shift_L', 'Shift_R', 'Control_L', 'Control_R', 'Alt_L', 'Alt_R', 'Super_L', 'Fn'].includes(code);
 }
 
+function isPrintable(code, label) {
+  if (['Left', 'Right', 'Up', 'Down'].includes(code)) return false;
+  if (code === 'space') return false;
+  return label.length === 1;
+}
+
 function handleCasterPress(code, label) {
   if (!settings.keyCaster) return;
 
@@ -1974,12 +1980,10 @@ function handleCasterPress(code, label) {
       typedBuffer += ' ';
     } else if (code === 'Escape') {
       typedBuffer = '';
-    } else if (code.length === 1) {
+    } else if (isPrintable(code, label)) {
       let char = label;
-      if (capsLockActive) {
-        char = char.toUpperCase();
-      } else {
-        char = char.toLowerCase();
+      if (/[a-zA-Z]/.test(char)) {
+        char = capsLockActive ? char.toUpperCase() : char.toLowerCase();
       }
       typedBuffer += char;
     } else {
@@ -1990,9 +1994,9 @@ function handleCasterPress(code, label) {
       return;
     }
 
-    // Limit buffer to a sliding window of max 15 characters
-    if (typedBuffer.length > 15) {
-      typedBuffer = typedBuffer.slice(-15);
+    // Limit buffer to a sliding window of max 40 characters
+    if (typedBuffer.length > 40) {
+      typedBuffer = typedBuffer.slice(-40);
     }
 
     updateDisplay();
