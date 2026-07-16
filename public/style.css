@@ -1205,7 +1205,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle at center, rgba(0, 242, 254, 0.06) 0%, rgba(185, 39, 252, 0.04) 70%, transparent 100%);
+  background: var(--kb-underglow, radial-gradient(circle at center, rgba(0, 242, 254, 0.06) 0%, rgba(185, 39, 252, 0.04) 70%, transparent 100%));
   z-index: 1;
   pointer-events: none;
 }
@@ -1250,27 +1250,28 @@ body.profile-keyboard-65 .trackpad-wrapper {
 }
 
 /* Keycap Colors (Matching reference image) */
+/* Keycap Colors (Matching theme custom variables) */
 .keycap.key-white {
-  background: #ffffff;
-  color: #1a202c;
+  background: var(--key-white-bg, #ffffff);
+  color: var(--key-white-color, #1a202c);
   box-shadow: 
-    0 3px 0 #cbd5e1,
+    0 3px 0 var(--key-white-shadow, #cbd5e1),
     0 4px 6px rgba(0,0,0,0.25);
 }
 
 .keycap.key-grey {
-  background: #475569;
-  color: #f8fafc;
+  background: var(--key-grey-bg, #475569);
+  color: var(--key-grey-color, #f8fafc);
   box-shadow: 
-    0 3px 0 #1e293b,
+    0 3px 0 var(--key-grey-shadow, #1e293b),
     0 4px 6px rgba(0,0,0,0.25);
 }
 
 .keycap.key-red {
-  background: #dc2626;
-  color: #ffffff;
+  background: var(--key-red-bg, #dc2626);
+  color: var(--key-red-color, #ffffff);
   box-shadow: 
-    0 3px 0 #991b1b,
+    0 3px 0 var(--key-red-shadow, #991b1b),
     0 4px 6px rgba(0,0,0,0.25);
 }
 
@@ -1282,15 +1283,195 @@ body.profile-keyboard-65 .trackpad-wrapper {
     0 1px 2px rgba(0,0,0,0.15) !important;
 }
 
-/* Specific RGB glow on active keycaps */
+/* Specific background updates on active keycaps */
 .keycap.key-white.active {
-  background: #f1f5f9;
+  background: var(--key-white-active-bg, #f1f5f9);
 }
 .keycap.key-grey.active {
-  background: #334155;
+  background: var(--key-grey-active-bg, #334155);
 }
 .keycap.key-red.active {
-  background: #b91c1c;
+  background: var(--key-red-active-bg, #b91c1c);
+}
+
+/* ======================================================== */
+/*            KEYBOARD COLOR THEME VARIABLE MAPS            */
+/* ======================================================== */
+
+/* 1. Carbon (Default Industrial) */
+.keyboard-surface.theme-carbon {
+  --key-white-bg: #ffffff;
+  --key-white-color: #1a202c;
+  --key-white-shadow: #cbd5e1;
+  --key-white-active-bg: #f1f5f9;
+
+  --key-grey-bg: #475569;
+  --key-grey-color: #f8fafc;
+  --key-grey-shadow: #1e293b;
+  --key-grey-active-bg: #334155;
+
+  --key-red-bg: #dc2626;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #991b1b;
+  --key-red-active-bg: #b91c1c;
+
+  background: #181d26;
+  border-color: #e2e8f0;
+  --kb-underglow: radial-gradient(circle at center, rgba(0, 242, 254, 0.06) 0%, rgba(185, 39, 252, 0.04) 70%, transparent 100%);
+}
+
+/* 2. Laser (Vaporwave Cyberpunk) */
+.keyboard-surface.theme-laser {
+  --key-white-bg: #1e1b4b;
+  --key-white-color: #ec4899;
+  --key-white-shadow: #0c0a2e;
+  --key-white-active-bg: #2e2a75;
+
+  --key-grey-bg: #4c1d95;
+  --key-grey-color: #06b6d4;
+  --key-grey-shadow: #2d105e;
+  --key-grey-active-bg: #5c24b5;
+
+  --key-red-bg: #db2777;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #9f1239;
+  --key-red-active-bg: #be185d;
+
+  background: #0d0b1a;
+  border-color: #db2777;
+  --kb-underglow: radial-gradient(circle at center, rgba(6, 182, 212, 0.15) 0%, rgba(219, 39, 119, 0.08) 75%, transparent 100%);
+}
+
+/* 3. Olivia (Elegant Rose Gold & Dark) */
+.keyboard-surface.theme-olivia {
+  --key-white-bg: #fdfbf7;
+  --key-white-color: #1c1917;
+  --key-white-shadow: #cbd5e1;
+  --key-white-active-bg: #f1f5f9;
+
+  --key-grey-bg: #27272a;
+  --key-grey-color: #fdfbf7;
+  --key-grey-shadow: #09090b;
+  --key-grey-active-bg: #3f3f46;
+
+  --key-red-bg: #e99f91;
+  --key-red-color: #1c1917;
+  --key-red-shadow: #b26558;
+  --key-red-active-bg: #d18a7d;
+
+  background: #1c1917;
+  border-color: #e99f91;
+  --kb-underglow: radial-gradient(circle at center, rgba(233, 159, 145, 0.12) 0%, rgba(253, 251, 247, 0.03) 70%, transparent 100%);
+}
+
+/* 4. Botanical (Organic Sage Green) */
+.keyboard-surface.theme-botanical {
+  --key-white-bg: #f8fafc;
+  --key-white-color: #1e2d24;
+  --key-white-shadow: #cbd5e1;
+  --key-white-active-bg: #f1f5f9;
+
+  --key-grey-bg: #2f3e35;
+  --key-grey-color: #f8fafc;
+  --key-grey-shadow: #1a2620;
+  --key-grey-active-bg: #3b4d42;
+
+  --key-red-bg: #a3b899;
+  --key-red-color: #1e2d24;
+  --key-red-shadow: #7c9073;
+  --key-red-active-bg: #8eab82;
+
+  background: #1e2d24;
+  border-color: #a3b899;
+  --kb-underglow: radial-gradient(circle at center, rgba(163, 184, 153, 0.15) 0%, rgba(30, 45, 36, 0.05) 75%, transparent 100%);
+}
+
+/* 5. Retro Classic (IBM 1984 Beige) */
+.keyboard-surface.theme-retro-classic {
+  --key-white-bg: #e5e7eb;
+  --key-white-color: #111827;
+  --key-white-shadow: #babcbe;
+  --key-white-active-bg: #d1d5db;
+
+  --key-grey-bg: #9ca3af;
+  --key-grey-color: #111827;
+  --key-grey-shadow: #717478;
+  --key-grey-active-bg: #878f99;
+
+  --key-red-bg: #b91c1c;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #7c1212;
+  --key-red-active-bg: #991b1b;
+
+  background: #d1d5db;
+  border-color: #4b5563;
+  --kb-underglow: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(156, 163, 175, 0.04) 70%, transparent 100%);
+}
+
+/* 6. Dolch (Slate Gray & Cyan) */
+.keyboard-surface.theme-dolch {
+  --key-white-bg: #4b5563;
+  --key-white-color: #f3f4f6;
+  --key-white-shadow: #374151;
+  --key-white-active-bg: #5d6b7b;
+
+  --key-grey-bg: #1f2937;
+  --key-grey-color: #06b6d4;
+  --key-grey-shadow: #111827;
+  --key-grey-active-bg: #2c3a4e;
+
+  --key-red-bg: #06b6d4;
+  --key-red-color: #111827;
+  --key-red-shadow: #087f94;
+  --key-red-active-bg: #0891b2;
+
+  background: #111827;
+  border-color: #4b5563;
+  --kb-underglow: radial-gradient(circle at center, rgba(6, 182, 212, 0.15) 0%, rgba(16, 185, 129, 0.04) 75%, transparent 100%);
+}
+
+/* 7. Isabel (gh0stzk Rice) */
+.keyboard-surface.theme-isabel {
+  --key-white-bg: #1d212a;
+  --key-white-color: #abb2bf;
+  --key-white-shadow: #0c0e11;
+  --key-white-active-bg: #2a303d;
+
+  --key-grey-bg: #708491;
+  --key-grey-color: #14171c;
+  --key-grey-shadow: #495760;
+  --key-grey-active-bg: #5e707c;
+
+  --key-red-bg: #7560d3;
+  --key-red-color: #ffffff;
+  --key-red-shadow: #513fa3;
+  --key-red-active-bg: #614cb8;
+
+  background: #14171c;
+  border-color: #4889be;
+  --kb-underglow: radial-gradient(circle at center, rgba(117, 96, 211, 0.15) 0%, rgba(72, 137, 190, 0.08) 75%, transparent 100%);
+}
+
+/* 8. Andrea (gh0stzk Rice Claro) */
+.keyboard-surface.theme-andrea {
+  --key-white-bg: #ffffff;
+  --key-white-color: #151515;
+  --key-white-shadow: #f5eee6;
+  --key-white-active-bg: #f5eee6;
+
+  --key-grey-bg: #f5eee6;
+  --key-grey-color: #151515;
+  --key-grey-shadow: #cbd2c9;
+  --key-grey-active-bg: #e6dfd7;
+
+  --key-red-bg: #c5abff;
+  --key-red-color: #151515;
+  --key-red-shadow: #9c84e2;
+  --key-red-active-bg: #b394f7;
+
+  background: #e6dfd7;
+  border-color: #161616;
+  --kb-underglow: radial-gradient(circle at center, rgba(197, 171, 255, 0.2) 0%, rgba(245, 238, 230, 0.05) 75%, transparent 100%);
 }
 
 /* Legend Text Styling */

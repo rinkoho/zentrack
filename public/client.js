@@ -13,7 +13,8 @@ const settings = {
   profile: 'control-total', // 'control-total' | 'trackpad-only' | 'keyboard-65'
   keySound: true,
   soundProfile: 'cherry-blue',
-  soundVolume: 0.8
+  soundVolume: 0.8,
+  keyboardTheme: 'carbon'
 };
 
 // Apply layout modifiers to body based on settings
@@ -68,6 +69,14 @@ function applyLayoutSettings() {
     }
   });
 
+  // Apply keyboard theme class
+  const kbSurface = document.getElementById('keyboard-surface');
+  if (kbSurface) {
+    kbSurface.className = 'keyboard-surface';
+    const theme = settings.keyboardTheme || 'carbon';
+    kbSurface.classList.add(`theme-${theme}`);
+  }
+
   // Force trigger browser layout calculations (essential for landscape swaps)
   window.dispatchEvent(new Event('resize'));
 }
@@ -119,6 +128,11 @@ function loadSettings() {
       const valSoundVolume = document.getElementById('val-sound-volume');
       if (valSoundVolume) {
         valSoundVolume.innerText = (settings.soundVolume * 100).toFixed(0) + '%';
+      }
+
+      const selectKeyboardTheme = document.getElementById('select-keyboard-theme');
+      if (selectKeyboardTheme) {
+        selectKeyboardTheme.value = settings.keyboardTheme || 'carbon';
       }
     } catch (e) {
       console.error('Error loading settings:', e);
@@ -1597,6 +1611,16 @@ if (selectSoundProfileElement) {
     triggerHaptic('click');
     // Play a preview click of the new switch sound profile
     setTimeout(() => playSwitchSound(true), 50);
+  });
+}
+
+const selectKeyboardThemeElement = document.getElementById('select-keyboard-theme');
+if (selectKeyboardThemeElement) {
+  selectKeyboardThemeElement.addEventListener('change', (e) => {
+    settings.keyboardTheme = e.target.value;
+    saveSettings();
+    applyLayoutSettings();
+    triggerHaptic('click');
   });
 }
 
