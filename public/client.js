@@ -2423,6 +2423,8 @@ function updatePresetBanner() {
 }
 
 let gamepadInitialized = false;
+let joystickTouchId = null;
+let trackpadTouchId = null;
 
 function initGamepadControls() {
   if (gamepadInitialized) return;
@@ -2430,22 +2432,14 @@ function initGamepadControls() {
 
   console.log('[Gamepad] Initializing Touch Controller Listeners...');
 
-  // 1. Left Joystick Control
+  // 1. Left Joystick Control (Dynamic Position & Multitouch isolated)
+  const gpLeft = document.querySelector('.gp-left');
   const boundary = document.getElementById('joystick-boundary');
   const knob = document.getElementById('joystick-knob');
   
-  if (boundary && knob) {
-    let joystickActive = false;
+  if (gpLeft && boundary && knob) {
     let center = { x: 0, y: 0 };
     const joyKeysState = { up: false, down: false, left: false, right: false };
-
-    const getCenter = () => {
-      const rect = boundary.getBoundingClientRect();
-      return {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-      };
-    };
 
     const updateJoystickState = (deltaX, deltaY) => {
       const maxD = 35; // Clamped maximum knob travel
@@ -2497,6 +2491,11 @@ function initGamepadControls() {
     const resetJoystick = () => {
       knob.style.transform = 'translate(0, 0)';
       
+      // Reset boundary position back to CSS default layouts
+      boundary.style.position = '';
+      boundary.style.left = '';
+      boundary.style.top = '';
+      
       const mapKeys = {
         up: settings.gamepadMapping.joyUp,
         down: settings.gamepadMapping.joyDown,
@@ -2515,55 +2514,94 @@ function initGamepadControls() {
       });
     };
 
-    const handlePointerDown = (e) => {
+    // Touch handle with multi-touch isolation
+    gpLeft.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      joystickActive = true;
-      center = getCenter();
+      if (joystickTouchId !== null) return;
       
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const touch = e.changedTouches[0];
+      joystickTouchId = touch.identifier;
       
-      const dx = clientX - center.x;
-      const dy = clientY - center.y;
+      // Dynamic positioning: center joystick boundary at finger client location
+      const wrapperRect = document.getElementById('gamepad-surface').getBoundingClientRect();
+      const posX = touch.clientX - wrapperRect.left;
+      const posY = touch.clientY - wrapperRect.top;
       
-      updateJoystickState(dx, dy);
+      boundary.style.position = 'absolute';
+      boundary.style.left = `${posX - 65}px`; // center (130px / 2)
+      boundary.style.top = `${posY - 65}px`;  // center
+      
+      center = { x: touch.clientX, y: touch.clientY };
+      updateJoystickState(0, 0);
       triggerHaptic('light');
-    };
+    }, { passive: false });
 
-    const handlePointerMove = (e) => {
-      if (!joystickActive) return;
+    window.addEventListener('touchmove', (e) => {
+      if (joystickTouchId === null) return;
       
-      let clientX, clientY;
-      if (e.touches) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
+      let activeTouch = null;
+      for (let i = 0; i < e.touches.length; i++) {
+        if (e.touches[i].identifier === joystickTouchId) {
+          activeTouch = e.touches[i];
+          break;
+        }
       }
       
-      const dx = clientX - center.x;
-      const dy = clientY - center.y;
+      if (!activeTouch) return;
       
+      const dx = activeTouch.clientX - center.x;
+      const dy = activeTouch.clientY - center.y;
       updateJoystickState(dx, dy);
+    }, { passive: false });
+
+    const handleJoystickTouchEnd = (e) => {
+      if (joystickTouchId === null) return;
+      
+      let matched = false;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joystickTouchId) {
+          matched = true;
+          break;
+        }
+      }
+      
+      if (matched) {
+        joystickTouchId = null;
+        resetJoystick();
+      }
     };
 
-    const handlePointerUp = () => {
-      if (!joystickActive) return;
-      joystickActive = false;
+    window.addEventListener('touchend', handleJoystickTouchEnd, { passive: false });
+    window.addEventListener('touchcancel', handleJoystickTouchEnd, { passive: false });
+
+    // Fallback Mouse actions for desktop
+    let mouseActive = false;
+    gpLeft.addEventListener('mousedown', (e) => {
+      if (e.pointerType === 'touch') return;
+      mouseActive = true;
+      const rect = boundary.getBoundingClientRect();
+      center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      
+      const dx = e.clientX - center.x;
+      const dy = e.clientY - center.y;
+      updateJoystickState(dx, dy);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!mouseActive) return;
+      const dx = e.clientX - center.x;
+      const dy = e.clientY - center.y;
+      updateJoystickState(dx, dy);
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!mouseActive) return;
+      mouseActive = false;
       resetJoystick();
-    };
-
-    boundary.addEventListener('touchstart', handlePointerDown, { passive: false });
-    window.addEventListener('touchmove', handlePointerMove, { passive: false });
-    window.addEventListener('touchend', handlePointerUp, { passive: false });
-    
-    boundary.addEventListener('mousedown', handlePointerDown);
-    window.addEventListener('mousemove', handlePointerMove);
-    window.addEventListener('mouseup', handlePointerUp);
+    });
   }
 
-  // 2. Right Aim Trackpad Control (Steam style trackpad)
+  // 2. Right Aim Trackpad Control (Steam Controller style trackpad with multitouch isolation)
   const trackpad = document.getElementById('gp-aim-trackpad');
   if (trackpad) {
     let lastTouchX = null;
@@ -2571,30 +2609,57 @@ function initGamepadControls() {
     
     trackpad.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      const touch = e.touches[0];
+      if (trackpadTouchId !== null) return;
+      
+      const touch = e.changedTouches[0];
+      trackpadTouchId = touch.identifier;
       lastTouchX = touch.clientX;
       lastTouchY = touch.clientY;
     }, { passive: false });
     
-    trackpad.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (lastTouchX === null || lastTouchY === null) return;
-      const touch = e.touches[0];
-      const dx = touch.clientX - lastTouchX;
-      const dy = touch.clientY - lastTouchY;
+    window.addEventListener('touchmove', (e) => {
+      if (trackpadTouchId === null) return;
       
-      lastTouchX = touch.clientX;
-      lastTouchY = touch.clientY;
+      let activeTouch = null;
+      for (let i = 0; i < e.touches.length; i++) {
+        if (e.touches[i].identifier === trackpadTouchId) {
+          activeTouch = e.touches[i];
+          break;
+        }
+      }
+      
+      if (!activeTouch) return;
+      
+      const dx = activeTouch.clientX - lastTouchX;
+      const dy = activeTouch.clientY - lastTouchY;
+      
+      lastTouchX = activeTouch.clientX;
+      lastTouchY = activeTouch.clientY;
       
       const sens = settings.sensitivity || 1.2;
       sendSocket({ type: 'move', dx: Math.round(dx * sens), dy: Math.round(dy * sens) });
     }, { passive: false });
     
-    trackpad.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      lastTouchX = null;
-      lastTouchY = null;
-    }, { passive: false });
+    const handleTrackpadTouchEnd = (e) => {
+      if (trackpadTouchId === null) return;
+      
+      let matched = false;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === trackpadTouchId) {
+          matched = true;
+          break;
+        }
+      }
+      
+      if (matched) {
+        trackpadTouchId = null;
+        lastTouchX = null;
+        lastTouchY = null;
+      }
+    };
+    
+    window.addEventListener('touchend', handleTrackpadTouchEnd, { passive: false });
+    window.addEventListener('touchcancel', handleTrackpadTouchEnd, { passive: false });
   }
 
   // 3. Action Buttons & Bumpers Control (A/B/X/Y, Start, Select, L, R)
