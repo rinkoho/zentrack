@@ -2703,12 +2703,15 @@ function initGamepadControls() {
     
     // Gesture parameters
     let lastTouchEndT = 0;
+    let lastReleaseX = null;
+    let lastReleaseY = null;
     let longPressTimeout = null;
     let isLongPressActive = false;
     let isDoubleTapHold = false;
     let trackpadStartX = 0;
     let trackpadStartY = 0;
     let trackpadHasMoved = false;
+    let tapClicksDisabled = false;
 
     trackpad.addEventListener('touchstart', (e) => {
       e.preventDefault();
@@ -2725,10 +2728,33 @@ function initGamepadControls() {
       
       isLongPressActive = false;
       isDoubleTapHold = false;
+
+      // Check if any face buttons or triggers are currently being held down
+      const buttonsActive = document.querySelectorAll('.gp-btn.active, .gp-shoulder.active').length > 0;
+      tapClicksDisabled = buttonsActive;
+
+      if (tapClicksDisabled) {
+        // If buttons are active, force trackpadHasMoved = true to bypass any release clicks
+        trackpadHasMoved = true;
+        return;
+      }
       
       // Double tap hold -> triggers Left Click drag (holds down button 1)
       const now = Date.now();
-      if (now - lastTouchEndT < 250) {
+      const timeDelta = now - lastTouchEndT;
+      let isDoubleTap = false;
+
+      if (timeDelta < 250 && lastReleaseX !== null && lastReleaseY !== null) {
+        const tapDist = Math.sqrt(
+          Math.pow(touch.clientX - lastReleaseX, 2) + 
+          Math.pow(touch.clientY - lastReleaseY, 2)
+        );
+        if (tapDist < 40) { // Only count as double tap if within 40px radius!
+          isDoubleTap = true;
+        }
+      }
+
+      if (isDoubleTap) {
         isDoubleTapHold = true;
         sendSocket({ type: 'mousedown', button: 1 });
         playSwitchSound(true, 'space');
@@ -2800,9 +2826,11 @@ function initGamepadControls() {
       if (trackpadTouchId === null) return;
       
       let matched = false;
+      let releasedTouch = null;
       for (let i = 0; i < e.changedTouches.length; i++) {
         if (e.changedTouches[i].identifier === trackpadTouchId) {
           matched = true;
+          releasedTouch = e.changedTouches[i];
           break;
         }
       }
@@ -2816,26 +2844,32 @@ function initGamepadControls() {
           sendSocket({ type: 'gp_axis', name: 'RY', value: 128 });
         }
         
-        if (isDoubleTapHold) {
-          sendSocket({ type: 'mouseup', button: 1 });
-          playSwitchSound(false, 'space');
-          isDoubleTapHold = false;
-        } else if (isLongPressActive) {
-          sendSocket({ type: 'mouseup', button: 3 });
-          playSwitchSound(false, 'space');
-          isLongPressActive = false;
-        } else if (!trackpadHasMoved) {
-          // Quick Tap -> Emulates Left click click
-          sendSocket({ type: 'mousedown', button: 1 });
-          playSwitchSound(true, 'space');
-          triggerHaptic('light');
-          setTimeout(() => {
+        if (!tapClicksDisabled) {
+          if (isDoubleTapHold) {
             sendSocket({ type: 'mouseup', button: 1 });
             playSwitchSound(false, 'space');
-          }, 45);
+            isDoubleTapHold = false;
+          } else if (isLongPressActive) {
+            sendSocket({ type: 'mouseup', button: 3 });
+            playSwitchSound(false, 'space');
+            isLongPressActive = false;
+          } else if (!trackpadHasMoved) {
+            // Quick Tap -> Emulates Left click click
+            sendSocket({ type: 'mousedown', button: 1 });
+            playSwitchSound(true, 'space');
+            triggerHaptic('light');
+            setTimeout(() => {
+              sendSocket({ type: 'mouseup', button: 1 });
+              playSwitchSound(false, 'space');
+            }, 45);
+          }
         }
         
         lastTouchEndT = Date.now();
+        if (releasedTouch) {
+          lastReleaseX = releasedTouch.clientX;
+          lastReleaseY = releasedTouch.clientY;
+        }
         lastTouchX = null;
         lastTouchY = null;
       }
