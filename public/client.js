@@ -2734,41 +2734,40 @@ function initGamepadControls() {
       tapClicksDisabled = buttonsActive;
 
       if (tapClicksDisabled) {
-        // If buttons are active, force trackpadHasMoved = true to bypass any release clicks
+        // If buttons are active, force trackpadHasMoved = true to bypass any release clicks, but DO NOT return!
         trackpadHasMoved = true;
-        return;
-      }
-      
-      // Double tap hold -> triggers Left Click drag (holds down button 1)
-      const now = Date.now();
-      const timeDelta = now - lastTouchEndT;
-      let isDoubleTap = false;
-
-      if (timeDelta < 250 && lastReleaseX !== null && lastReleaseY !== null) {
-        const tapDist = Math.sqrt(
-          Math.pow(touch.clientX - lastReleaseX, 2) + 
-          Math.pow(touch.clientY - lastReleaseY, 2)
-        );
-        if (tapDist < 40) { // Only count as double tap if within 40px radius!
-          isDoubleTap = true;
-        }
-      }
-
-      if (isDoubleTap) {
-        isDoubleTapHold = true;
-        sendSocket({ type: 'mousedown', button: 1 });
-        playSwitchSound(true, 'space');
-        triggerHaptic('light');
       } else {
-        // Long Press -> triggers Right Click (holds down button 3) after 400ms
-        longPressTimeout = setTimeout(() => {
-          if (!trackpadHasMoved && trackpadTouchId !== null) {
-            isLongPressActive = true;
-            sendSocket({ type: 'mousedown', button: 3 });
-            playSwitchSound(true, 'space');
-            triggerHaptic('medium');
+        // Double tap hold -> triggers Left Click drag (holds down button 1)
+        const now = Date.now();
+        const timeDelta = now - lastTouchEndT;
+        let isDoubleTap = false;
+
+        if (timeDelta < 250 && lastReleaseX !== null && lastReleaseY !== null) {
+          const tapDist = Math.sqrt(
+            Math.pow(touch.clientX - lastReleaseX, 2) + 
+            Math.pow(touch.clientY - lastReleaseY, 2)
+          );
+          if (tapDist < 40) { // Only count as double tap if within 40px radius!
+            isDoubleTap = true;
           }
-        }, 400);
+        }
+
+        if (isDoubleTap) {
+          isDoubleTapHold = true;
+          sendSocket({ type: 'mousedown', button: 1 });
+          playSwitchSound(true, 'space');
+          triggerHaptic('light');
+        } else {
+          // Long Press -> triggers Right Click (holds down button 3) after 400ms
+          longPressTimeout = setTimeout(() => {
+            if (!trackpadHasMoved && trackpadTouchId !== null) {
+              isLongPressActive = true;
+              sendSocket({ type: 'mousedown', button: 3 });
+              playSwitchSound(true, 'space');
+              triggerHaptic('medium');
+            }
+          }, 400);
+        }
       }
     }, { passive: false });
     
@@ -2865,10 +2864,16 @@ function initGamepadControls() {
           }
         }
         
-        lastTouchEndT = Date.now();
-        if (releasedTouch) {
-          lastReleaseX = releasedTouch.clientX;
-          lastReleaseY = releasedTouch.clientY;
+        if (!trackpadHasMoved && !tapClicksDisabled) {
+          lastTouchEndT = Date.now();
+          if (releasedTouch) {
+            lastReleaseX = releasedTouch.clientX;
+            lastReleaseY = releasedTouch.clientY;
+          }
+        } else {
+          lastTouchEndT = 0;
+          lastReleaseX = null;
+          lastReleaseY = null;
         }
         lastTouchX = null;
         lastTouchY = null;
