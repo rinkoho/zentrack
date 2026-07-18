@@ -2742,7 +2742,7 @@ function initGamepadControls() {
         const timeDelta = now - lastTouchEndT;
         let isDoubleTap = false;
 
-        if (timeDelta < 250 && lastReleaseX !== null && lastReleaseY !== null) {
+        if (timeDelta < 160 && lastReleaseX !== null && lastReleaseY !== null) {
           const tapDist = Math.sqrt(
             Math.pow(touch.clientX - lastReleaseX, 2) + 
             Math.pow(touch.clientY - lastReleaseY, 2)
@@ -2758,7 +2758,7 @@ function initGamepadControls() {
           playSwitchSound(true, 'space');
           triggerHaptic('light');
         } else {
-          // Long Press -> triggers Right Click (holds down button 3) after 400ms
+          // Long Press -> triggers Right Click (holds down button 3) after 500ms
           longPressTimeout = setTimeout(() => {
             if (!trackpadHasMoved && trackpadTouchId !== null) {
               isLongPressActive = true;
@@ -2766,7 +2766,7 @@ function initGamepadControls() {
               playSwitchSound(true, 'space');
               triggerHaptic('medium');
             }
-          }, 400);
+          }, 500);
         }
       }
     }, { passive: false });
@@ -2784,6 +2784,9 @@ function initGamepadControls() {
       
       if (!activeTouch) return;
       
+      // Cancel long press immediately on any touch move event
+      clearTimeout(longPressTimeout);
+
       const dx = activeTouch.clientX - lastTouchX;
       const dy = activeTouch.clientY - lastTouchY;
       
@@ -2797,7 +2800,6 @@ function initGamepadControls() {
       
       if (totalDist > 6) {
         trackpadHasMoved = true;
-        clearTimeout(longPressTimeout); // Drag cancels long press!
       }
       
       if (settings.gamepadPhysical) {
@@ -2896,6 +2898,11 @@ function initGamepadControls() {
     const btnKey = btn.getAttribute('data-btn');
     if (!btnKey) return;
     
+    let btnTouchId = null;
+    let lastBtnTouchX = null;
+    let lastBtnTouchY = null;
+    let btnHasDragged = false;
+
     const handlePress = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -2905,6 +2912,14 @@ function initGamepadControls() {
       triggerHaptic('light');
       playSwitchSound(true, 'space');
       
+      const touch = e.touches ? e.changedTouches[0] : null;
+      if (touch) {
+        btnTouchId = touch.identifier;
+        lastBtnTouchX = touch.clientX;
+        lastBtnTouchY = touch.clientY;
+        btnHasDragged = false;
+      }
+
       if (settings.gamepadPhysical) {
         const btnName = gpBtnNamesMap[btnKey];
         if (btnName) {
@@ -2928,30 +2943,90 @@ function initGamepadControls() {
       e.stopPropagation();
       if (isEditingGamepadLayout) return;
       
-      btn.classList.remove('active');
-      playSwitchSound(false, 'space');
-      
-      if (settings.gamepadPhysical) {
-        const btnName = gpBtnNamesMap[btnKey];
-        if (btnName) {
-          sendSocket({ type: 'gp_btn', name: btnName, value: 0 });
+      let matched = false;
+      if (e.changedTouches) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === btnTouchId) {
+            matched = true;
+            break;
+          }
         }
       } else {
-        const action = settings.gamepadMapping[btnKey];
-        if (action) {
-          if (action.startsWith('click_')) {
-            const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
-            sendSocket({ type: 'mouseup', button: btnNum });
-          } else {
-            sendSocket({ type: 'keyup', key: action });
+        matched = true;
+      }
+
+      if (matched) {
+        btnTouchId = null;
+        lastBtnTouchX = null;
+        lastBtnTouchY = null;
+        btnHasDragged = false;
+
+        btn.classList.remove('active');
+        playSwitchSound(false, 'space');
+        
+        if (settings.gamepadPhysical) {
+          const btnName = gpBtnNamesMap[btnKey];
+          if (btnName) {
+            sendSocket({ type: 'gp_btn', name: btnName, value: 0 });
+          }
+        } else {
+          const action = settings.gamepadMapping[btnKey];
+          if (action) {
+            if (action.startsWith('click_')) {
+              const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
+              sendSocket({ type: 'mouseup', button: btnNum });
+            } else {
+              sendSocket({ type: 'keyup', key: action });
+            }
           }
         }
       }
     };
-    
+
+    const handleButtonTouchMove = (e) => {
+      if (btnTouchId === null) return;
+      
+      let activeTouch = null;
+      for (let i = 0; i < e.touches.length; i++) {
+        if (e.touches[i].identifier === btnTouchId) {
+          activeTouch = e.touches[i];
+          break;
+        }
+      }
+      if (!activeTouch) return;
+      
+      const dx = activeTouch.clientX - lastBtnTouchX;
+      const dy = activeTouch.clientY - lastBtnTouchY;
+      
+      lastBtnTouchX = activeTouch.clientX;
+      lastBtnTouchY = activeTouch.clientY;
+      
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > 1 || btnHasDragged) {
+        btnHasDragged = true;
+        
+        if (settings.gamepadPhysical) {
+          const rxVal = Math.max(0, Math.min(255, Math.round(128 + dx * 9)));
+          const ryVal = Math.max(0, Math.min(255, Math.round(128 + dy * 9)));
+          sendSocket({ type: 'gp_axis', name: 'RX', value: rxVal });
+          sendSocket({ type: 'gp_axis', name: 'RY', value: ryVal });
+          
+          clearTimeout(trackpadDecayTimeout);
+          trackpadDecayTimeout = setTimeout(() => {
+            sendSocket({ type: 'gp_axis', name: 'RX', value: 128 });
+            sendSocket({ type: 'gp_axis', name: 'RY', value: 128 });
+          }, 50);
+        } else {
+          const sens = settings.sensitivity || 1.2;
+          sendSocket({ type: 'move', dx: Math.round(dx * sens), dy: Math.round(dy * sens) });
+        }
+      }
+    };
+
     btn.addEventListener('touchstart', handlePress, { passive: false });
     btn.addEventListener('touchend', handleRelease, { passive: false });
     btn.addEventListener('touchcancel', handleRelease, { passive: false });
+    window.addEventListener('touchmove', handleButtonTouchMove, { passive: false });
     
     btn.addEventListener('mousedown', handlePress);
     btn.addEventListener('mouseup', handleRelease);
