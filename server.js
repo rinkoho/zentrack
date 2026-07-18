@@ -25,6 +25,44 @@ if (!config.token) {
 
 const PORT = process.env.PORT || 3000;
 let xdotool = null;
+let gamepadProcess = null;
+let gamepadEnabled = false;
+
+// Function to start the persistent Python virtual gamepad process
+function startGamepadProcess() {
+  if (gamepadProcess) return;
+  console.log('[Gamepad] Spawning Python virtual gamepad uinput script...');
+  gamepadProcess = spawn('python', [path.join(__dirname, 'virtual_gamepad.py')]);
+
+  gamepadProcess.stdout.on('data', (data) => {
+    console.log(`[VirtualGamepad stdout]: ${data.toString().trim()}`);
+  });
+
+  gamepadProcess.stderr.on('data', (data) => {
+    console.error(`[VirtualGamepad stderr]: ${data.toString().trim()}`);
+  });
+
+  gamepadProcess.on('close', (code) => {
+    console.log(`[VirtualGamepad] Process exited with code ${code}`);
+    gamepadProcess = null;
+  });
+}
+
+function stopGamepadProcess() {
+  if (gamepadProcess) {
+    console.log('[Gamepad] Terminating virtual gamepad process...');
+    try {
+      gamepadProcess.kill();
+    } catch (e) {}
+    gamepadProcess = null;
+  }
+}
+
+function sendGamepadCommand(cmd) {
+  if (gamepadProcess && gamepadProcess.stdin.writable) {
+    gamepadProcess.stdin.write(cmd + '\n');
+  }
+}
 
 // High-polling & Interpolation State
 let highPolling = true;
@@ -368,6 +406,23 @@ wss.on('connection', (ws, req) => {
           }
           break;
 
+        case 'gamepad_mode':
+          gamepadEnabled = !!payload.enabled;
+          if (gamepadEnabled) {
+            startGamepadProcess();
+          } else {
+            stopGamepadProcess();
+          }
+          break;
+
+        case 'gp_btn':
+          sendGamepadCommand(`btn ${payload.name} ${payload.value}`);
+          break;
+
+        case 'gp_axis':
+          sendGamepadCommand(`axis ${payload.name} ${payload.value}`);
+          break;
+
         default:
           console.warn('[WebSocket] Unknown payload type:', payload.type);
       }
@@ -379,6 +434,7 @@ wss.on('connection', (ws, req) => {
   ws.on('close', () => {
     console.log('[WebSocket] Mobile client disconnected. Releasing modifier keys for safety...');
     sendXdotoolCommand('keyup Super_L keyup Super_R keyup Control_L keyup Control_R keyup Alt_L keyup Alt_R keyup Shift_L keyup Shift_R');
+    stopGamepadProcess();
   });
 });
 

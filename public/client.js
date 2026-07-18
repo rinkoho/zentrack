@@ -18,6 +18,8 @@ const settings = {
   syncTheme: false,
   keyCaster: true,
   gamepadPreset: 'fps',
+  gamepadPhysical: false,
+  gamepadFullscreenTrackpad: true,
   gamepadMapping: {
     joyUp: 'w', joyDown: 's', joyLeft: 'a', joyRight: 'd',
     btnA: 'space', btnB: 'e', btnX: 'r', btnY: 'q',
@@ -232,6 +234,18 @@ function loadSettings() {
       // Synchronize mappings and slider sizes to keymap UI selects
       syncGamepadMappingUI();
       syncGamepadSizesUI();
+
+      if (settings.gamepadPhysical === undefined) settings.gamepadPhysical = false;
+      const toggleGpPhysical = document.getElementById('toggle-gamepad-physical');
+      if (toggleGpPhysical) {
+        toggleGpPhysical.checked = !!settings.gamepadPhysical;
+      }
+
+      if (settings.gamepadFullscreenTrackpad === undefined) settings.gamepadFullscreenTrackpad = true;
+      const toggleGpFullscreen = document.getElementById('toggle-gamepad-fullscreen-trackpad');
+      if (toggleGpFullscreen) {
+        toggleGpFullscreen.checked = !!settings.gamepadFullscreenTrackpad;
+      }
     } catch (e) {
       console.error('Error loading settings:', e);
     }
@@ -868,6 +882,11 @@ function connectWebSocket() {
     
     // Sync current settings to the server
     syncSettingsToServer();
+    
+    // Notify server of physical gamepad mode if enabled
+    if (settings.profile === 'gamepad-steam' && settings.gamepadPhysical) {
+      sendSocket({ type: 'gamepad_mode', enabled: true });
+    }
     
     // Start Ping/Pong mechanism to measure latency
     startPingTimer();
@@ -2421,7 +2440,39 @@ function initGamepadMappingUI() {
     });
   }
 
+  const toggleGpPhysical = document.getElementById('toggle-gamepad-physical');
+  if (toggleGpPhysical) {
+    toggleGpPhysical.addEventListener('change', (e) => {
+      settings.gamepadPhysical = !!e.target.checked;
+      saveSettings();
+      triggerHaptic('click');
+      sendSocket({ type: 'gamepad_mode', enabled: settings.gamepadPhysical });
+    });
+  }
+
+  const toggleGpFullscreen = document.getElementById('toggle-gamepad-fullscreen-trackpad');
+  if (toggleGpFullscreen) {
+    toggleGpFullscreen.addEventListener('change', (e) => {
+      settings.gamepadFullscreenTrackpad = !!e.target.checked;
+      saveSettings();
+      triggerHaptic('click');
+      updateGamepadTrackpadVisualMode();
+      syncGamepadSizesUI();
+    });
+  }
+
   updatePresetBanner();
+}
+
+function updateGamepadTrackpadVisualMode() {
+  const gpSurface = document.getElementById('gamepad-surface');
+  if (!gpSurface) return;
+
+  if (settings.gamepadFullscreenTrackpad) {
+    gpSurface.classList.add('fullscreen-trackpad-mode');
+  } else {
+    gpSurface.classList.remove('fullscreen-trackpad-mode');
+  }
 }
 
 function syncGamepadMappingUI() {
@@ -2451,6 +2502,7 @@ function updatePresetBanner() {
 let gamepadInitialized = false;
 let joystickTouchId = null;
 let trackpadTouchId = null;
+let trackpadDecayTimeout = null;
 
 function initGamepadControls() {
   if (gamepadInitialized) return;
@@ -2485,33 +2537,42 @@ function initGamepadControls() {
       const ny = moveY / maxD;
       const thresh = 0.35;
       
-      const targetKeys = {
-        up: ny < -thresh,
-        down: ny > thresh,
-        left: nx < -thresh,
-        right: nx > thresh
-      };
-      
-      const mapKeys = {
-        up: settings.gamepadMapping.joyUp,
-        down: settings.gamepadMapping.joyDown,
-        left: settings.gamepadMapping.joyLeft,
-        right: settings.gamepadMapping.joyRight
-      };
-      
-      Object.keys(targetKeys).forEach(dir => {
-        if (targetKeys[dir] !== joyKeysState[dir]) {
-          joyKeysState[dir] = targetKeys[dir];
-          const keyVal = mapKeys[dir];
-          if (keyVal) {
-            if (joyKeysState[dir]) {
-              sendSocket({ type: 'keydown', key: keyVal });
-            } else {
-              sendSocket({ type: 'keyup', key: keyVal });
+      if (settings.gamepadPhysical) {
+        // Physical gamepad mode: send ABS_X, ABS_Y (Left Stick values 0..255, center 128)
+        const rxVal = Math.round(128 + nx * 127);
+        const ryVal = Math.round(128 + ny * 127);
+        sendSocket({ type: 'gp_axis', name: 'X', value: rxVal });
+        sendSocket({ type: 'gp_axis', name: 'Y', value: ryVal });
+      } else {
+        // Keyboard emulation mode: W, A, S, D
+        const targetKeys = {
+          up: ny < -thresh,
+          down: ny > thresh,
+          left: nx < -thresh,
+          right: nx > thresh
+        };
+        
+        const mapKeys = {
+          up: settings.gamepadMapping.joyUp,
+          down: settings.gamepadMapping.joyDown,
+          left: settings.gamepadMapping.joyLeft,
+          right: settings.gamepadMapping.joyRight
+        };
+        
+        Object.keys(targetKeys).forEach(dir => {
+          if (targetKeys[dir] !== joyKeysState[dir]) {
+            joyKeysState[dir] = targetKeys[dir];
+            const keyVal = mapKeys[dir];
+            if (keyVal) {
+              if (joyKeysState[dir]) {
+                sendSocket({ type: 'keydown', key: keyVal });
+              } else {
+                sendSocket({ type: 'keyup', key: keyVal });
+              }
             }
           }
-        }
-      });
+        });
+      }
     };
 
     const resetJoystick = () => {
@@ -2522,22 +2583,27 @@ function initGamepadControls() {
       boundary.style.left = '';
       boundary.style.top = '';
       
-      const mapKeys = {
-        up: settings.gamepadMapping.joyUp,
-        down: settings.gamepadMapping.joyDown,
-        left: settings.gamepadMapping.joyLeft,
-        right: settings.gamepadMapping.joyRight
-      };
-      
-      Object.keys(joyKeysState).forEach(dir => {
-        if (joyKeysState[dir]) {
-          joyKeysState[dir] = false;
-          const keyVal = mapKeys[dir];
-          if (keyVal) {
-            sendSocket({ type: 'keyup', key: keyVal });
+      if (settings.gamepadPhysical) {
+        sendSocket({ type: 'gp_axis', name: 'X', value: 128 });
+        sendSocket({ type: 'gp_axis', name: 'Y', value: 128 });
+      } else {
+        const mapKeys = {
+          up: settings.gamepadMapping.joyUp,
+          down: settings.gamepadMapping.joyDown,
+          left: settings.gamepadMapping.joyLeft,
+          right: settings.gamepadMapping.joyRight
+        };
+        
+        Object.keys(joyKeysState).forEach(dir => {
+          if (joyKeysState[dir]) {
+            joyKeysState[dir] = false;
+            const keyVal = mapKeys[dir];
+            if (keyVal) {
+              sendSocket({ type: 'keyup', key: keyVal });
+            }
           }
-        }
-      });
+        });
+      }
     };
 
     // Touch handle with multi-touch isolation
@@ -2629,12 +2695,21 @@ function initGamepadControls() {
     });
   }
 
-  // 2. Right Aim Trackpad Control (Steam Controller style trackpad with multitouch isolation)
+  // 2. Right Aim Trackpad Control (Steam Controller style trackpad with gestures and uinput support)
   const trackpad = document.getElementById('gp-aim-trackpad');
   if (trackpad) {
     let lastTouchX = null;
     let lastTouchY = null;
     
+    // Gesture parameters
+    let lastTouchEndT = 0;
+    let longPressTimeout = null;
+    let isLongPressActive = false;
+    let isDoubleTapHold = false;
+    let trackpadStartX = 0;
+    let trackpadStartY = 0;
+    let trackpadHasMoved = false;
+
     trackpad.addEventListener('touchstart', (e) => {
       e.preventDefault();
       if (isEditingGamepadLayout) return;
@@ -2644,6 +2719,31 @@ function initGamepadControls() {
       trackpadTouchId = touch.identifier;
       lastTouchX = touch.clientX;
       lastTouchY = touch.clientY;
+      trackpadStartX = touch.clientX;
+      trackpadStartY = touch.clientY;
+      trackpadHasMoved = false;
+      
+      isLongPressActive = false;
+      isDoubleTapHold = false;
+      
+      // Double tap hold -> triggers Left Click drag (holds down button 1)
+      const now = Date.now();
+      if (now - lastTouchEndT < 250) {
+        isDoubleTapHold = true;
+        sendSocket({ type: 'mousedown', button: 1 });
+        playSwitchSound(true, 'space');
+        triggerHaptic('light');
+      } else {
+        // Long Press -> triggers Right Click (holds down button 3) after 400ms
+        longPressTimeout = setTimeout(() => {
+          if (!trackpadHasMoved && trackpadTouchId !== null) {
+            isLongPressActive = true;
+            sendSocket({ type: 'mousedown', button: 3 });
+            playSwitchSound(true, 'space');
+            triggerHaptic('medium');
+          }
+        }, 400);
+      }
     }, { passive: false });
     
     window.addEventListener('touchmove', (e) => {
@@ -2665,8 +2765,35 @@ function initGamepadControls() {
       lastTouchX = activeTouch.clientX;
       lastTouchY = activeTouch.clientY;
       
-      const sens = settings.sensitivity || 1.2;
-      sendSocket({ type: 'move', dx: Math.round(dx * sens), dy: Math.round(dy * sens) });
+      const totalDist = Math.sqrt(
+        Math.pow(activeTouch.clientX - trackpadStartX, 2) + 
+        Math.pow(activeTouch.clientY - trackpadStartY, 2)
+      );
+      
+      if (totalDist > 6) {
+        trackpadHasMoved = true;
+        clearTimeout(longPressTimeout); // Drag cancels long press!
+      }
+      
+      if (settings.gamepadPhysical) {
+        // Physical Gamepad: Translate swipes to Right Stick axes (RX, RY values 0..255)
+        const rxVal = Math.max(0, Math.min(255, Math.round(128 + dx * 9)));
+        const ryVal = Math.max(0, Math.min(255, Math.round(128 + dy * 9)));
+        
+        sendSocket({ type: 'gp_axis', name: 'RX', value: rxVal });
+        sendSocket({ type: 'gp_axis', name: 'RY', value: ryVal });
+        
+        // Auto decay axis back to center (128) when swipe motion pauses
+        clearTimeout(trackpadDecayTimeout);
+        trackpadDecayTimeout = setTimeout(() => {
+          sendSocket({ type: 'gp_axis', name: 'RX', value: 128 });
+          sendSocket({ type: 'gp_axis', name: 'RY', value: 128 });
+        }, 50);
+      } else {
+        // Keyboard/Mouse Mode: Move mouse pointer
+        const sens = settings.sensitivity || 1.2;
+        sendSocket({ type: 'move', dx: Math.round(dx * sens), dy: Math.round(dy * sens) });
+      }
     }, { passive: false });
     
     const handleTrackpadTouchEnd = (e) => {
@@ -2682,6 +2809,33 @@ function initGamepadControls() {
       
       if (matched) {
         trackpadTouchId = null;
+        clearTimeout(longPressTimeout);
+        
+        if (settings.gamepadPhysical) {
+          sendSocket({ type: 'gp_axis', name: 'RX', value: 128 });
+          sendSocket({ type: 'gp_axis', name: 'RY', value: 128 });
+        }
+        
+        if (isDoubleTapHold) {
+          sendSocket({ type: 'mouseup', button: 1 });
+          playSwitchSound(false, 'space');
+          isDoubleTapHold = false;
+        } else if (isLongPressActive) {
+          sendSocket({ type: 'mouseup', button: 3 });
+          playSwitchSound(false, 'space');
+          isLongPressActive = false;
+        } else if (!trackpadHasMoved) {
+          // Quick Tap -> Emulates Left click click
+          sendSocket({ type: 'mousedown', button: 1 });
+          playSwitchSound(true, 'space');
+          triggerHaptic('light');
+          setTimeout(() => {
+            sendSocket({ type: 'mouseup', button: 1 });
+            playSwitchSound(false, 'space');
+          }, 45);
+        }
+        
+        lastTouchEndT = Date.now();
         lastTouchX = null;
         lastTouchY = null;
       }
@@ -2694,6 +2848,11 @@ function initGamepadControls() {
   // 3. Action Buttons & Bumpers Control (A/B/X/Y, Start, Select, L, R)
   const gamepadButtons = document.querySelectorAll('.gp-btn, .gp-shoulder');
   
+  const gpBtnNamesMap = {
+    btnA: 'A', btnB: 'B', btnX: 'X', btnY: 'Y',
+    btnL: 'L', btnR: 'R', btnSelect: 'select', btnStart: 'start'
+  };
+
   gamepadButtons.forEach(btn => {
     const btnKey = btn.getAttribute('data-btn');
     if (!btnKey) return;
@@ -2707,13 +2866,20 @@ function initGamepadControls() {
       triggerHaptic('light');
       playSwitchSound(true, 'space');
       
-      const action = settings.gamepadMapping[btnKey];
-      if (action) {
-        if (action.startsWith('click_')) {
-          const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
-          sendSocket({ type: 'mousedown', button: btnNum });
-        } else {
-          sendSocket({ type: 'keydown', key: action });
+      if (settings.gamepadPhysical) {
+        const btnName = gpBtnNamesMap[btnKey];
+        if (btnName) {
+          sendSocket({ type: 'gp_btn', name: btnName, value: 1 });
+        }
+      } else {
+        const action = settings.gamepadMapping[btnKey];
+        if (action) {
+          if (action.startsWith('click_')) {
+            const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
+            sendSocket({ type: 'mousedown', button: btnNum });
+          } else {
+            sendSocket({ type: 'keydown', key: action });
+          }
         }
       }
     };
@@ -2726,13 +2892,20 @@ function initGamepadControls() {
       btn.classList.remove('active');
       playSwitchSound(false, 'space');
       
-      const action = settings.gamepadMapping[btnKey];
-      if (action) {
-        if (action.startsWith('click_')) {
-          const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
-          sendSocket({ type: 'mouseup', button: btnNum });
-        } else {
-          sendSocket({ type: 'keyup', key: action });
+      if (settings.gamepadPhysical) {
+        const btnName = gpBtnNamesMap[btnKey];
+        if (btnName) {
+          sendSocket({ type: 'gp_btn', name: btnName, value: 0 });
+        }
+      } else {
+        const action = settings.gamepadMapping[btnKey];
+        if (action) {
+          if (action.startsWith('click_')) {
+            const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
+            sendSocket({ type: 'mouseup', button: btnNum });
+          } else {
+            sendSocket({ type: 'keyup', key: action });
+          }
         }
       }
     };
@@ -2788,6 +2961,7 @@ let isEditingGamepadLayout = false;
 
 // Apply scale and absolute positions from settings to DOM elements
 function applyGamepadLayout() {
+  updateGamepadTrackpadVisualMode();
   const layout = settings.gamepadLayout || {
     joystick: { x: 8, y: 40, scale: 1.0 },
     trackpad: { x: 44, y: 40, width: 170, height: 120 },
@@ -2858,16 +3032,22 @@ function syncGamepadSizesUI() {
 
   const sliderWidth = document.getElementById('slider-gp-pad-width');
   const valWidth = document.getElementById('val-gp-pad-width');
+  const rowWidth = document.getElementById('row-gp-pad-width');
   if (sliderWidth && valWidth) {
     sliderWidth.value = layout.trackpad.width;
     valWidth.innerText = layout.trackpad.width + 'px';
+    sliderWidth.disabled = !!settings.gamepadFullscreenTrackpad;
+    if (rowWidth) rowWidth.style.opacity = settings.gamepadFullscreenTrackpad ? '0.4' : '1';
   }
 
   const sliderHeight = document.getElementById('slider-gp-pad-height');
   const valHeight = document.getElementById('val-gp-pad-height');
+  const rowHeight = document.getElementById('row-gp-pad-height');
   if (sliderHeight && valHeight) {
     sliderHeight.value = layout.trackpad.height;
     valHeight.innerText = layout.trackpad.height + 'px';
+    sliderHeight.disabled = !!settings.gamepadFullscreenTrackpad;
+    if (rowHeight) rowHeight.style.opacity = settings.gamepadFullscreenTrackpad ? '0.4' : '1';
   }
 
   const sliderBump = document.getElementById('slider-gp-bump-scale');
@@ -2917,7 +3097,10 @@ function initGamepadLayoutEditor() {
       if (!el) return;
 
       let dragTouchId = null;
-      let startOffset = { x: 0, y: 0 };
+      let startX = 0;
+      let startY = 0;
+      let startLayoutX = 0;
+      let startLayoutY = 0;
 
       el.addEventListener('touchstart', (e) => {
         if (!isEditingGamepadLayout) return;
@@ -2929,11 +3112,12 @@ function initGamepadLayoutEditor() {
         const touch = e.changedTouches[0];
         dragTouchId = touch.identifier;
 
-        const rect = el.getBoundingClientRect();
-        startOffset = {
-          x: touch.clientX - rect.left,
-          y: touch.clientY - rect.top
-        };
+        startX = touch.clientX;
+        startY = touch.clientY;
+        
+        const layout = settings.gamepadLayout[item.key];
+        startLayoutX = layout ? layout.x : 0;
+        startLayoutY = layout ? layout.y : 0;
       }, { passive: false });
 
       window.addEventListener('touchmove', (e) => {
@@ -2950,13 +3134,11 @@ function initGamepadLayoutEditor() {
 
         const wrapperRect = gpSurface.getBoundingClientRect();
         
-        // Target coordinates in pixels relative to gamepadSurface wrapper
-        const targetX = activeTouch.clientX - wrapperRect.left - startOffset.x + (el.offsetWidth / 2);
-        const targetY = activeTouch.clientY - wrapperRect.top - startOffset.y + (el.offsetHeight / 2);
+        const deltaX = activeTouch.clientX - startX;
+        const deltaY = activeTouch.clientY - startY;
 
-        // Convert to percentages and clamp between 0% and 95%
-        let pctX = (targetX / wrapperRect.width) * 100 - (el.offsetWidth / wrapperRect.width * 50);
-        let pctY = (targetY / wrapperRect.height) * 100 - (el.offsetHeight / wrapperRect.height * 50);
+        let pctX = startLayoutX + (deltaX / wrapperRect.width) * 100;
+        let pctY = startLayoutY + (deltaY / wrapperRect.height) * 100;
 
         pctX = Math.max(0, Math.min(95, pctX));
         pctY = Math.max(0, Math.min(95, pctY));

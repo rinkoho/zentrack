@@ -2808,6 +2808,41 @@ body.profile-keyboard-65 #keyboard-surface {
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.4) !important;
 }
 
+/* Fullscreen Trackpad mode rules */
+.gamepad-surface.fullscreen-trackpad-mode .gp-aim-trackpad {
+  position: absolute !important;
+  right: 0 !important;
+  left: unset !important;
+  top: 38px !important;
+  width: 50% !important;
+  height: calc(100% - 38px) !important;
+  border-radius: 0 !important;
+  background-color: rgba(30, 41, 59, 0.05) !important;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.002) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(255,255,255,0.002) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+  border: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.02) !important;
+  box-shadow: none !important;
+  z-index: 1 !important;
+  transform: none !important;
+}
+
+/* Ensure buttons are above the fullscreen trackpad so touches prioritize them */
+.gamepad-surface.fullscreen-trackpad-mode .gp-face-buttons,
+.gamepad-surface.fullscreen-trackpad-mode .gp-shoulder-r {
+  z-index: 5 !important;
+}
+
+/* Keep label centered and looking cool in fullscreen trackpad mode */
+.gamepad-surface.fullscreen-trackpad-mode .gp-aim-trackpad .gp-trackpad-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.12);
+  letter-spacing: 2px;
+}
+
+
 
 
 

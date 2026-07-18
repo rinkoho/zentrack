@@ -517,6 +517,28 @@
           <h4 style="margin: 0 0 4px 0; color: #f8fafc; font-size: 14px;">Mapeo de Mando Gamer</h4>
           <p class="toggle-desc" style="margin: 0 0 12px 0;">Personaliza las teclas simuladas en el modo Mando Steam.</p>
           
+          <div class="toggle-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="toggle-info">
+              <span class="toggle-name" style="font-size: 13px; font-weight: 500;">Mando Físico (Roblox/Steam)</span>
+              <p class="toggle-desc" style="margin: 0; font-size: 11px;">Emula un gamepad de Xbox 360 nativo en Arch Linux via uinput</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-gamepad-physical">
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px;">
+            <div class="toggle-info">
+              <span class="toggle-name" style="font-size: 13px; font-weight: 500;">Trackpad Pantalla Completa</span>
+              <p class="toggle-desc" style="margin: 0; font-size: 11px;">El 50% derecho de la pantalla mueve la cámara detrás de los botones</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-gamepad-fullscreen-trackpad" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
           <div class="setting-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <span class="toggle-name" style="font-size: 13px; font-weight: 500;">Perfil Preset:</span>
             <select id="select-gamepad-preset" style="background: #1e293b; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px; font-size: 12px; outline: none; cursor: pointer;">
@@ -552,7 +574,7 @@
             <input type="range" id="slider-gp-abxy-scale" min="0.6" max="2.0" step="0.1" value="1.0" style="width:100%;">
           </div>
 
-          <div class="setting-row" style="margin-bottom: 12px;">
+          <div class="setting-row" id="row-gp-pad-width" style="margin-bottom: 12px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
               <span class="toggle-name" style="font-size: 13px; font-weight: 500;">Ancho Trackpad Cámara:</span>
               <span class="toggle-name" id="val-gp-pad-width" style="font-size: 12px; color: #38bdf8;">170px</span>
@@ -560,7 +582,7 @@
             <input type="range" id="slider-gp-pad-width" min="100" max="320" step="10" value="170" style="width:100%;">
           </div>
 
-          <div class="setting-row" style="margin-bottom: 12px;">
+          <div class="setting-row" id="row-gp-pad-height" style="margin-bottom: 12px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
               <span class="toggle-name" style="font-size: 13px; font-weight: 500;">Alto Trackpad Cámara:</span>
               <span class="toggle-name" id="val-gp-pad-height" style="font-size: 12px; color: #38bdf8;">120px</span>
