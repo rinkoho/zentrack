@@ -2371,6 +2371,368 @@ body.profile-keyboard-65 #keyboard-surface {
   }
 }
 
+/* ======================================================== */
+/*                STEAM CONTROLLER GAMEPAD STYLES           */
+/* ======================================================== */
+
+.gamepad-surface {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #0f172a;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.005) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(255,255,255,0.005) 1px, transparent 1px);
+  background-size: 24px 24px;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  z-index: 10;
+  padding: 6px;
+}
+
+/* 1. Gamepad Toolbar Header */
+.gamepad-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  z-index: 15;
+}
+
+.gamepad-status-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.4);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.gamepad-status-display .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+#gamepad-status-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+/* 2. Main Gamepad Layout grid */
+.gp-layout {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: calc(100% - 38px);
+  box-sizing: border-box;
+}
+
+.gp-left, .gp-center, .gp-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.gp-left {
+  flex: 1.2;
+}
+
+.gp-center {
+  flex: 0.8;
+  gap: 12px;
+}
+
+.gp-right {
+  flex: 1.6;
+}
+
+/* 3. Left Side: Analog Joystick styling */
+.joystick-boundary {
+  width: 130px;
+  height: 130px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 3px solid rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 
+    inset 0 4px 10px rgba(0,0,0,0.8),
+    0 0 15px rgba(56, 189, 248, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.joystick-boundary::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 40%, rgba(56, 189, 248, 0.03) 41%, transparent 70%);
+  pointer-events: none;
+}
+
+.joystick-knob {
+  width: 54px;
+  height: 54px;
+  background: radial-gradient(circle, #38bdf8 0%, #0284c7 100%);
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: calc(50% - 27px);
+  left: calc(50% - 27px);
+  box-shadow: 
+    0 6px 14px rgba(0,0,0,0.7),
+    0 0 8px rgba(56, 189, 248, 0.5);
+  touch-action: none;
+  z-index: 12;
+}
+
+/* 4. Center Area: Navigation / Select & Start slanted buttons */
+.gp-nav-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.gp-btn {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  outline: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.gp-btn:active {
+  transform: scale(0.95);
+  background: #1e293b;
+}
+
+.gp-btn-nav {
+  padding: 5px 12px;
+  font-size: 9px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  transform: skewX(-12deg);
+}
+
+.gp-preset-banner {
+  background: rgba(185, 39, 252, 0.1);
+  color: #c084fc;
+  border: 1px solid rgba(185, 39, 252, 0.3);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 4px rgba(185, 39, 252, 0.5);
+}
+
+/* 5. Right Side: Steam Controller aim Trackpad & ABXY Action buttons */
+.gp-right-grid {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.gp-aim-trackpad {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 3px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  box-shadow: 
+    inset 0 4px 10px rgba(0,0,0,0.9),
+    0 0 15px rgba(185, 39, 252, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.gp-trackpad-spiral {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, transparent 20%, rgba(185, 39, 252, 0.04) 21%, transparent 70%);
+  pointer-events: none;
+}
+
+.gp-trackpad-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+/* ABXY Face buttons */
+.gp-face-buttons {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.gp-face-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  position: absolute;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.gp-btn-y {
+  top: 0;
+  left: calc(50% - 15px);
+  border-color: #eab308 !important; /* Yellow */
+  color: #eab308;
+}
+.gp-btn-y:active {
+  background: rgba(234, 179, 8, 0.2) !important;
+}
+
+.gp-btn-a {
+  bottom: 0;
+  left: calc(50% - 15px);
+  border-color: #10b981 !important; /* Green */
+  color: #10b981;
+}
+.gp-btn-a:active {
+  background: rgba(16, 185, 129, 0.2) !important;
+}
+
+.gp-face-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: absolute;
+  top: calc(50% - 15px);
+}
+
+.gp-btn-x {
+  position: static;
+  border-color: #3b82f6 !important; /* Blue */
+  color: #3b82f6;
+}
+.gp-btn-x:active {
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+.gp-btn-b {
+  position: static;
+  border-color: #ef4444 !important; /* Red */
+  color: #ef4444;
+}
+.gp-btn-b:active {
+  background: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* 6. Shoulder bumpers (L / R) */
+.gp-shoulder {
+  position: absolute;
+  top: 40px;
+  width: 60px;
+  height: 24px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gp-shoulder-l {
+  left: 14px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 4px;
+}
+
+.gp-shoulder-r {
+  right: 14px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 4px;
+}
+
+/* 7. Gamepad key mapper UI styling */
+.map-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.map-label {
+  font-family: var(--font-main);
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.map-select {
+  background: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 4px;
+  outline: none;
+  cursor: pointer;
+  max-width: 140px;
+}
+
+.map-select:focus {
+  border-color: #38bdf8;
+}
+
+/* Landscape Mode Gamepad Fixes */
+@media (orientation: landscape) {
+  body.profile-gamepad-steam .main-content {
+    flex-direction: column !important;
+    flex: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  body.profile-gamepad-steam .trackpad-wrapper {
+    flex: 1 !important;
+    height: 100% !important;
+  }
+}
+
+
 
 
 

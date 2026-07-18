@@ -130,6 +130,67 @@
         <div class="keyboard-surface" id="keyboard-surface" style="display: none;">
           <!-- Keycaps will be dynamically injected here to prevent code clutter -->
         </div>
+
+        <!-- Steam-Style Gamepad Surface -->
+        <div class="gamepad-surface" id="gamepad-surface" style="display: none;">
+          <!-- Floating Controls on Gamepad Mode -->
+          <div class="gamepad-controls" id="gamepad-controls">
+            <button class="hybrid-btn" id="gamepad-sidebar-toggle" aria-label="Menú">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="gamepad-status-display">
+              <span class="status-dot"></span>
+              <span id="gamepad-status-text">ZenGamepad</span>
+            </div>
+            <button class="hybrid-btn" id="gamepad-settings-toggle" aria-label="Ajustes">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+          </div>
+
+          <!-- Main Layout Grid -->
+          <div class="gp-layout">
+            <!-- Left Side: Analog Joystick -->
+            <div class="gp-left">
+              <div class="joystick-boundary" id="joystick-boundary">
+                <div class="joystick-knob" id="joystick-knob"></div>
+              </div>
+            </div>
+
+            <!-- Center Side: Navigation/Select/Start & Preset Indicator -->
+            <div class="gp-center">
+              <div class="gp-nav-buttons">
+                <button class="gp-btn gp-btn-nav" id="gp-select" data-btn="btnSelect">SELECT</button>
+                <button class="gp-btn gp-btn-nav" id="gp-start" data-btn="btnStart">START</button>
+              </div>
+              <div class="gp-preset-banner" id="gp-preset-banner">FPS PROFILE</div>
+            </div>
+
+            <!-- Right Side: Steam Aim Trackpad + ABXY Buttons -->
+            <div class="gp-right">
+              <div class="gp-right-grid">
+                <!-- Aim Trackpad (Simulating mouse) -->
+                <div class="gp-aim-trackpad" id="gp-aim-trackpad">
+                  <div class="gp-trackpad-spiral"></div>
+                  <span class="gp-trackpad-label">MOUSE AIM</span>
+                </div>
+                
+                <!-- Action Buttons ABXY -->
+                <div class="gp-face-buttons">
+                  <button class="gp-btn gp-face-btn gp-btn-y" id="gp-btn-y" data-btn="btnY">Y</button>
+                  <div class="gp-face-row">
+                    <button class="gp-btn gp-face-btn gp-btn-x" id="gp-btn-x" data-btn="btnX">X</button>
+                    <button class="gp-btn gp-face-btn gp-btn-b" id="gp-btn-b" data-btn="btnB">B</button>
+                  </div>
+                  <button class="gp-btn gp-face-btn gp-btn-a" id="gp-btn-a" data-btn="btnA">A</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shoulder bumpers (L / R) floating on top-left / top-right -->
+          <button class="gp-btn gp-shoulder gp-shoulder-l" id="gp-btn-l" data-btn="btnL">L</button>
+          <button class="gp-btn gp-shoulder gp-shoulder-r" id="gp-btn-r" data-btn="btnR">R</button>
+        </div>
       </div>
 
       <!-- Mouse Clicks Bar -->
@@ -445,6 +506,25 @@
               <input type="checkbox" id="toggle-keycaster" checked>
               <span class="slider round"></span>
             </label>
+          </div >
+        </div >
+
+        <!-- Gamepad Mapping Section -->
+        <div class="settings-section" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 15px; margin-top: 15px;">
+          <h4 style="margin: 0 0 4px 0; color: #f8fafc; font-size: 14px;">Mapeo de Mando Gamer</h4>
+          <p class="toggle-desc" style="margin: 0 0 12px 0;">Personaliza las teclas simuladas en el modo Mando Steam.</p>
+          
+          <div class="setting-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="toggle-name" style="font-size: 13px; font-weight: 500;">Perfil Preset:</span>
+            <select id="select-gamepad-preset" style="background: #1e293b; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px; font-size: 12px; outline: none; cursor: pointer;">
+              <option value="fps">FPS / Acción (WASD + Ratón)</option>
+              <option value="retro">Retro / Plataformas (Flechas + Z/X)</option>
+              <option value="custom">Personalizado (Custom)</option>
+            </select>
+          </div>
+
+          <div class="gamepad-mapping-list" id="gamepad-mapping-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; margin-top: 8px;">
+            <!-- Key bindings drop-downs will be dynamically generated by JS -->
           </div>
         </div>
       </div>
@@ -492,6 +572,13 @@
           <div class="menu-item-text">
             <span>Híbrido (Teclado + Trackpad)</span>
             <p>Teclado abajo y Trackpad de baja latencia arriba</p>
+          </div>
+        </button>
+        <button class="menu-item" data-profile="gamepad-steam">
+          <span class="menu-item-icon">🎮</span>
+          <div class="menu-item-text">
+            <span>Mando Steam (Gamer)</span>
+            <p>Joystick WASD + Trackpad de apuntado + Botones asignables</p>
           </div>
         </button>
       </div>

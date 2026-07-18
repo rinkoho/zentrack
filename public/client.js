@@ -16,7 +16,14 @@ const settings = {
   soundVolume: 0.8,
   keyboardTheme: 'carbon',
   syncTheme: false,
-  keyCaster: true
+  keyCaster: true,
+  gamepadPreset: 'fps',
+  gamepadMapping: {
+    joyUp: 'w', joyDown: 's', joyLeft: 'a', joyRight: 'd',
+    btnA: 'space', btnB: 'e', btnX: 'r', btnY: 'q',
+    btnL: 'click_right', btnR: 'click_left',
+    btnSelect: 'Escape', btnStart: 'Return'
+  }
 };
 
 // Apply layout modifiers to body based on settings
@@ -44,26 +51,38 @@ function applyLayoutSettings() {
     document.getElementById('trackpad-surface').style.display = 'flex';
     document.getElementById('keyboard-surface').style.display = 'none';
     document.getElementById('keyboard-dashboard').style.display = 'none';
+    document.getElementById('gamepad-surface').style.display = 'none';
   } else if (settings.profile === 'keyboard-65') {
-    body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-hybrid-65');
+    body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-hybrid-65', 'profile-gamepad-steam');
     body.classList.add('profile-keyboard-65');
     document.getElementById('trackpad-surface').style.display = 'none';
     document.getElementById('keyboard-surface').style.display = 'flex';
     document.getElementById('keyboard-dashboard').style.display = settings.keyCaster ? 'flex' : 'none';
+    document.getElementById('gamepad-surface').style.display = 'none';
     renderKeyboard();
   } else if (settings.profile === 'hybrid-65') {
-    body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-keyboard-65');
+    body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-keyboard-65', 'profile-gamepad-steam');
     body.classList.add('profile-hybrid-65');
     document.getElementById('trackpad-surface').style.display = 'flex';
     document.getElementById('keyboard-surface').style.display = 'flex';
     document.getElementById('keyboard-dashboard').style.display = 'none';
+    document.getElementById('gamepad-surface').style.display = 'none';
     renderKeyboard();
+  } else if (settings.profile === 'gamepad-steam') {
+    body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-keyboard-65', 'profile-hybrid-65');
+    body.classList.add('profile-gamepad-steam');
+    document.getElementById('trackpad-surface').style.display = 'none';
+    document.getElementById('keyboard-surface').style.display = 'none';
+    document.getElementById('keyboard-dashboard').style.display = 'none';
+    document.getElementById('gamepad-surface').style.display = 'flex';
+    initGamepadControls();
   } else {
-    body.classList.remove('profile-trackpad-only', 'profile-keyboard-65', 'profile-hybrid-65');
+    body.classList.remove('profile-trackpad-only', 'profile-keyboard-65', 'profile-hybrid-65', 'profile-gamepad-steam');
     body.classList.add('profile-control-total');
     document.getElementById('trackpad-surface').style.display = 'flex';
     document.getElementById('keyboard-surface').style.display = 'none';
     document.getElementById('keyboard-dashboard').style.display = 'none';
+    document.getElementById('gamepad-surface').style.display = 'none';
   }
 
   // 4. Highlight active profile item in the sidebar
@@ -179,6 +198,14 @@ function loadSettings() {
       if (toggleKeyCaster) {
         toggleKeyCaster.checked = !!settings.keyCaster;
       }
+
+      const selectGamepadPreset = document.getElementById('select-gamepad-preset');
+      if (selectGamepadPreset) {
+        selectGamepadPreset.value = settings.gamepadPreset || 'fps';
+      }
+      
+      // Synchronize mappings to keymap UI selects
+      syncGamepadMappingUI();
     } catch (e) {
       console.error('Error loading settings:', e);
     }
@@ -2255,7 +2282,413 @@ if (hybridSettingsToggle) {
   }, { passive: false });
 }
 
+// ========================================================
+//                STEAM CONTROLLER GAMEPAD LOGIC
+// ========================================================
+
+const GAMEPAD_PRESETS = {
+  fps: {
+    joyUp: 'w', joyDown: 's', joyLeft: 'a', joyRight: 'd',
+    btnA: 'space', btnB: 'e', btnX: 'r', btnY: 'q',
+    btnL: 'click_right', btnR: 'click_left',
+    btnSelect: 'Escape', btnStart: 'Return'
+  },
+  retro: {
+    joyUp: 'Up', joyDown: 'Down', joyLeft: 'Left', joyRight: 'Right',
+    btnA: 'z', btnB: 'x', btnX: 'c', btnY: 'v',
+    btnL: 'Shift_L', btnR: 'Control_L',
+    btnSelect: 'Escape', btnStart: 'Return'
+  }
+};
+
+const GP_LABEL_MAPS = {
+  joyUp: 'Joystick ARRIBA ⬆️',
+  joyDown: 'Joystick ABAJO ⬇️',
+  joyLeft: 'Joystick IZQUIERDA ⬅️',
+  joyRight: 'Joystick DERECHA ➡️',
+  btnA: 'Botón A (Saltar)',
+  btnB: 'Botón B (Acción)',
+  btnX: 'Botón X (Recargar)',
+  btnY: 'Botón Y (Arma)',
+  btnL: 'Gatillo L (Bump)',
+  btnR: 'Gatillo R (Shoot)',
+  btnSelect: 'Botón SELECT',
+  btnStart: 'Botón START'
+};
+
+const MAP_OPTIONS = {
+  'w': 'W', 'a': 'A', 's': 'S', 'd': 'D',
+  'q': 'Q', 'e': 'E', 'r': 'R', 'f': 'F',
+  'g': 'G', 'c': 'C', 'x': 'X', 'z': 'Z',
+  'v': 'V', 't': 'T', 'y': 'Y', 'm': 'M',
+  'space': 'Espacio (Space)',
+  'Return': 'Enter / Intro',
+  'Escape': 'Escape',
+  'Tab': 'Tabulator (Tab)',
+  'Shift_L': 'Shift (Izquierdo)',
+  'Control_L': 'Ctrl (Izquierdo)',
+  'Alt_L': 'Alt (Izquierdo)',
+  'Up': 'Flecha Arriba',
+  'Down': 'Flecha Abajo',
+  'Left': 'Flecha Izquierda',
+  'Right': 'Flecha Derecha',
+  'click_left': 'Click Izquierdo Mouse',
+  'click_right': 'Click Derecho Mouse',
+  'click_middle': 'Click Medio Mouse'
+};
+
+function initGamepadMappingUI() {
+  const container = document.getElementById('gamepad-mapping-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+  
+  Object.keys(GP_LABEL_MAPS).forEach(key => {
+    const item = document.createElement('div');
+    item.className = 'map-item';
+    
+    const label = document.createElement('span');
+    label.className = 'map-label';
+    label.innerText = GP_LABEL_MAPS[key];
+    
+    const select = document.createElement('select');
+    select.className = 'map-select';
+    select.setAttribute('data-key', key);
+    
+    Object.keys(MAP_OPTIONS).forEach(optValue => {
+      const option = document.createElement('option');
+      option.value = optValue;
+      option.innerText = MAP_OPTIONS[optValue];
+      select.appendChild(option);
+    });
+    
+    select.addEventListener('change', (e) => {
+      settings.gamepadMapping[key] = e.target.value;
+      settings.gamepadPreset = 'custom';
+      
+      const presetSelect = document.getElementById('select-gamepad-preset');
+      if (presetSelect) presetSelect.value = 'custom';
+      
+      updatePresetBanner();
+      saveSettings();
+    });
+    
+    item.appendChild(label);
+    item.appendChild(select);
+    container.appendChild(item);
+  });
+
+  const presetSelect = document.getElementById('select-gamepad-preset');
+  if (presetSelect) {
+    presetSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      settings.gamepadPreset = val;
+      
+      if (val !== 'custom' && GAMEPAD_PRESETS[val]) {
+        settings.gamepadMapping = JSON.parse(JSON.stringify(GAMEPAD_PRESETS[val]));
+      }
+      
+      syncGamepadMappingUI();
+      updatePresetBanner();
+      saveSettings();
+      triggerHaptic('click');
+    });
+  }
+
+  updatePresetBanner();
+}
+
+function syncGamepadMappingUI() {
+  const selectElements = document.querySelectorAll('.map-select');
+  selectElements.forEach(select => {
+    const key = select.getAttribute('data-key');
+    if (key && settings.gamepadMapping[key]) {
+      select.value = settings.gamepadMapping[key];
+    }
+  });
+  
+  const presetSelect = document.getElementById('select-gamepad-preset');
+  if (presetSelect) {
+    presetSelect.value = settings.gamepadPreset || 'fps';
+  }
+}
+
+function updatePresetBanner() {
+  const banner = document.getElementById('gp-preset-banner');
+  if (banner) {
+    const label = settings.gamepadPreset === 'fps' ? 'FPS PROFILE' : 
+                  settings.gamepadPreset === 'retro' ? 'RETRO PROFILE' : 'CUSTOM PROFILE';
+    banner.innerText = label;
+  }
+}
+
+let gamepadInitialized = false;
+
+function initGamepadControls() {
+  if (gamepadInitialized) return;
+  gamepadInitialized = true;
+
+  console.log('[Gamepad] Initializing Touch Controller Listeners...');
+
+  // 1. Left Joystick Control
+  const boundary = document.getElementById('joystick-boundary');
+  const knob = document.getElementById('joystick-knob');
+  
+  if (boundary && knob) {
+    let joystickActive = false;
+    let center = { x: 0, y: 0 };
+    const joyKeysState = { up: false, down: false, left: false, right: false };
+
+    const getCenter = () => {
+      const rect = boundary.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    };
+
+    const updateJoystickState = (deltaX, deltaY) => {
+      const maxD = 35; // Clamped maximum knob travel
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      let moveX = deltaX;
+      let moveY = deltaY;
+      
+      if (distance > maxD) {
+        moveX = (deltaX / distance) * maxD;
+        moveY = (deltaY / distance) * maxD;
+      }
+      
+      knob.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      
+      const nx = moveX / maxD;
+      const ny = moveY / maxD;
+      const thresh = 0.35;
+      
+      const targetKeys = {
+        up: ny < -thresh,
+        down: ny > thresh,
+        left: nx < -thresh,
+        right: nx > thresh
+      };
+      
+      const mapKeys = {
+        up: settings.gamepadMapping.joyUp,
+        down: settings.gamepadMapping.joyDown,
+        left: settings.gamepadMapping.joyLeft,
+        right: settings.gamepadMapping.joyRight
+      };
+      
+      Object.keys(targetKeys).forEach(dir => {
+        if (targetKeys[dir] !== joyKeysState[dir]) {
+          joyKeysState[dir] = targetKeys[dir];
+          const keyVal = mapKeys[dir];
+          if (keyVal) {
+            if (joyKeysState[dir]) {
+              sendSocket({ type: 'keydown', key: keyVal });
+            } else {
+              sendSocket({ type: 'keyup', key: keyVal });
+            }
+          }
+        }
+      });
+    };
+
+    const resetJoystick = () => {
+      knob.style.transform = 'translate(0, 0)';
+      
+      const mapKeys = {
+        up: settings.gamepadMapping.joyUp,
+        down: settings.gamepadMapping.joyDown,
+        left: settings.gamepadMapping.joyLeft,
+        right: settings.gamepadMapping.joyRight
+      };
+      
+      Object.keys(joyKeysState).forEach(dir => {
+        if (joyKeysState[dir]) {
+          joyKeysState[dir] = false;
+          const keyVal = mapKeys[dir];
+          if (keyVal) {
+            sendSocket({ type: 'keyup', key: keyVal });
+          }
+        }
+      });
+    };
+
+    const handlePointerDown = (e) => {
+      e.preventDefault();
+      joystickActive = true;
+      center = getCenter();
+      
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      
+      const dx = clientX - center.x;
+      const dy = clientY - center.y;
+      
+      updateJoystickState(dx, dy);
+      triggerHaptic('light');
+    };
+
+    const handlePointerMove = (e) => {
+      if (!joystickActive) return;
+      
+      let clientX, clientY;
+      if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      
+      const dx = clientX - center.x;
+      const dy = clientY - center.y;
+      
+      updateJoystickState(dx, dy);
+    };
+
+    const handlePointerUp = () => {
+      if (!joystickActive) return;
+      joystickActive = false;
+      resetJoystick();
+    };
+
+    boundary.addEventListener('touchstart', handlePointerDown, { passive: false });
+    window.addEventListener('touchmove', handlePointerMove, { passive: false });
+    window.addEventListener('touchend', handlePointerUp, { passive: false });
+    
+    boundary.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+  }
+
+  // 2. Right Aim Trackpad Control (Steam style trackpad)
+  const trackpad = document.getElementById('gp-aim-trackpad');
+  if (trackpad) {
+    let lastTouchX = null;
+    let lastTouchY = null;
+    
+    trackpad.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+    }, { passive: false });
+    
+    trackpad.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (lastTouchX === null || lastTouchY === null) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - lastTouchX;
+      const dy = touch.clientY - lastTouchY;
+      
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+      
+      const sens = settings.sensitivity || 1.2;
+      sendSocket({ type: 'move', dx: Math.round(dx * sens), dy: Math.round(dy * sens) });
+    }, { passive: false });
+    
+    trackpad.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      lastTouchX = null;
+      lastTouchY = null;
+    }, { passive: false });
+  }
+
+  // 3. Action Buttons & Bumpers Control (A/B/X/Y, Start, Select, L, R)
+  const gamepadButtons = document.querySelectorAll('.gp-btn, .gp-shoulder');
+  
+  gamepadButtons.forEach(btn => {
+    const btnKey = btn.getAttribute('data-btn');
+    if (!btnKey) return;
+    
+    const handlePress = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      btn.classList.add('active');
+      triggerHaptic('light');
+      playSwitchSound(true, 'space');
+      
+      const action = settings.gamepadMapping[btnKey];
+      if (action) {
+        if (action.startsWith('click_')) {
+          const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
+          sendSocket({ type: 'mousedown', button: btnNum });
+        } else {
+          sendSocket({ type: 'keydown', key: action });
+        }
+      }
+    };
+    
+    const handleRelease = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      btn.classList.remove('active');
+      playSwitchSound(false, 'space');
+      
+      const action = settings.gamepadMapping[btnKey];
+      if (action) {
+        if (action.startsWith('click_')) {
+          const btnNum = action === 'click_left' ? 1 : action === 'click_right' ? 3 : 2;
+          sendSocket({ type: 'mouseup', button: btnNum });
+        } else {
+          sendSocket({ type: 'keyup', key: action });
+        }
+      }
+    };
+    
+    btn.addEventListener('touchstart', handlePress, { passive: false });
+    btn.addEventListener('touchend', handleRelease, { passive: false });
+    btn.addEventListener('touchcancel', handleRelease, { passive: false });
+    
+    btn.addEventListener('mousedown', handlePress);
+    btn.addEventListener('mouseup', handleRelease);
+    btn.addEventListener('mouseleave', handleRelease);
+  });
+
+  // 4. Sidebar & Settings overlay bindings for Gamepad Controls
+  const gamepadControls = document.getElementById('gamepad-controls');
+  if (gamepadControls) {
+    const stopProp = (e) => e.stopPropagation();
+    ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 
+     'touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(evt => {
+      gamepadControls.addEventListener(evt, stopProp, { passive: true });
+    });
+  }
+
+  const gamepadSidebarToggle = document.getElementById('gamepad-sidebar-toggle');
+  const gamepadSettingsToggle = document.getElementById('gamepad-settings-toggle');
+
+  if (gamepadSidebarToggle) {
+    gamepadSidebarToggle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      triggerHaptic('click');
+      sidebar.classList.add('active');
+      sidebarOverlay.classList.add('active');
+    }, { passive: false });
+  }
+
+  if (gamepadSettingsToggle) {
+    const settingsDrawer = document.getElementById('settings-drawer');
+    const drawerOverlay = document.getElementById('drawer-overlay');
+    
+    gamepadSettingsToggle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      triggerHaptic('click');
+      settingsDrawer.classList.add('active');
+      drawerOverlay.classList.add('active');
+    }, { passive: false });
+  }
+}
+
 // --- Initialize App ---
+initGamepadMappingUI();
 loadSettings();
 connectWebSocket();
 if (settings.keepAwake) {
