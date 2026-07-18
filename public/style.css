@@ -2732,6 +2732,83 @@ body.profile-keyboard-65 #keyboard-surface {
   }
 }
 
+/* Edit Mode styling overlays for Gamepad components */
+.editing-layout .joystick-boundary,
+.editing-layout .gp-aim-trackpad,
+.editing-layout .gp-face-buttons,
+.editing-layout .gp-nav-buttons,
+.editing-layout .gp-shoulder-l,
+.editing-layout .gp-shoulder-r {
+  border: 2px dashed #38bdf8 !important;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.45) !important;
+  cursor: move !important;
+  pointer-events: auto !important; /* Allow touch drag */
+}
+
+/* Add helpful visual text label for elements in edit mode */
+.editing-layout .joystick-boundary::after {
+  content: 'JOYSTICK';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #38bdf8;
+  color: #0f172a;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.editing-layout .gp-face-buttons::after {
+  content: 'BOTONES ABXY';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #38bdf8;
+  color: #0f172a;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.editing-layout .gp-nav-buttons::after {
+  content: 'SELECT / START';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #38bdf8;
+  color: #0f172a;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Make elements absolute inside gp-layout to allow free dragging */
+.gamepad-surface .joystick-boundary,
+.gamepad-surface .gp-aim-trackpad,
+.gamepad-surface .gp-face-buttons,
+.gamepad-surface .gp-nav-buttons,
+.gamepad-surface .gp-shoulder-l,
+.gamepad-surface .gp-shoulder-r {
+  position: absolute !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#btn-edit-layout.saving-layout {
+  color: #10b981 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4) !important;
+}
+
+
 
 
 

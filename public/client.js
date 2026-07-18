@@ -23,6 +23,14 @@ const settings = {
     btnA: 'space', btnB: 'e', btnX: 'r', btnY: 'q',
     btnL: 'click_right', btnR: 'click_left',
     btnSelect: 'Escape', btnStart: 'Return'
+  },
+  gamepadLayout: {
+    joystick: { x: 8, y: 40, scale: 1.0 },
+    trackpad: { x: 44, y: 40, width: 170, height: 120 },
+    abxy: { x: 74, y: 40, scale: 1.0 },
+    bumperL: { x: 3, y: 15, scale: 1.0 },
+    bumperR: { x: 85, y: 15, scale: 1.0 },
+    centerNav: { x: 42, y: 15, scale: 1.0 }
   }
 };
 
@@ -60,6 +68,7 @@ function applyLayoutSettings() {
     document.getElementById('keyboard-dashboard').style.display = settings.keyCaster ? 'flex' : 'none';
     document.getElementById('gamepad-surface').style.display = 'none';
     renderKeyboard();
+    document.getElementById('gamepad-sizes-section').style.display = 'none';
   } else if (settings.profile === 'hybrid-65') {
     body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-keyboard-65', 'profile-gamepad-steam');
     body.classList.add('profile-hybrid-65');
@@ -67,6 +76,7 @@ function applyLayoutSettings() {
     document.getElementById('keyboard-surface').style.display = 'flex';
     document.getElementById('keyboard-dashboard').style.display = 'none';
     document.getElementById('gamepad-surface').style.display = 'none';
+    document.getElementById('gamepad-sizes-section').style.display = 'none';
     renderKeyboard();
   } else if (settings.profile === 'gamepad-steam') {
     body.classList.remove('profile-control-total', 'profile-trackpad-only', 'profile-keyboard-65', 'profile-hybrid-65');
@@ -75,6 +85,8 @@ function applyLayoutSettings() {
     document.getElementById('keyboard-surface').style.display = 'none';
     document.getElementById('keyboard-dashboard').style.display = 'none';
     document.getElementById('gamepad-surface').style.display = 'flex';
+    document.getElementById('gamepad-sizes-section').style.display = 'block';
+    applyGamepadLayout();
     initGamepadControls();
   } else {
     body.classList.remove('profile-trackpad-only', 'profile-keyboard-65', 'profile-hybrid-65', 'profile-gamepad-steam');
@@ -83,6 +95,7 @@ function applyLayoutSettings() {
     document.getElementById('keyboard-surface').style.display = 'none';
     document.getElementById('keyboard-dashboard').style.display = 'none';
     document.getElementById('gamepad-surface').style.display = 'none';
+    document.getElementById('gamepad-sizes-section').style.display = 'none';
   }
 
   // 4. Highlight active profile item in the sidebar
@@ -204,8 +217,21 @@ function loadSettings() {
         selectGamepadPreset.value = settings.gamepadPreset || 'fps';
       }
       
-      // Synchronize mappings to keymap UI selects
+      // Ensure layout exists defensively
+      if (!settings.gamepadLayout) {
+        settings.gamepadLayout = {
+          joystick: { x: 8, y: 40, scale: 1.0 },
+          trackpad: { x: 44, y: 40, width: 170, height: 120 },
+          abxy: { x: 74, y: 40, scale: 1.0 },
+          bumperL: { x: 3, y: 15, scale: 1.0 },
+          bumperR: { x: 85, y: 15, scale: 1.0 },
+          centerNav: { x: 42, y: 15, scale: 1.0 }
+        };
+      }
+      
+      // Synchronize mappings and slider sizes to keymap UI selects
       syncGamepadMappingUI();
+      syncGamepadSizesUI();
     } catch (e) {
       console.error('Error loading settings:', e);
     }
@@ -2517,6 +2543,7 @@ function initGamepadControls() {
     // Touch handle with multi-touch isolation
     gpLeft.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      if (isEditingGamepadLayout) return;
       if (joystickTouchId !== null) return;
       
       const touch = e.changedTouches[0];
@@ -2578,6 +2605,7 @@ function initGamepadControls() {
     let mouseActive = false;
     gpLeft.addEventListener('mousedown', (e) => {
       if (e.pointerType === 'touch') return;
+      if (isEditingGamepadLayout) return;
       mouseActive = true;
       const rect = boundary.getBoundingClientRect();
       center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
@@ -2609,6 +2637,7 @@ function initGamepadControls() {
     
     trackpad.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      if (isEditingGamepadLayout) return;
       if (trackpadTouchId !== null) return;
       
       const touch = e.changedTouches[0];
@@ -2672,6 +2701,7 @@ function initGamepadControls() {
     const handlePress = (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (isEditingGamepadLayout) return;
       
       btn.classList.add('active');
       triggerHaptic('light');
@@ -2691,6 +2721,7 @@ function initGamepadControls() {
     const handleRelease = (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (isEditingGamepadLayout) return;
       
       btn.classList.remove('active');
       playSwitchSound(false, 'space');
@@ -2752,8 +2783,277 @@ function initGamepadControls() {
   }
 }
 
+// State variable for Edit Layout mode
+let isEditingGamepadLayout = false;
+
+// Apply scale and absolute positions from settings to DOM elements
+function applyGamepadLayout() {
+  const layout = settings.gamepadLayout || {
+    joystick: { x: 8, y: 40, scale: 1.0 },
+    trackpad: { x: 44, y: 40, width: 170, height: 120 },
+    abxy: { x: 74, y: 40, scale: 1.0 },
+    bumperL: { x: 3, y: 15, scale: 1.0 },
+    bumperR: { x: 85, y: 15, scale: 1.0 },
+    centerNav: { x: 42, y: 15, scale: 1.0 }
+  };
+
+  const joy = document.getElementById('joystick-boundary');
+  const track = document.getElementById('gp-aim-trackpad');
+  const abxy = document.querySelector('.gp-face-buttons');
+  const bumpL = document.getElementById('gp-btn-l');
+  const bumpR = document.getElementById('gp-btn-r');
+  const nav = document.querySelector('.gp-nav-buttons');
+
+  if (joy) {
+    joy.style.left = `${layout.joystick.x}%`;
+    joy.style.top = `${layout.joystick.y}%`;
+    joy.style.transform = `scale(${layout.joystick.scale})`;
+  }
+  if (track) {
+    track.style.left = `${layout.trackpad.x}%`;
+    track.style.top = `${layout.trackpad.y}%`;
+    track.style.width = `${layout.trackpad.width}px`;
+    track.style.height = `${layout.trackpad.height}px`;
+  }
+  if (abxy) {
+    abxy.style.left = `${layout.abxy.x}%`;
+    abxy.style.top = `${layout.abxy.y}%`;
+    abxy.style.transform = `scale(${layout.abxy.scale})`;
+  }
+  if (bumpL) {
+    bumpL.style.left = `${layout.bumperL.x}%`;
+    bumpL.style.top = `${layout.bumperL.y}%`;
+    bumpL.style.transform = `scale(${layout.bumperL.scale})`;
+  }
+  if (bumpR) {
+    bumpR.style.left = `${layout.bumperR.x}%`;
+    bumpR.style.top = `${layout.bumperR.y}%`;
+    bumpR.style.transform = `scale(${layout.bumperR.scale})`;
+  }
+  if (nav) {
+    nav.style.left = `${layout.centerNav.x}%`;
+    nav.style.top = `${layout.centerNav.y}%`;
+    nav.style.transform = `scale(${layout.centerNav.scale})`;
+  }
+}
+
+// Synchronize scale range sliders in settings drawer to values loaded from settings
+function syncGamepadSizesUI() {
+  const layout = settings.gamepadLayout;
+  if (!layout) return;
+
+  const sliderJoy = document.getElementById('slider-gp-joy-scale');
+  const valJoy = document.getElementById('val-gp-joy-scale');
+  if (sliderJoy && valJoy) {
+    sliderJoy.value = layout.joystick.scale;
+    valJoy.innerText = layout.joystick.scale.toFixed(1) + 'x';
+  }
+
+  const sliderABXY = document.getElementById('slider-gp-abxy-scale');
+  const valABXY = document.getElementById('val-gp-abxy-scale');
+  if (sliderABXY && valABXY) {
+    sliderABXY.value = layout.abxy.scale;
+    valABXY.innerText = layout.abxy.scale.toFixed(1) + 'x';
+  }
+
+  const sliderWidth = document.getElementById('slider-gp-pad-width');
+  const valWidth = document.getElementById('val-gp-pad-width');
+  if (sliderWidth && valWidth) {
+    sliderWidth.value = layout.trackpad.width;
+    valWidth.innerText = layout.trackpad.width + 'px';
+  }
+
+  const sliderHeight = document.getElementById('slider-gp-pad-height');
+  const valHeight = document.getElementById('val-gp-pad-height');
+  if (sliderHeight && valHeight) {
+    sliderHeight.value = layout.trackpad.height;
+    valHeight.innerText = layout.trackpad.height + 'px';
+  }
+
+  const sliderBump = document.getElementById('slider-gp-bump-scale');
+  const valBump = document.getElementById('val-gp-bump-scale');
+  if (sliderBump && valBump) {
+    sliderBump.value = layout.bumperL.scale;
+    valBump.innerText = layout.bumperL.scale.toFixed(1) + 'x';
+  }
+}
+
+// Initialize layout drag-to-position event handlers and settings sliders
+function initGamepadLayoutEditor() {
+  const btnEdit = document.getElementById('btn-edit-layout');
+  const gpSurface = document.getElementById('gamepad-surface');
+
+  if (btnEdit && gpSurface) {
+    btnEdit.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      triggerHaptic('click');
+
+      isEditingGamepadLayout = !isEditingGamepadLayout;
+      if (isEditingGamepadLayout) {
+        gpSurface.classList.add('editing-layout');
+        btnEdit.classList.add('saving-layout');
+        btnEdit.innerText = '💾 Guardar';
+      } else {
+        gpSurface.classList.remove('editing-layout');
+        btnEdit.classList.remove('saving-layout');
+        btnEdit.innerText = '📐 Editar';
+        saveSettings();
+      }
+    }, { passive: false });
+
+    // Enable drag positioning for each component in Edit Mode
+    const draggableElements = [
+      { id: 'joystick-boundary', key: 'joystick' },
+      { id: 'gp-aim-trackpad', key: 'trackpad' },
+      { className: 'gp-face-buttons', key: 'abxy' },
+      { id: 'gp-btn-l', key: 'bumperL' },
+      { id: 'gp-btn-r', key: 'bumperR' },
+      { className: 'gp-nav-buttons', key: 'centerNav' }
+    ];
+
+    draggableElements.forEach(item => {
+      const el = item.id ? document.getElementById(item.id) : document.querySelector('.' + item.className);
+      if (!el) return;
+
+      let dragTouchId = null;
+      let startOffset = { x: 0, y: 0 };
+
+      el.addEventListener('touchstart', (e) => {
+        if (!isEditingGamepadLayout) return;
+        
+        // Stop propagation to prevent dynamic joystick trigger or trackpad move
+        e.stopPropagation();
+        e.preventDefault();
+
+        const touch = e.changedTouches[0];
+        dragTouchId = touch.identifier;
+
+        const rect = el.getBoundingClientRect();
+        startOffset = {
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top
+        };
+      }, { passive: false });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isEditingGamepadLayout || dragTouchId === null) return;
+
+        let activeTouch = null;
+        for (let i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === dragTouchId) {
+            activeTouch = e.touches[i];
+            break;
+          }
+        }
+        if (!activeTouch) return;
+
+        const wrapperRect = gpSurface.getBoundingClientRect();
+        
+        // Target coordinates in pixels relative to gamepadSurface wrapper
+        const targetX = activeTouch.clientX - wrapperRect.left - startOffset.x + (el.offsetWidth / 2);
+        const targetY = activeTouch.clientY - wrapperRect.top - startOffset.y + (el.offsetHeight / 2);
+
+        // Convert to percentages and clamp between 0% and 95%
+        let pctX = (targetX / wrapperRect.width) * 100 - (el.offsetWidth / wrapperRect.width * 50);
+        let pctY = (targetY / wrapperRect.height) * 100 - (el.offsetHeight / wrapperRect.height * 50);
+
+        pctX = Math.max(0, Math.min(95, pctX));
+        pctY = Math.max(0, Math.min(95, pctY));
+
+        // Update layout configuration
+        settings.gamepadLayout[item.key].x = parseFloat(pctX.toFixed(1));
+        settings.gamepadLayout[item.key].y = parseFloat(pctY.toFixed(1));
+
+        applyGamepadLayout();
+      }, { passive: false });
+
+      const handleDragEnd = (e) => {
+        if (dragTouchId === null) return;
+        let matched = false;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === dragTouchId) {
+            matched = true;
+            break;
+          }
+        }
+        if (matched) {
+          dragTouchId = null;
+          saveSettings();
+        }
+      };
+
+      window.addEventListener('touchend', handleDragEnd, { passive: false });
+      window.addEventListener('touchcancel', handleDragEnd, { passive: false });
+    });
+  }
+
+  // Bind scale range sliders input events
+  const sliderJoy = document.getElementById('slider-gp-joy-scale');
+  const valJoy = document.getElementById('val-gp-joy-scale');
+  if (sliderJoy && valJoy) {
+    sliderJoy.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      settings.gamepadLayout.joystick.scale = val;
+      valJoy.innerText = val.toFixed(1) + 'x';
+      applyGamepadLayout();
+      saveSettings();
+    });
+  }
+
+  const sliderABXY = document.getElementById('slider-gp-abxy-scale');
+  const valABXY = document.getElementById('val-gp-abxy-scale');
+  if (sliderABXY && valABXY) {
+    sliderABXY.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      settings.gamepadLayout.abxy.scale = val;
+      valABXY.innerText = val.toFixed(1) + 'x';
+      applyGamepadLayout();
+      saveSettings();
+    });
+  }
+
+  const sliderWidth = document.getElementById('slider-gp-pad-width');
+  const valWidth = document.getElementById('val-gp-pad-width');
+  if (sliderWidth && valWidth) {
+    sliderWidth.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      settings.gamepadLayout.trackpad.width = val;
+      valWidth.innerText = val + 'px';
+      applyGamepadLayout();
+      saveSettings();
+    });
+  }
+
+  const sliderHeight = document.getElementById('slider-gp-pad-height');
+  const valHeight = document.getElementById('val-gp-pad-height');
+  if (sliderHeight && valHeight) {
+    sliderHeight.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      settings.gamepadLayout.trackpad.height = val;
+      valHeight.innerText = val + 'px';
+      applyGamepadLayout();
+      saveSettings();
+    });
+  }
+
+  const sliderBump = document.getElementById('slider-gp-bump-scale');
+  const valBump = document.getElementById('val-gp-bump-scale');
+  if (sliderBump && valBump) {
+    sliderBump.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      settings.gamepadLayout.bumperL.scale = val;
+      settings.gamepadLayout.bumperR.scale = val;
+      valBump.innerText = val.toFixed(1) + 'x';
+      applyGamepadLayout();
+      saveSettings();
+    });
+  }
+}
+
 // --- Initialize App ---
 initGamepadMappingUI();
+initGamepadLayoutEditor();
 loadSettings();
 connectWebSocket();
 if (settings.keepAwake) {
