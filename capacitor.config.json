@@ -1,0 +1,6 @@
+{
+  "appId": "com.carlos.zentrack",
+  "appName": "ZenTrack",
+  "webDir": "public",
+  "bundledWebRuntime": false
+}

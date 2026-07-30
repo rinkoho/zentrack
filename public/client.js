@@ -958,6 +958,17 @@ function sendSocket(payload) {
   }
 }
 
+// ⚡ Fast 6-Byte Int16Array Binary Protocol (CMD, X, Y)
+function sendSocketBinary(cmd, x, y) {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    const buffer = new Int16Array(3);
+    buffer[0] = cmd;
+    buffer[1] = Math.round(x);
+    buffer[2] = Math.round(y);
+    socket.send(buffer.buffer);
+  }
+}
+
 function syncSettingsToServer() {
   sendSocket({
     type: 'settings',
@@ -1040,7 +1051,7 @@ let lastScrollX = 0;
 let lastScrollY = 0;
 let scrollAccumulatorX = 0;
 let scrollAccumulatorY = 0;
-const SCROLL_STEP_THRESHOLD = 10; // lower = faster scroll
+const SCROLL_STEP_THRESHOLD = 6; // ultra-responsive smooth scroll
 
 let twoFingerTapStartTime = 0;
 let isTwoFingerTapCandidate = false;
@@ -1235,19 +1246,11 @@ pointerArea.addEventListener('pointermove', (e) => {
       remainderY = targetY - moveY;
 
       if (moveX !== 0 || moveY !== 0) {
-        moveBatch.push({ dx: moveX, dy: moveY });
+        sendSocketBinary(1, moveX, moveY);
       }
 
       state.lastX = ev.clientX;
       state.lastY = ev.clientY;
-    }
-
-    if (moveBatch.length > 0) {
-      if (moveBatch.length === 1) {
-        sendSocket({ type: 'move', dx: moveBatch[0].dx, dy: moveBatch[0].dy });
-      } else {
-        sendSocket({ type: 'move_batch', events: moveBatch });
-      }
     }
 
   } else if (activeCount === 2 && isTwoFingerScroll) {
@@ -1270,29 +1273,14 @@ pointerArea.addEventListener('pointermove', (e) => {
       isTwoFingerTapCandidate = false;
     }
 
-    scrollAccumulatorX += deltaX * settings.scrollSensitivity;
-    scrollAccumulatorY += deltaY * settings.scrollSensitivity;
-
-    // Trigger vertical scroll
-    if (Math.abs(scrollAccumulatorY) >= SCROLL_STEP_THRESHOLD) {
-      const steps = Math.floor(Math.abs(scrollAccumulatorY) / SCROLL_STEP_THRESHOLD);
-      let direction = scrollAccumulatorY > 0 ? 'down' : 'up';
+    if (deltaX !== 0 || deltaY !== 0) {
+      let dy = deltaY * settings.scrollSensitivity;
+      let dx = deltaX * settings.scrollSensitivity;
       if (settings.naturalScroll) {
-        direction = scrollAccumulatorY > 0 ? 'up' : 'down';
+        dy = -dy;
+        dx = -dx;
       }
-      sendSocket({ type: 'scroll', direction, steps });
-      scrollAccumulatorY = scrollAccumulatorY % SCROLL_STEP_THRESHOLD;
-    }
-
-    // Trigger horizontal scroll
-    if (Math.abs(scrollAccumulatorX) >= SCROLL_STEP_THRESHOLD) {
-      const steps = Math.floor(Math.abs(scrollAccumulatorX) / SCROLL_STEP_THRESHOLD);
-      let direction = scrollAccumulatorX > 0 ? 'right' : 'left';
-      if (settings.naturalScroll) {
-        direction = scrollAccumulatorX > 0 ? 'left' : 'right';
-      }
-      sendSocket({ type: 'scroll', direction, steps });
-      scrollAccumulatorX = scrollAccumulatorX % SCROLL_STEP_THRESHOLD;
+      sendSocketBinary(2, Math.round(dx * 10), Math.round(dy * 10));
     }
 
     lastScrollX = currentScrollX;

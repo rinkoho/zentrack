@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WebAudio Switch Sound Synthesizer Renderer</title>
+</head>
+<body>
+  <h1>Rendering 100% Identical WebAudio Switch Sounds...</h1>
+  <div id="log"></div>
+
+  <script>
+    function log(msg) {
+      document.getElementById('log').innerHTML += `<p>${msg}</p>`;
+      console.log(msg);
+    }
+
+    const profiles = [
+      'cherry-blue', 'cherry-red', 'chocolate', 'box-navy',
+      'buckling-spring', 'topre', 'membrane', 'bubble-wrap'
+    ];
+
+    async function renderSound(profile, isPress) {
+      const sampleRate = 44100;
+      const duration = (profile === 'buckling-spring') ? 0.15 : 0.06;
+      const offlineCtx = new OfflineAudioContext(1, sampleRate * duration, sampleRate);
+      const now = 0;
+
+      let pitchScale = 1.0;
+      let cutoffScale = 1.0;
+      let gainScale = 1.0;
+      let decayScale = 1.0;
+      const volume = 0.9;
+
+      if (profile === 'cherry-blue' || profile === 'cherry-blue-full') {
+        const clickFreq = (isPress ? 900 : 1300) * pitchScale;
+        const clickCutoff = (isPress ? 1400 : 2100) * cutoffScale;
+        const clickGain = (isPress ? 0.35 : 0.22) * gainScale;
+
+        const oscClick = offlineCtx.createOscillator();
+        const gainClick = offlineCtx.createGain();
+        const filterClick = offlineCtx.createBiquadFilter();
+
+        filterClick.type = 'highpass';
+        filterClick.frequency.setValueAtTime(clickCutoff, now);
+
+        oscClick.type = 'triangle';
+        oscClick.frequency.setValueAtTime(clickFreq, now);
+        oscClick.frequency.exponentialRampToValueAtTime(isPress ? (clickFreq / 6) : (clickFreq / 5), now + 0.015 * decayScale);
+
+        gainClick.gain.setValueAtTime(clickGain * volume, now);
+        gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.015 * decayScale);
+
+        oscClick.connect(filterClick);
+        filterClick.connect(gainClick);
+        gainClick.connect(offlineCtx.destination);
+
+        oscClick.start(now);
+        oscClick.stop(now + 0.015 * decayScale + 0.005);
+
+        if (isPress) {
+          const thockFreqStart = 130 * pitchScale;
+          const thockFreqEnd = 75 * pitchScale;
+          const thockCutoff = 320 * cutoffScale;
+          const thockGain = 0.5 * gainScale;
+
+          const oscThock = offlineCtx.createOscillator();
+          const gainThock = offlineCtx.createGain();
+          const filterThock = offlineCtx.createBiquadFilter();
+
+          filterThock.type = 'lowpass';
+          filterThock.frequency.setValueAtTime(thockCutoff, now);
+
+          oscThock.type = 'sine';
+          oscThock.frequency.setValueAtTime(thockFreqStart, now);
+          oscThock.frequency.exponentialRampToValueAtTime(thockFreqEnd, now + 0.035 * decayScale);
+
+          gainThock.gain.setValueAtTime(thockGain * volume, now);
+          gainThock.gain.exponentialRampToValueAtTime(0.001, now + 0.045 * decayScale);
+
+          oscThock.connect(filterThock);
+          filterThock.connect(gainThock);
+          gainThock.connect(offlineCtx.destination);
+
+          oscThock.start(now);
+          oscThock.stop(now + 0.045 * decayScale + 0.005);
+        }
+      } else if (profile === 'chocolate') {
+        const snapFreq = (isPress ? 1150 : 1300) * pitchScale;
+        const snapCutoff = (isPress ? 1050 : 1200) * cutoffScale;
+        const snapGain = (isPress ? 0.7 : 0.22) * gainScale;
+        const snapDecay = (isPress ? 0.012 : 0.008) * decayScale;
+
+        const clackFreqStart = 160 * pitchScale;
+        const clackFreqEnd = 95 * pitchScale;
+        const clackCutoff = 260 * cutoffScale;
+        const clackGain = 0.6 * gainScale;
+        const clackDecay = 0.024 * decayScale;
+
+        const oscSnap = offlineCtx.createOscillator();
+        const gainSnap = offlineCtx.createGain();
+        const filterSnap = offlineCtx.createBiquadFilter();
+
+        filterSnap.type = 'bandpass';
+        filterSnap.frequency.setValueAtTime(snapCutoff, now);
+        filterSnap.Q.setValueAtTime(4.0, now);
+
+        oscSnap.type = 'triangle';
+        oscSnap.frequency.setValueAtTime(snapFreq, now);
+        oscSnap.frequency.exponentialRampToValueAtTime(isPress ? (snapFreq / 3.5) : (snapFreq / 2.5), now + snapDecay);
+
+        gainSnap.gain.setValueAtTime(snapGain * volume, now);
+        gainSnap.gain.exponentialRampToValueAtTime(0.001, now + snapDecay);
+
+        oscSnap.connect(filterSnap);
+        filterSnap.connect(gainSnap);
+        gainSnap.connect(offlineCtx.destination);
+
+        oscSnap.start(now);
+        oscSnap.stop(now + snapDecay + 0.005);
+
+        if (isPress) {
+          const oscClack = offlineCtx.createOscillator();
+          const gainClack = offlineCtx.createGain();
+          const filterClack = offlineCtx.createBiquadFilter();
+
+          filterClack.type = 'lowpass';
+          filterClack.frequency.setValueAtTime(clackCutoff, now);
+
+          oscClack.type = 'sine';
+          oscClack.frequency.setValueAtTime(clackFreqStart, now);
+          oscClack.frequency.exponentialRampToValueAtTime(clackFreqEnd, now + clackDecay);
+
+          gainClack.gain.setValueAtTime(clackGain * volume, now);
+          gainClack.gain.exponentialRampToValueAtTime(0.001, now + clackDecay);
+
+          oscClack.connect(filterClack);
+          filterClack.connect(gainClack);
+          gainClack.connect(offlineCtx.destination);
+
+          oscClack.start(now);
+          oscClack.stop(now + clackDecay + 0.005);
+        }
+      } else if (profile === 'cherry-red') {
+        if (isPress) {
+          const thockFreqStart = 110 * pitchScale;
+          const thockFreqEnd = 65 * pitchScale;
+          const thockCutoff = 250 * cutoffScale;
+          const thockGain = 0.7 * gainScale;
+
+          const oscThock = offlineCtx.createOscillator();
+          const gainThock = offlineCtx.createGain();
+          const filterThock = offlineCtx.createBiquadFilter();
+
+          filterThock.type = 'lowpass';
+          filterThock.frequency.setValueAtTime(thockCutoff, now);
+
+          oscThock.type = 'triangle';
+          oscThock.frequency.setValueAtTime(thockFreqStart, now);
+          oscThock.frequency.exponentialRampToValueAtTime(thockFreqEnd, now + 0.04 * decayScale);
+
+          gainThock.gain.setValueAtTime(thockGain * volume, now);
+          gainThock.gain.exponentialRampToValueAtTime(0.001, now + 0.045 * decayScale);
+
+          oscThock.connect(filterThock);
+          filterThock.connect(gainThock);
+          gainThock.connect(offlineCtx.destination);
+
+          oscThock.start(now);
+          oscThock.stop(now + 0.045 * decayScale + 0.005);
+        } else {
+          const thockFreqStart = 140 * pitchScale;
+          const thockFreqEnd = 90 * pitchScale;
+          const thockCutoff = 300 * cutoffScale;
+          const thockGain = 0.2 * gainScale;
+
+          const oscThock = offlineCtx.createOscillator();
+          const gainThock = offlineCtx.createGain();
+          const filterThock = offlineCtx.createBiquadFilter();
+
+          filterThock.type = 'lowpass';
+          filterThock.frequency.setValueAtTime(thockCutoff, now);
+
+          oscThock.type = 'sine';
+          oscThock.frequency.setValueAtTime(thockFreqStart, now);
+          oscThock.frequency.exponentialRampToValueAtTime(thockFreqEnd, now + 0.02 * decayScale);
+
+          gainThock.gain.setValueAtTime(thockGain * volume, now);
+          gainThock.gain.exponentialRampToValueAtTime(0.001, now + 0.025 * decayScale);
+
+          oscThock.connect(filterThock);
+          filterThock.connect(gainThock);
+          gainThock.connect(offlineCtx.destination);
+
+          oscThock.start(now);
+          oscThock.stop(now + 0.025 * decayScale + 0.005);
+        }
+      } else if (profile === 'box-navy') {
+        const clickFreq = (isPress ? 1500 : 1400) * pitchScale;
+        const clickCutoff = (isPress ? 2200 : 2000) * cutoffScale;
+        const clickGain = (isPress ? 0.55 : 0.42) * gainScale;
+        const clickDecay = 0.012 * decayScale;
+
+        const oscClick = offlineCtx.createOscillator();
+        const gainClick = offlineCtx.createGain();
+        const filterClick = offlineCtx.createBiquadFilter();
+
+        filterClick.type = 'highpass';
+        filterClick.frequency.setValueAtTime(clickCutoff, now);
+
+        oscClick.type = 'triangle';
+        oscClick.frequency.setValueAtTime(clickFreq, now);
+        oscClick.frequency.exponentialRampToValueAtTime(250 * pitchScale, now + clickDecay);
+
+        gainClick.gain.setValueAtTime(clickGain * volume, now);
+        gainClick.gain.exponentialRampToValueAtTime(0.001, now + clickDecay);
+
+        oscClick.connect(filterClick);
+        filterClick.connect(gainClick);
+        gainClick.connect(offlineCtx.destination);
+
+        oscClick.start(now);
+        oscClick.stop(now + clickDecay + 0.005);
+
+        if (isPress) {
+          const thockFreqStart = 140 * pitchScale;
+          const thockFreqEnd = 80 * pitchScale;
+          const thockCutoff = 450 * cutoffScale;
+          const thockGain = 0.6 * gainScale;
+          const thockDecay = 0.035 * decayScale;
+
+          const oscThock = offlineCtx.createOscillator();
+          const gainThock = offlineCtx.createGain();
+          const filterThock = offlineCtx.createBiquadFilter();
+
+          filterThock.type = 'lowpass';
+          filterThock.frequency.setValueAtTime(thockCutoff, now);
+
+          oscThock.type = 'sine';
+          oscThock.frequency.setValueAtTime(thockFreqStart, now);
+          oscThock.frequency.exponentialRampToValueAtTime(thockFreqEnd, now + thockDecay);
+
+          gainThock.gain.setValueAtTime(thockGain * volume, now);
+          gainThock.gain.exponentialRampToValueAtTime(0.001, now + thockDecay + 0.005);
+
+          oscThock.connect(filterThock);
+          filterThock.connect(gainThock);
+          gainThock.connect(offlineCtx.destination);
+
+          oscThock.start(now);
+          oscThock.stop(now + thockDecay + 0.01);
+        }
+      } else if (profile === 'buckling-spring') {
+        const clickFreq = (isPress ? 950 : 1300) * pitchScale;
+        const clickCutoff = (isPress ? 1100 : 1500) * cutoffScale;
+        const clickGain = (isPress ? 0.32 : 0.18) * gainScale;
+        const clickDecay = 0.016 * decayScale;
+
+        const oscClick = offlineCtx.createOscillator();
+        const gainClick = offlineCtx.createGain();
+        const filterClick = offlineCtx.createBiquadFilter();
+
+        filterClick.type = 'bandpass';
+        filterClick.frequency.setValueAtTime(clickCutoff, now);
+
+        oscClick.type = 'triangle';
+        oscClick.frequency.setValueAtTime(clickFreq, now);
+        oscClick.frequency.exponentialRampToValueAtTime(isPress ? 200 * pitchScale : 300 * pitchScale, now + clickDecay);
+
+        gainClick.gain.setValueAtTime(clickGain * volume, now);
+        gainClick.gain.exponentialRampToValueAtTime(0.001, now + clickDecay);
+
+        oscClick.connect(filterClick);
+        filterClick.connect(gainClick);
+        gainClick.connect(offlineCtx.destination);
+
+        oscClick.start(now);
+        oscClick.stop(now + clickDecay + 0.005);
+
+        if (isPress) {
+          const pingFreq = 2500 * pitchScale;
+          const pingCutoff = 2800 * cutoffScale;
+          const pingGain = 0.045 * gainScale;
+          const pingDecay = 0.12 * decayScale;
+
+          const oscPing = offlineCtx.createOscillator();
+          const gainPing = offlineCtx.createGain();
+          const filterPing = offlineCtx.createBiquadFilter();
+
+          filterPing.type = 'bandpass';
+          filterPing.frequency.setValueAtTime(pingCutoff, now);
+          filterPing.Q.setValueAtTime(3.0, now);
+
+          oscPing.type = 'sine';
+          oscPing.frequency.setValueAtTime(pingFreq, now);
+
+          gainPing.gain.setValueAtTime(pingGain * volume, now);
+          gainPing.gain.exponentialRampToValueAtTime(0.001, now + pingDecay);
+
+          oscPing.connect(filterPing);
+          filterPing.connect(gainPing);
+          gainPing.connect(offlineCtx.destination);
+
+          oscPing.start(now);
+          oscPing.stop(now + pingDecay + 0.01);
+
+          const thockFreqStart = 120 * pitchScale;
+          const thockFreqEnd = 70 * pitchScale;
+          const thockCutoff = 300 * cutoffScale;
+          const thockGain = 0.4 * gainScale;
+          const thockDecay = 0.04 * decayScale;
+
+          const oscThock = offlineCtx.createOscillator();
+          const gainThock = offlineCtx.createGain();
+          const filterThock = offlineCtx.createBiquadFilter();
+
+          filterThock.type = 'lowpass';
+          filterThock.frequency.setValueAtTime(thockCutoff, now);
+
+          oscThock.type = 'sine';
+          oscThock.frequency.setValueAtTime(thockFreqStart, now);
+          oscThock.frequency.exponentialRampToValueAtTime(thockFreqEnd, now + thockDecay);
+
+          gainThock.gain.setValueAtTime(thockGain * volume, now);
+          gainThock.gain.exponentialRampToValueAtTime(0.001, now + thockDecay + 0.005);
+
+          oscThock.connect(filterThock);
+          filterThock.connect(gainThock);
+          gainThock.connect(offlineCtx.destination);
+
+          oscThock.start(now);
+          oscThock.stop(now + thockDecay + 0.01);
+        }
+      } else if (profile === 'topre') {
+        const plopFreqStart = (isPress ? 140 : 180) * pitchScale;
+        const plopFreqEnd = (isPress ? 85 : 110) * pitchScale;
+        const plopCutoff = (isPress ? 220 : 280) * cutoffScale;
+        const plopGain = (isPress ? 0.7 : 0.3) * gainScale;
+        const plopDecay = (isPress ? 0.035 : 0.03) * decayScale;
+
+        const oscThock = offlineCtx.createOscillator();
+        const gainThock = offlineCtx.createGain();
+        const filterThock = offlineCtx.createBiquadFilter();
+
+        filterThock.type = 'lowpass';
+        filterThock.frequency.setValueAtTime(plopCutoff, now);
+
+        oscThock.type = 'sine';
+        oscThock.frequency.setValueAtTime(plopFreqStart, now);
+        oscThock.frequency.exponentialRampToValueAtTime(plopFreqEnd, now + plopDecay);
+
+        gainThock.gain.setValueAtTime(plopGain * volume, now);
+        gainThock.gain.exponentialRampToValueAtTime(0.001, now + plopDecay + 0.003);
+
+        oscThock.connect(filterThock);
+        filterThock.connect(gainThock);
+        gainThock.connect(offlineCtx.destination);
+
+        oscThock.start(now);
+        oscThock.stop(now + plopDecay + 0.005);
+      } else if (profile === 'membrane') {
+        const domeFreqStart = (isPress ? 150 : 200) * pitchScale;
+        const domeFreqEnd = (isPress ? 80 : 120) * pitchScale;
+        const domeCutoff = 400 * cutoffScale;
+        const domeGain = (isPress ? 0.4 : 0.15) * gainScale;
+        val = 0.02 * decayScale;
+
+        const oscClick = offlineCtx.createOscillator();
+        const gainClick = offlineCtx.createGain();
+        const filterClick = offlineCtx.createBiquadFilter();
+
+        filterClick.type = 'lowpass';
+        filterClick.frequency.setValueAtTime(domeCutoff, now);
+
+        oscClick.type = 'sine';
+        oscClick.frequency.setValueAtTime(domeFreqStart, now);
+        oscClick.frequency.exponentialRampToValueAtTime(domeFreqEnd, now + 0.02);
+
+        gainClick.gain.setValueAtTime(domeGain * volume, now);
+        gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+
+        oscClick.connect(filterClick);
+        filterClick.connect(gainClick);
+        gainClick.connect(offlineCtx.destination);
+
+        oscClick.start(now);
+        oscClick.stop(now + 0.025);
+      } else if (profile === 'bubble-wrap') {
+        if (isPress) {
+          const popFreqStart = 450 * pitchScale;
+          const popFreqEnd = 1100 * pitchScale;
+          const popCutoff = 750 * cutoffScale;
+          const popGain = 0.5 * gainScale;
+          const popDecay = 0.015 * decayScale;
+
+          const oscPop = offlineCtx.createOscillator();
+          const gainPop = offlineCtx.createGain();
+          const filterPop = offlineCtx.createBiquadFilter();
+
+          filterPop.type = 'bandpass';
+          filterPop.frequency.setValueAtTime(popCutoff, now);
+
+          oscPop.type = 'sine';
+          oscPop.frequency.setValueAtTime(popFreqStart, now);
+          oscPop.frequency.exponentialRampToValueAtTime(popFreqEnd, now + popDecay);
+
+          gainPop.gain.setValueAtTime(popGain * volume, now);
+          gainPop.gain.exponentialRampToValueAtTime(0.001, now + popDecay);
+
+          oscPop.connect(filterPop);
+          filterPop.connect(gainPop);
+          gainPop.connect(offlineCtx.destination);
+
+          oscPop.start(now);
+          oscPop.stop(now + popDecay + 0.005);
+        }
+      }
+
+      const renderedBuffer = await offlineCtx.startRendering();
+      const wavBlob = audioBufferToWav(renderedBuffer);
+
+      const filename = `${profile}_${isPress ? 'press' : 'release'}.wav`;
+      await fetch(`/save_wav/${filename}`, {
+        method: 'POST',
+        body: wavBlob
+      });
+
+      log(`Synthesized & uploaded ${filename}`);
+    }
+
+    function audioBufferToWav(buffer) {
+      const numChannels = 1;
+      const sampleRate = buffer.sampleRate;
+      const format = 1; // PCM
+      const bitDepth = 16;
+      const bytesPerSample = bitDepth / 8;
+      const blockAlign = numChannels * bytesPerSample;
+      const data = buffer.getChannelData(0);
+      const dataSize = data.length * bytesPerSample;
+      const bufferSize = 44 + dataSize;
+      const arrayBuffer = new ArrayBuffer(bufferSize);
+      const view = new DataView(arrayBuffer);
+
+      function writeString(offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + dataSize, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, format, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * blockAlign, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitDepth, true);
+      writeString(36, 'data');
+      view.setUint32(40, dataSize, true);
+
+      let offset = 44;
+      for (let i = 0; i < data.length; i++) {
+        const s = Math.max(-1, Math.min(1, data[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+      }
+
+      return new Blob([arrayBuffer], { type: 'audio/wav' });
+    }
+
+    async function run() {
+      for (const p of profiles) {
+        await renderSound(p, true);
+        await renderSound(p, false);
+      }
+      log("🎉 Rendering complete!");
+    }
+
+    run();
+  </script>
+</body>
+</html>

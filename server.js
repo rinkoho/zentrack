@@ -23,6 +23,26 @@ if (!config.token) {
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
 }
 
+// SHA-256 AES-256-GCM key derivation for E2EE keyboard events
+const aesKey = crypto.createHash('sha256').update(config.token).digest();
+
+function decryptKeyboardPayload(payload) {
+  try {
+    const iv = Buffer.from(payload.iv, 'base64');
+    const data = Buffer.from(payload.data, 'base64');
+    const tag = Buffer.from(payload.tag, 'base64');
+
+    const decipher = crypto.createDecipheriv('aes-256-gcm', aesKey, iv);
+    decipher.setAuthTag(tag);
+
+    const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
+    return JSON.parse(decrypted.toString('utf8'));
+  } catch (e) {
+    console.error('[AES-256-GCM Decryption Error]:', e.message);
+    return null;
+  }
+}
+
 const PORT = process.env.PORT || 3000;
 let xdotool = null;
 let gamepadProcess = null;
@@ -68,6 +88,7 @@ function sendGamepadCommand(cmd) {
 let highPolling = true;
 let interpolationQueue = [];
 let interpolationInterval = null;
+const activeModifiers = new Set();
 
 // Function to start the persistent xdotool process in stdin mode
 function startXdotool() {
@@ -99,6 +120,35 @@ function startXdotool() {
   xdotool.stderr.on('data', (data) => {
     console.error(`[xdotool stderr]: ${data.toString().trim()}`);
   });
+}
+
+// --- uinput High-End Touchpad Smooth Scroll Driver ---
+let uinputDaemon = null;
+
+function startUInputDaemon() {
+  const scriptPath = path.join(__dirname, 'uinput_device.py');
+  uinputDaemon = spawn('python3', [scriptPath]);
+
+  uinputDaemon.stdout.on('data', (data) => {
+    console.log(`[uinput-touchpad] ${data.toString().trim()}`);
+  });
+
+  uinputDaemon.stderr.on('data', (data) => {
+    console.error(`[uinput-touchpad err] ${data.toString().trim()}`);
+  });
+
+  uinputDaemon.on('close', (code) => {
+    console.log(`[uinput-touchpad] Daemon exited code ${code}, restarting...`);
+    setTimeout(startUInputDaemon, 1000);
+  });
+}
+
+startUInputDaemon();
+
+function sendUInput(payload) {
+  if (uinputDaemon && uinputDaemon.stdin && uinputDaemon.stdin.writable) {
+    uinputDaemon.stdin.write(JSON.stringify(payload) + '\n');
+  }
 }
 
 // Start xdotool process
@@ -205,9 +255,30 @@ const server = http.createServer((req, res) => {
       status: 'active',
       port: PORT,
       token: config.token,
+      currentRice: config.currentRice || 'tokyo-night',
       connectedCount: clients.length,
       connectedIPs: clients
     }));
+    return;
+  }
+
+  // Instant Rice Sync API endpoint
+  if (pathname === '/api/rice') {
+    const riceName = parsedUrl.query.name || 'tokyo-night';
+    console.log(`[RiceSync API] Instant Rice Broadcast: ${riceName}`);
+    config.currentRice = riceName;
+
+    if (typeof wss !== 'undefined' && wss.clients) {
+      const msg = JSON.stringify({ type: 'rice_sync', name: riceName });
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(msg);
+        }
+      });
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, rice: riceName }));
     return;
   }
 
@@ -297,6 +368,14 @@ if (fs.existsSync(RICE_FILE)) {
 wss.on('connection', (ws, req) => {
   const clientIP = req.socket.remoteAddress;
 
+  // Disable Nagle's buffering algorithm for 0ms Wi-Fi packet transmission
+  if (req.socket && req.socket.setNoDelay) {
+    req.socket.setNoDelay(true);
+  }
+  if (req.socket && req.socket.setKeepAlive) {
+    req.socket.setKeepAlive(true, 1000);
+  }
+
   // Extract and validate token from WebSocket connection request URL
   const parsedUrl = url.parse(req.url, true);
   const clientToken = parsedUrl.query.token;
@@ -320,7 +399,27 @@ wss.on('connection', (ws, req) => {
 
   ws.on('message', (message) => {
     try {
-      const payload = JSON.parse(message);
+      // ⚡ FAST BINARY PROTOCOL (6-byte Int16Array: [CMD, X, Y])
+      if (Buffer.isBuffer(message) && message.length >= 6) {
+        const cmd = message.readInt16LE(0);
+        const x = message.readInt16LE(2);
+        const y = message.readInt16LE(4);
+
+        if (cmd === 1) { // MOVE
+          sendUInput({ type: 'move', dx: x, dy: y });
+          return;
+        } else if (cmd === 2) { // SMOOTH SCROLL
+          sendUInput({ type: 'smooth_scroll', dx: x / 10.0, dy: y / 10.0 });
+          return;
+        }
+      }
+
+      let payload = JSON.parse(message);
+
+      if (payload.type === 'enc_key') {
+        payload = decryptKeyboardPayload(payload);
+        if (!payload) return;
+      }
       
       switch (payload.type) {
         case 'ping':
@@ -376,19 +475,64 @@ wss.on('connection', (ws, req) => {
           sendXdotoolCommand(`click --repeat ${steps} --delay 0 ${scrollBtn}`);
           break;
 
+        case 'smooth_scroll':
+          sendUInput({ type: 'smooth_scroll', dx: payload.dx, dy: payload.dy });
+          break;
+
         case 'key':
           // Trigger a keyboard shortcut
-          sendXdotoolCommand(`key ${payload.key}`);
+          sendXdotoolCommand(`key ${mapXdotoolKey(payload.key)}`);
           break;
 
         case 'keydown':
-          // Press and hold a key down
-          sendXdotoolCommand(`keydown ${payload.key}`);
+          {
+            const k = payload.key;
+            if (['Alt_L', 'Alt_R', 'Shift_L', 'Shift_R', 'Control_L', 'Control_R', 'Super_L'].includes(k)) {
+              activeModifiers.add(k);
+            }
+
+            // 1. Emit Hardware Kernel Input Event via /dev/uinput (100% Real Physical Keyboard)
+            sendUInput({ type: 'keydown', key: k });
+
+            // 2. Fallback / Complementary X11 xdotool handling
+            const isAltGrPressed = activeModifiers.has('Alt_R');
+            const isShiftPressed = activeModifiers.has('Shift_L') || activeModifiers.has('Shift_R');
+
+            if (isAltGrPressed) {
+              if (k === 'n' || k === 'N') {
+                sendXdotoolCommand(isShiftPressed ? 'key Ntilde' : 'key ntilde');
+                break;
+              } else if (k === 'a' || k === 'A') {
+                sendXdotoolCommand(isShiftPressed ? 'key Aacute' : 'key aacute');
+                break;
+              } else if (k === 'e' || k === 'E') {
+                sendXdotoolCommand(isShiftPressed ? 'key Eacute' : 'key eacute');
+                break;
+              } else if (k === 'i' || k === 'I') {
+                sendXdotoolCommand(isShiftPressed ? 'key Iacute' : 'key iacute');
+                break;
+              } else if (k === 'o' || k === 'O') {
+                sendXdotoolCommand(isShiftPressed ? 'key Oacute' : 'key oacute');
+                break;
+              } else if (k === 'u' || k === 'U') {
+                sendXdotoolCommand(isShiftPressed ? 'key Uacute' : 'key uacute');
+                break;
+              }
+            }
+
+            sendXdotoolCommand(`keydown ${mapXdotoolKey(k)}`);
+          }
           break;
 
         case 'keyup':
-          // Release a key
-          sendXdotoolCommand(`keyup ${payload.key}`);
+          {
+            const k = payload.key;
+            if (['Alt_L', 'Alt_R', 'Shift_L', 'Shift_R', 'Control_L', 'Control_R', 'Super_L'].includes(k)) {
+              activeModifiers.delete(k);
+            }
+            sendUInput({ type: 'keyup', key: k });
+            sendXdotoolCommand(`keyup ${mapXdotoolKey(k)}`);
+          }
           break;
 
         case 'shortcut':
@@ -433,10 +577,16 @@ wss.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     console.log('[WebSocket] Mobile client disconnected. Releasing modifier keys for safety...');
-    sendXdotoolCommand('keyup Super_L keyup Super_R keyup Control_L keyup Control_R keyup Alt_L keyup Alt_R keyup Shift_L keyup Shift_R');
+    sendXdotoolCommand('keyup Super_L keyup Super_R keyup Control_L keyup Control_R keyup Alt_L keyup Alt_R keyup ISO_Level3_Shift keyup Shift_L keyup Shift_R');
     stopGamepadProcess();
   });
 });
+
+function mapXdotoolKey(key) {
+  if (!key) return '';
+  if (key === 'Alt_R') return 'ISO_Level3_Shift';
+  return key;
+}
 
 // Execute system-specific commands using xdotool based on the user's BSPWM config
 function handleSystemShortcut(action) {
