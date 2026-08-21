@@ -2,8 +2,13 @@ package com.carlos.zentrack.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.carlos.zentrack.theme.ZenThemeConfig
+import com.carlos.zentrack.ui.components.KeycasterFloatingHUD
+import com.carlos.zentrack.ui.components.KeycasterState
+import com.carlos.zentrack.ui.components.rememberKeycasterState
 
 @Composable
 fun HybridScreen(
@@ -13,7 +18,12 @@ fun HybridScreen(
     sensitivity: Float,
     scrollSensitivity: Float,
     mouseAccelEnabled: Boolean,
+    mouseAccelProfile: String = com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile,
     naturalScroll: Boolean,
+    stickyKeysEnabled: Boolean = true,
+    hybridKeyboardHeightRatio: Float = com.carlos.zentrack.preferences.ZenPreferences.hybridKeyboardHeightRatio,
+    keyCasterEnabled: Boolean = true,
+    keycasterState: KeycasterState = rememberKeycasterState(),
     onOpenDrawer: () -> Unit,
     onReconnect: () -> Unit,
     onOpenThemeDialog: () -> Unit,
@@ -21,47 +31,66 @@ fun HybridScreen(
     onSendJson: (String) -> Unit,
     onVibrate: (Long) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        // TOP SECTION (~38% HEIGHT): Compact High-Precision Trackpad Surface
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.38f)
-        ) {
-            TrackpadScreen(
-                currentTheme = currentTheme,
-                isConnected = isConnected,
-                statusText = statusText,
-                sensitivity = sensitivity,
-                scrollSensitivity = scrollSensitivity,
-                mouseAccelEnabled = mouseAccelEnabled,
-                naturalScroll = naturalScroll,
-                isCompactMode = true,
-                onOpenDrawer = onOpenDrawer,
-                onReconnect = onReconnect,
-                onSendBinary = onSendBinary,
-                onSendJson = onSendJson,
-                onVibrate = onVibrate
-            )
+    val topWeight = (1.0f - hybridKeyboardHeightRatio).coerceIn(0.1f, 0.9f)
+    val bottomWeight = hybridKeyboardHeightRatio.coerceIn(0.1f, 0.9f)
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // TOP SECTION: Trackpad Surface
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(topWeight)
+            ) {
+                TrackpadScreen(
+                    currentTheme = currentTheme,
+                    isConnected = isConnected,
+                    statusText = statusText,
+                    sensitivity = sensitivity,
+                    scrollSensitivity = scrollSensitivity,
+                    mouseAccelEnabled = mouseAccelEnabled,
+                    mouseAccelProfile = mouseAccelProfile,
+                    naturalScroll = naturalScroll,
+                    isCompactMode = true,
+                    onOpenDrawer = onOpenDrawer,
+                    onReconnect = onReconnect,
+                    onSendBinary = onSendBinary,
+                    onSendJson = onSendJson,
+                    onVibrate = onVibrate
+                )
+            }
+
+            // BOTTOM SECTION: Mechanical Keyboard
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(bottomWeight)
+            ) {
+                KeyboardScreen(
+                    currentTheme = currentTheme,
+                    isConnected = isConnected,
+                    statusText = statusText,
+                    showTopBar = false,
+                    stickyKeysEnabled = stickyKeysEnabled,
+                    keyCasterEnabled = keyCasterEnabled,
+                    keycasterState = keycasterState,
+                    onOpenDrawer = onOpenDrawer,
+                    onReconnect = onReconnect,
+                    onOpenThemeDialog = onOpenThemeDialog,
+                    onSendJson = onSendJson,
+                    onVibrate = onVibrate
+                )
+            }
         }
 
-        // BOTTOM SECTION (~62% HEIGHT): 65% Mechanical Keyboard
-        Box(
+        // Floating Growing Keycaster HUD for Hybrid Mode (Osu!lazer spring animation)
+        KeycasterFloatingHUD(
+            keycasterState = keycasterState,
+            theme = currentTheme,
+            isEnabled = keyCasterEnabled,
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.62f)
-        ) {
-            KeyboardScreen(
-                currentTheme = currentTheme,
-                isConnected = isConnected,
-                statusText = statusText,
-                showTopBar = false,
-                onOpenDrawer = onOpenDrawer,
-                onReconnect = onReconnect,
-                onOpenThemeDialog = onOpenThemeDialog,
-                onSendJson = onSendJson,
-                onVibrate = onVibrate
-            )
-        }
+                .align(Alignment.TopCenter)
+                .padding(top = 10.dp)
+        )
     }
 }

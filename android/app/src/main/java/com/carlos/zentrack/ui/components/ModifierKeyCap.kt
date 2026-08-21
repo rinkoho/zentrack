@@ -6,91 +6,81 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.carlos.zentrack.audio.ZenSoundEngine
 import com.carlos.zentrack.theme.ZenThemeConfig
-import org.json.JSONObject
+import kotlinx.coroutines.withTimeoutOrNull
+
+enum class ModifierMode {
+    OFF, STICKY, LOCKED
+}
 
 @Composable
-fun KeyCap(
+fun ModifierKeyCap(
     label: String,
     keyCode: String,
     theme: ZenThemeConfig,
+    mode: ModifierMode,
     modifier: Modifier = Modifier,
-    sublabel: String? = null,
-    icon: ImageVector? = null,
     nerdSymbol: String? = null,
-    isAccent: Boolean = false,
-    isModifier: Boolean = false,
-    externalPressed: Boolean = false,
-    isLedOn: Boolean = false,
-    onPressStateChanged: ((Boolean) -> Unit)? = null,
-    onSendJson: (String) -> Unit,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
     onVibrate: (Long) -> Unit
 ) {
-    var internalIsPressed by remember { mutableStateOf(false) }
-    val isPressed = internalIsPressed || externalPressed
-    val currentKeyCode by rememberUpdatedState(keyCode)
+    val isLatched = mode != ModifierMode.OFF
+    val isLocked = mode == ModifierMode.LOCKED
 
-    val keyBg = when {
-        isPressed -> if (isAccent) theme.keyAccentActiveBg else if (isModifier) theme.keyModActiveBg else theme.keyAlphaActiveBg
-        isAccent -> theme.keyAccentBg
-        isModifier -> theme.keyModBg
-        else -> theme.keyAlphaBg
+    // 100% ISOLATED AUDIO ENGINE: Sound plays ONLY when the key's 3D animation state changes
+    var previousLatched by remember { mutableStateOf(isLatched) }
+    LaunchedEffect(isLatched) {
+        if (isLatched != previousLatched) {
+            if (isLatched) {
+                ZenSoundEngine.playSwitchSound(isPress = true, keyCode = keyCode)
+            } else {
+                ZenSoundEngine.playSwitchSound(isPress = false, keyCode = keyCode)
+            }
+            previousLatched = isLatched
+        }
     }
 
-    val textColor = when {
-        isAccent -> theme.keyAccentText
-        isModifier -> theme.keyModText
-        else -> theme.keyAlphaText
-    }
-
-    val shadowColor = when {
-        isAccent -> theme.keyAccentShadow
-        isModifier -> theme.keyModShadow
-        else -> theme.keyAlphaShadow
-    }
-
-    val sublabelColor = textColor.copy(alpha = 0.65f)
+    val keyBg = if (isLatched) theme.keyModActiveBg else theme.keyModBg
+    val textColor = theme.keyModText
+    val shadowColor = theme.keyModShadow
 
     // Outer Box: FULL CELL HITBOX (0 gaps / 0 dead zones across the grid)
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .pointerInput(Unit) {
+            .pointerInput(keyCode, mode) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
-                    val activeKey = currentKeyCode
-                    internalIsPressed = true
-                    
-                    if (activeKey.isNotEmpty()) {
-                        val json = JSONObject().put("type", "keydown").put("key", activeKey).toString()
-                        onSendJson(json)
-                    }
-                    onVibrate(12L)
-                    com.carlos.zentrack.audio.ZenSoundEngine.playSwitchSound(isPress = true, keyCode = activeKey)
-                    onPressStateChanged?.invoke(true)
+                    var isLongPressed = false
 
-                    waitForUpOrCancellation()
-
-                    internalIsPressed = false
-                    
-                    if (activeKey.isNotEmpty()) {
-                        val upJson = JSONObject().put("type", "keyup").put("key", activeKey).toString()
-                        onSendJson(upJson)
+                    val upOrCancel = withTimeoutOrNull(350L) {
+                        waitForUpOrCancellation()
                     }
-                    com.carlos.zentrack.audio.ZenSoundEngine.playSwitchSound(isPress = false, keyCode = activeKey)
-                    onPressStateChanged?.invoke(false)
+
+                    if (upOrCancel == null) {
+                        isLongPressed = true
+                        onVibrate(30L)
+                        onLongPress()
+                        waitForUpOrCancellation()
+                    } else {
+                        if (!isLongPressed) {
+                            onVibrate(12L)
+                            onTap()
+                        }
+                    }
                 }
             }
     ) {
@@ -99,7 +89,7 @@ fun KeyCap(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(2.0.dp)
-                .offset(y = if (isPressed) 2.5.dp else 0.dp)
+                .offset(y = if (isLatched) 2.5.dp else 0.dp)
         ) {
             // Layer 1: Ambient Drop Shadow
             Box(
@@ -127,14 +117,14 @@ fun KeyCap(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = if (isPressed) 1.dp else 3.5.dp)
+                    .padding(bottom = if (isLatched) 1.dp else 3.5.dp)
                     .background(
                         color = keyBg,
                         shape = RoundedCornerShape(6.dp)
                     )
                     .border(
                         width = 0.5.dp,
-                        color = if (isPressed) Color.Transparent else Color.White.copy(alpha = 0.03f),
+                        color = if (isLatched) Color.Transparent else Color.White.copy(alpha = 0.03f),
                         shape = RoundedCornerShape(6.dp)
                     )
             ) {
@@ -147,19 +137,11 @@ fun KeyCap(
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.offset(x = (-2).dp)
                     )
-                } else if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = label,
-                        tint = textColor,
-                        modifier = Modifier.size(16.dp)
-                    )
                 } else {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        // Main Label ON TOP
                         Text(
                             text = label,
                             color = textColor,
@@ -167,26 +149,17 @@ fun KeyCap(
                             fontWeight = FontWeight.Bold,
                             lineHeight = 12.sp
                         )
-                        // Sublabel BELOW
-                        if (sublabel != null) {
-                            Text(
-                                text = sublabel,
-                                color = sublabelColor,
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                lineHeight = 8.sp
-                            )
-                        }
                     }
                 }
 
-                if (isLedOn) {
+                // Sleek Mechanical Keyboard LED Dot Indicator for LOCKED Mode
+                if (isLocked) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(top = 3.dp, end = 3.dp)
                             .size(5.dp)
-                            .background(theme.primaryAccent, androidx.compose.foundation.shape.CircleShape)
+                            .background(theme.primaryAccent, CircleShape)
                     )
                 }
             }

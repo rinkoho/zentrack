@@ -20,9 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.carlos.zentrack.theme.*
 import com.carlos.zentrack.ui.components.SettingsDialog
 import com.carlos.zentrack.ui.components.ThemeSelectionDialog
+import com.carlos.zentrack.ui.components.rememberKeycasterState
 
 @Composable
 fun MainContainerScreen(
@@ -37,15 +40,23 @@ fun MainContainerScreen(
     onSendJson: (String) -> Unit,
     onVibrate: (Long) -> Unit
 ) {
-    var activeAppMode by remember { mutableStateOf("Trackpad") } // "Trackpad" or "Keyboard"
+    var activeAppMode by remember { mutableStateOf("Trackpad") } // "Trackpad", "Keyboard", "Hybrid", or "Settings"
+    var previousAppMode by remember { mutableStateOf("Trackpad") }
     var isSidebarExpanded by remember { mutableStateOf(false) }
-    var showSettingsDialog by remember { mutableStateOf(false) }
     var showThemeSelectionDialog by remember { mutableStateOf(false) }
     var sensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.sensitivity) }
     var scrollSensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.scrollSensitivity) }
+    var mouseAccelProfile by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile) }
     var mouseAccelEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.mouseAccelEnabled) }
     var naturalScroll by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.naturalScroll) }
+    var stickyKeysEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.stickyKeysEnabled) }
     var themeAnimSpeedMs by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.themeAnimSpeedMs) }
+    var hybridKeyboardHeightRatio by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.hybridKeyboardHeightRatio) }
+    var keyCasterEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.keyCasterEnabled) }
+    var usbAdbModeEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled) }
+    var invertThreeFingerSwipe by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.invertThreeFingerSwipe) }
+
+    val keycasterState = rememberKeycasterState()
 
     // Smooth Hyprland-style Geometric Color Transition
     val animatedTheme = rememberAnimatedZenTheme(activeTheme, durationMs = themeAnimSpeedMs)
@@ -66,7 +77,9 @@ fun MainContainerScreen(
                         sensitivity = sensitivity,
                         scrollSensitivity = scrollSensitivity,
                         mouseAccelEnabled = mouseAccelEnabled,
+                        mouseAccelProfile = mouseAccelProfile,
                         naturalScroll = naturalScroll,
+                        invertThreeFingerSwipe = invertThreeFingerSwipe,
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
                         onSendBinary = onSendBinary,
@@ -79,9 +92,60 @@ fun MainContainerScreen(
                         currentTheme = animatedTheme,
                         isConnected = isConnected,
                         statusText = statusText,
+                        stickyKeysEnabled = stickyKeysEnabled,
+                        keyCasterEnabled = keyCasterEnabled,
+                        keycasterState = keycasterState,
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
                         onOpenThemeDialog = { showThemeSelectionDialog = true },
+                        onSendJson = onSendJson,
+                        onVibrate = onVibrate
+                    )
+                }
+                "Settings" -> {
+                    SettingsScreen(
+                        currentTheme = animatedTheme,
+                        sensitivity = sensitivity,
+                        scrollSensitivity = scrollSensitivity,
+                        mouseAccelEnabled = mouseAccelEnabled,
+                        mouseAccelProfile = mouseAccelProfile,
+                        naturalScroll = naturalScroll,
+                        stickyKeysEnabled = stickyKeysEnabled,
+                        syncTheme = syncTheme,
+                        themeAnimSpeedMs = themeAnimSpeedMs,
+                        hybridKeyboardHeightRatio = hybridKeyboardHeightRatio,
+                        keyCasterEnabled = keyCasterEnabled,
+                        usbAdbModeEnabled = usbAdbModeEnabled,
+                        invertThreeFingerSwipe = invertThreeFingerSwipe,
+                        onSensitivityChanged = { sensitivity = it },
+                        onScrollSensitivityChanged = { scrollSensitivity = it },
+                        onMouseAccelEnabledChanged = { mouseAccelEnabled = it },
+                        onMouseAccelProfileChanged = { 
+                            mouseAccelProfile = it
+                            mouseAccelEnabled = (it != "none")
+                        },
+                        onNaturalScrollChanged = { naturalScroll = it },
+                        onStickyKeysChanged = { stickyKeysEnabled = it },
+                        onSyncThemeChanged = onSyncThemeChanged,
+                        onThemeAnimSpeedChanged = { themeAnimSpeedMs = it },
+                        onHybridKeyboardHeightRatioChanged = { hybridKeyboardHeightRatio = it },
+                        onKeyCasterEnabledChanged = { keyCasterEnabled = it },
+                        onUsbAdbModeChanged = { 
+                            usbAdbModeEnabled = it
+                            onReconnect()
+                        },
+                        onInvertThreeFingerSwipeChanged = { invertThreeFingerSwipe = it },
+                        onBack = { activeAppMode = previousAppMode }
+                    )
+                }
+                "Gaming", "Gamepad" -> {
+                    GamepadScreen(
+                        currentTheme = animatedTheme,
+                        isConnected = isConnected,
+                        statusText = statusText,
+                        onOpenDrawer = { isSidebarExpanded = true },
+                        onReconnect = onReconnect,
+                        onSendBinary = onSendBinary,
                         onSendJson = onSendJson,
                         onVibrate = onVibrate
                     )
@@ -94,7 +158,12 @@ fun MainContainerScreen(
                         sensitivity = sensitivity,
                         scrollSensitivity = scrollSensitivity,
                         mouseAccelEnabled = mouseAccelEnabled,
+                        mouseAccelProfile = mouseAccelProfile,
                         naturalScroll = naturalScroll,
+                        stickyKeysEnabled = stickyKeysEnabled,
+                        hybridKeyboardHeightRatio = hybridKeyboardHeightRatio,
+                        keyCasterEnabled = keyCasterEnabled,
+                        keycasterState = keycasterState,
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
                         onOpenThemeDialog = { showThemeSelectionDialog = true },
@@ -139,7 +208,11 @@ fun MainContainerScreen(
                         .padding(14.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
                         // Title Header
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -207,102 +280,137 @@ fun MainContainerScreen(
                         )
                         Spacer(modifier = Modifier.height(6.dp))
 
-                        // Control Mode Selector (Pad | Teclado | Híbrido)
-                        Row(
+                        // Control Mode Selector (Organized Vertically)
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(animatedTheme.card, RoundedCornerShape(8.dp))
-                                .padding(3.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                                .background(animatedTheme.card, RoundedCornerShape(10.dp))
+                                .padding(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
+                            // 1. Pad Tactil
+                            val isPad = activeAppMode == "Trackpad"
                             Surface(
-                                color = if (activeAppMode == "Trackpad") animatedTheme.primaryAccent else Color.Transparent,
-                                shape = RoundedCornerShape(6.dp),
+                                color = if (isPad) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Trackpad"
                                         onVibrate(15L)
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(vertical = 5.dp),
-                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         Icons.Default.TouchApp,
                                         contentDescription = null,
-                                        tint = if (activeAppMode == "Trackpad") Color.Black else animatedTheme.textPrimary,
-                                        modifier = Modifier.size(13.dp)
+                                        tint = if (isPad) Color.Black else animatedTheme.textPrimary,
+                                        modifier = Modifier.size(16.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        "Pad",
-                                        color = if (activeAppMode == "Trackpad") Color.Black else animatedTheme.textPrimary,
-                                        fontSize = 10.sp,
+                                        "Pad Táctil",
+                                        color = if (isPad) Color.Black else animatedTheme.textPrimary,
+                                        fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
 
+                            // 2. Teclado 65%
+                            val isKb = activeAppMode == "Keyboard"
                             Surface(
-                                color = if (activeAppMode == "Keyboard") animatedTheme.primaryAccent else Color.Transparent,
-                                shape = RoundedCornerShape(6.dp),
+                                color = if (isKb) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Keyboard"
                                         onVibrate(15L)
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(vertical = 5.dp),
-                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         Icons.Default.Keyboard,
                                         contentDescription = null,
-                                        tint = if (activeAppMode == "Keyboard") Color.Black else animatedTheme.textPrimary,
-                                        modifier = Modifier.size(13.dp)
+                                        tint = if (isKb) Color.Black else animatedTheme.textPrimary,
+                                        modifier = Modifier.size(16.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        "Teclado",
-                                        color = if (activeAppMode == "Keyboard") Color.Black else animatedTheme.textPrimary,
-                                        fontSize = 10.sp,
+                                        "Teclado 65%",
+                                        color = if (isKb) Color.Black else animatedTheme.textPrimary,
+                                        fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
 
+                            // 3. Vista Híbrida
+                            val isHybrid = activeAppMode == "Hybrid"
                             Surface(
-                                color = if (activeAppMode == "Hybrid") animatedTheme.primaryAccent else Color.Transparent,
-                                shape = RoundedCornerShape(6.dp),
+                                color = if (isHybrid) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
-                                    .weight(1.1f)
+                                    .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Hybrid"
                                         onVibrate(15L)
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(vertical = 5.dp),
-                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         Icons.Default.Dashboard,
                                         contentDescription = null,
-                                        tint = if (activeAppMode == "Hybrid") Color.Black else animatedTheme.textPrimary,
-                                        modifier = Modifier.size(13.dp)
+                                        tint = if (isHybrid) Color.Black else animatedTheme.textPrimary,
+                                        modifier = Modifier.size(16.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        "Híbrido",
-                                        color = if (activeAppMode == "Hybrid") Color.Black else animatedTheme.textPrimary,
-                                        fontSize = 10.sp,
+                                        "Híbrido (Dual)",
+                                        color = if (isHybrid) Color.Black else animatedTheme.textPrimary,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            // 4. Mando Gaming
+                            val isGaming = activeAppMode == "Gaming" || activeAppMode == "Gamepad"
+                            Surface(
+                                color = if (isGaming) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        activeAppMode = "Gaming"
+                                        onVibrate(15L)
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.SportsEsports,
+                                        contentDescription = null,
+                                        tint = if (isGaming) Color.Black else animatedTheme.textPrimary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Mando Gaming",
+                                        color = if (isGaming) Color.Black else animatedTheme.textPrimary,
+                                        fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
@@ -367,7 +475,8 @@ fun MainContainerScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                showSettingsDialog = true
+                                previousAppMode = activeAppMode
+                                activeAppMode = "Settings"
                                 isSidebarExpanded = false
                                 onVibrate(15L)
                             }
@@ -392,24 +501,6 @@ fun MainContainerScreen(
                 showThemeSelectionDialog = false
             },
             onDismiss = { showThemeSelectionDialog = false }
-        )
-
-        // Settings Dialog Modal
-        SettingsDialog(
-            show = showSettingsDialog,
-            sensitivity = sensitivity,
-            scrollSensitivity = scrollSensitivity,
-            mouseAccelEnabled = mouseAccelEnabled,
-            naturalScroll = naturalScroll,
-            onSensitivityChanged = { sensitivity = it },
-            onScrollSensitivityChanged = { scrollSensitivity = it },
-            onMouseAccelEnabledChanged = { mouseAccelEnabled = it },
-            onNaturalScrollChanged = { naturalScroll = it },
-            syncTheme = syncTheme,
-            onSyncThemeChanged = onSyncThemeChanged,
-            themeAnimSpeedMs = themeAnimSpeedMs,
-            onThemeAnimSpeedChanged = { themeAnimSpeedMs = it },
-            onDismiss = { showSettingsDialog = false }
         )
     }
 }

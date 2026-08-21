@@ -560,10 +560,12 @@ wss.on('connection', (ws, req) => {
           break;
 
         case 'gp_btn':
+          console.log(`[Gamepad Button] ${payload.name} = ${payload.value}`);
           sendGamepadCommand(`btn ${payload.name} ${payload.value}`);
           break;
 
         case 'gp_axis':
+          console.log(`[Gamepad Axis] ${payload.name} = ${payload.value}`);
           sendGamepadCommand(`axis ${payload.name} ${payload.value}`);
           break;
 

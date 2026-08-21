@@ -19,13 +19,15 @@ class WebSocketManager(
     fun connect(ip: String = "192.168.18.226", port: Int = 3000, token: String = "b8c5838d40a8746d2e79a7212e9f5f02") {
         socketExecutor.execute {
             try {
-                val serverUri = URI("ws://$ip:$port/?token=$token")
+                val isUsbAdb = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
+                val targetIp = if (isUsbAdb) "127.0.0.1" else ip
+                val serverUri = URI("ws://$targetIp:$port/?token=$token")
                 webSocketClient?.close()
 
                 webSocketClient = object : WebSocketClient(serverUri) {
                     override fun onOpen(handshakedata: ServerHandshake?) {
-                        Log.d("ZenTrack", "WebSocket Connected Successfully!")
-                        onStateChanged(true, "Conectado")
+                        Log.d("ZenTrack", "WebSocket Connected Successfully! Mode: ${if (isUsbAdb) "USB ADB" else "Wi-Fi"}")
+                        onStateChanged(true, if (isUsbAdb) "USB (Estable)" else "Wi-Fi (500Hz)")
                     }
 
                     override fun onMessage(message: String?) {

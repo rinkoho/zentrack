@@ -49,7 +49,9 @@ fun TrackpadScreen(
     sensitivity: Float,
     scrollSensitivity: Float,
     mouseAccelEnabled: Boolean,
+    mouseAccelProfile: String = com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile,
     naturalScroll: Boolean,
+    invertThreeFingerSwipe: Boolean = com.carlos.zentrack.preferences.ZenPreferences.invertThreeFingerSwipe,
     isCompactMode: Boolean = false,
     onOpenDrawer: () -> Unit,
     onReconnect: () -> Unit,
@@ -87,11 +89,19 @@ fun TrackpadScreen(
 
     // Timers
     var dragRunnable by remember { mutableStateOf<Runnable?>(null) }
+    var twoFingerDragRunnable by remember { mutableStateOf<Runnable?>(null) }
     var clickRunnable by remember { mutableStateOf<Runnable?>(null) }
+
+    var isRightDraggingMode by remember { mutableStateOf(false) }
 
     fun cancelDragTimer() {
         dragRunnable?.let { mainHandler.removeCallbacks(it) }
         dragRunnable = null
+    }
+
+    fun cancelTwoFingerDragTimer() {
+        twoFingerDragRunnable?.let { mainHandler.removeCallbacks(it) }
+        twoFingerDragRunnable = null
     }
 
     fun cancelClickTimer() {
@@ -178,6 +188,7 @@ fun TrackpadScreen(
                                     mainHandler.postDelayed(r, 250L)
                                 } else if (trackpadPointers.size == 2) {
                                     cancelDragTimer()
+                                    cancelTwoFingerDragTimer()
                                     isTapCandidate = false
                                     hasHadTwoFingers = true
                                     isTwoFingerTapCandidate = true
@@ -190,58 +201,58 @@ fun TrackpadScreen(
                                     twoFingerStartY = midY
                                     lastScrollX = midX
                                     lastScrollY = midY
+
+                                    val r2 = Runnable {
+                                        if (isTwoFingerTapCandidate && trackpadPointers.size == 2) {
+                                            isRightDraggingMode = true
+                                            isTwoFingerTapCandidate = false
+                                            cancelClickTimer()
+                                            val json = JSONObject().put("type", "mousedown").put("button", 3)
+                                            onSendJson(json.toString())
+                                            onVibrate(40L)
+                                        }
+                                    }
+                                    twoFingerDragRunnable = r2
+                                    mainHandler.postDelayed(r2, 250L)
                                 } else if (trackpadPointers.size == 3) {
                                     cancelDragTimer()
+                                    cancelTwoFingerDragTimer()
                                     isTwoFingerTapCandidate = false
                                     isThreeFingerSwipeCandidate = true
                                     val coords = trackpadPointers.values.toList()
-                                    threeFingerStartX = (coords[0].currentX + coords[1].currentX + coords[2].currentX) / 3f
+                                    if (coords.size >= 3) {
+                                        threeFingerStartX = (coords[0].currentX + coords[1].currentX + coords[2].currentX) / 3f
+                                    }
                                 }
                             }
-
                             MotionEvent.ACTION_MOVE -> {
-                                for (i in 0 until motionEvent.pointerCount) {
-                                    val pId = motionEvent.getPointerId(i)
-                                    val pt = trackpadPointers[pId]
-                                    if (pt != null) {
-                                        pt.prevX = pt.currentX
-                                        pt.prevY = pt.currentY
-                                        pt.currentX = motionEvent.getX(i)
-                                        pt.currentY = motionEvent.getY(i)
-                                    }
-                                }
+                                fun processCursorDelta(dx: Float, dy: Float) {
+                                    if (dx != 0f || dy != 0f) {
+                                        val rawDx = dx * sensitivity
+                                        val rawDy = dy * sensitivity
 
-                                if (trackpadPointers.size == 1 && !hasHadTwoFingers) {
-                                    val state = trackpadPointers.values.first()
-                                    val totalDist = hypot(state.currentX - tapStartX, state.currentY - tapStartY)
-
-                                    if (totalDist > 12f) {
-                                        isTapCandidate = false
-                                        cancelDragTimer()
-                                    }
-
-                                    val frameDx = state.currentX - state.prevX
-                                    val frameDy = state.currentY - state.prevY
-
-                                    if (frameDx != 0f || frameDy != 0f) {
-                                        val rawDx = frameDx * sensitivity
-                                        val rawDy = frameDy * sensitivity
-
-                                        val calcDx: Float
-                                        val calcDy: Float
-
-                                        if (mouseAccelEnabled) {
-                                            val velocity = hypot(rawDx, rawDy)
-                                            // Continuous Sigmoidal Gain Curve for ultra-precise micro-movements
-                                            val accelFactor = (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat()
-                                            calcDx = rawDx * accelFactor
-                                            calcDy = rawDy * accelFactor
-                                        } else {
-                                            calcDx = rawDx
-                                            calcDy = rawDy
+                                        val velocity = hypot(rawDx, rawDy)
+                                        val accelFactor = when (mouseAccelProfile) {
+                                            "none" -> 1.0f
+                                            "exponential" -> {
+                                                (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat()
+                                            }
+                                            "linear_offset_cap" -> {
+                                                val threshold = 1.5f
+                                                val maxVelocity = 12.0f
+                                                val maxCap = 2.2f
+                                                when {
+                                                    velocity <= threshold -> 1.0f
+                                                    velocity >= maxVelocity -> maxCap
+                                                    else -> 1.0f + (maxCap - 1.0f) * ((velocity - threshold) / (maxVelocity - threshold))
+                                                }
+                                            }
+                                            else -> if (mouseAccelEnabled) (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat() else 1.0f
                                         }
 
-                                        // Sub-pixel Floating Point Accumulator
+                                        val calcDx = rawDx * accelFactor
+                                        val calcDy = rawDy * accelFactor
+
                                         subPixelRemainderX += calcDx
                                         subPixelRemainderY += calcDy
 
@@ -255,34 +266,130 @@ fun TrackpadScreen(
                                             onSendBinary(1, sendMx, sendMy)
                                         }
                                     }
+                                }
+
+                                for (i in 0 until motionEvent.pointerCount) {
+                                    val pId = motionEvent.getPointerId(i)
+                                    val pt = trackpadPointers[pId]
+                                    if (pt != null) {
+                                        pt.prevX = pt.currentX
+                                        pt.prevY = pt.currentY
+                                        pt.currentX = motionEvent.getX(i)
+                                        pt.currentY = motionEvent.getY(i)
+                                    }
+                                }
+
+                                if (trackpadPointers.size == 1 && !hasHadTwoFingers) {
+                                    val pId = trackpadPointers.keys.first()
+                                    val pIdx = motionEvent.findPointerIndex(pId)
+                                    val state = trackpadPointers[pId]
+
+                                    if (pIdx >= 0 && state != null) {
+                                        val currX = motionEvent.getX(pIdx)
+                                        val currY = motionEvent.getY(pIdx)
+                                        val totalDist = hypot(currX - tapStartX, currY - tapStartY)
+
+                                        if (totalDist > 12f) {
+                                            isTapCandidate = false
+                                            cancelDragTimer()
+                                        }
+
+                                        // Process all historical micro-step samples captured by hardware digitizer (1000Hz+ boost!)
+                                        val historySize = motionEvent.historySize
+                                        for (h in 0 until historySize) {
+                                            val hX = motionEvent.getHistoricalX(pIdx, h)
+                                            val hY = motionEvent.getHistoricalY(pIdx, h)
+                                            val stepDx = hX - state.prevX
+                                            val stepDy = hY - state.prevY
+                                            state.prevX = hX
+                                            state.prevY = hY
+                                            processCursorDelta(stepDx, stepDy)
+                                        }
+
+                                        // Process current (latest) point
+                                        val stepDx = currX - state.prevX
+                                        val stepDy = currY - state.prevY
+                                        state.prevX = currX
+                                        state.prevY = currY
+                                        processCursorDelta(stepDx, stepDy)
+                                    }
                                 } else if (trackpadPointers.size == 2) {
                                     val coords = trackpadPointers.values.toList()
                                     val currScrollX = (coords[0].currentX + coords[1].currentX) / 2f
                                     val currScrollY = (coords[0].currentY + coords[1].currentY) / 2f
 
-                                    if (hypot(currScrollX - twoFingerStartX, currScrollY - twoFingerStartY) > 16f) {
+                                    val moveDist = hypot(currScrollX - twoFingerStartX, currScrollY - twoFingerStartY)
+                                    if (moveDist > 16f && !isRightDraggingMode) {
                                         isTwoFingerTapCandidate = false
+                                        cancelTwoFingerDragTimer()
                                     }
 
-                                    var dx = (currScrollX - lastScrollX) * sensitivity * scrollSensitivity
-                                    var dy = (currScrollY - lastScrollY) * sensitivity * scrollSensitivity
+                                    if (isRightDraggingMode) {
+                                        // 2-Finger Right Click Drag: Cursor movement with Right Mouse Button held down
+                                        val frameDx = currScrollX - lastScrollX
+                                        val frameDy = currScrollY - lastScrollY
 
-                                    if (naturalScroll) {
-                                        dx = -dx
-                                        dy = -dy
-                                    }
+                                        if (frameDx != 0f || frameDy != 0f) {
+                                            val rawDx = frameDx * sensitivity
+                                            val rawDy = frameDy * sensitivity
 
-                                    scrollRemainderX += dx
-                                    scrollRemainderY += dy
+                                            val velocity = hypot(rawDx, rawDy)
+                                            val accelFactor = when (mouseAccelProfile) {
+                                                "none" -> 1.0f
+                                                "exponential" -> {
+                                                    (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat()
+                                                }
+                                                "linear_offset_cap" -> {
+                                                    val threshold = 1.5f
+                                                    val maxVelocity = 12.0f
+                                                    val maxCap = 2.2f
+                                                    when {
+                                                        velocity <= threshold -> 1.0f
+                                                        velocity >= maxVelocity -> maxCap
+                                                        else -> 1.0f + (maxCap - 1.0f) * ((velocity - threshold) / (maxVelocity - threshold))
+                                                    }
+                                                }
+                                                else -> if (mouseAccelEnabled) (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat() else 1.0f
+                                            }
 
-                                    val sendDx = scrollRemainderX.toInt()
-                                    val sendDy = scrollRemainderY.toInt()
+                                            val calcDx = rawDx * accelFactor
+                                            val calcDy = rawDy * accelFactor
 
-                                    scrollRemainderX -= sendDx.toFloat()
-                                    scrollRemainderY -= sendDy.toFloat()
+                                            subPixelRemainderX += calcDx
+                                            subPixelRemainderY += calcDy
 
-                                    if (sendDx != 0 || sendDy != 0) {
-                                        onSendBinary(2, sendDx * 10, sendDy * 10)
+                                            val sendMx = subPixelRemainderX.toInt()
+                                            val sendMy = subPixelRemainderY.toInt()
+
+                                            subPixelRemainderX -= sendMx.toFloat()
+                                            subPixelRemainderY -= sendMy.toFloat()
+
+                                            if (sendMx != 0 || sendMy != 0) {
+                                                onSendBinary(1, sendMx, sendMy)
+                                            }
+                                        }
+                                    } else {
+                                        // 2-Finger Normal Scroll
+                                        var dx = (currScrollX - lastScrollX) * sensitivity * scrollSensitivity
+                                        var dy = (currScrollY - lastScrollY) * sensitivity * scrollSensitivity
+
+                                        if (naturalScroll) {
+                                            dx = -dx
+                                            dy = -dy
+                                        }
+
+                                        scrollRemainderX += dx
+                                        scrollRemainderY += dy
+
+                                        val sendDx = scrollRemainderX.toInt()
+                                        val sendDy = scrollRemainderY.toInt()
+
+                                        scrollRemainderX -= sendDx.toFloat()
+                                        scrollRemainderY -= sendDy.toFloat()
+
+                                        if (sendDx != 0 || sendDy != 0) {
+                                            onSendBinary(2, sendDx * 10, sendDy * 10)
+                                        }
                                     }
 
                                     lastScrollX = currScrollX
@@ -294,7 +401,12 @@ fun TrackpadScreen(
 
                                     if (abs(dx) > 40f) {
                                         isThreeFingerSwipeCandidate = false
-                                        val actionStr = if (dx > 0) "workspace_left" else "workspace_right"
+                                        val effectiveNatural = if (invertThreeFingerSwipe) !naturalScroll else naturalScroll
+                                        val actionStr = if (effectiveNatural) {
+                                            if (dx > 0) "workspace_right" else "workspace_left"
+                                        } else {
+                                            if (dx > 0) "workspace_left" else "workspace_right"
+                                        }
                                         val json = JSONObject().put("type", "shortcut").put("action", actionStr)
                                         onSendJson(json.toString())
                                         onVibrate(30L)
@@ -304,6 +416,7 @@ fun TrackpadScreen(
 
                             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_CANCEL -> {
                                 cancelDragTimer()
+                                cancelTwoFingerDragTimer()
                                 trackpadPointers.remove(actionPointerId)
 
                                 if (isDraggingMode) {
@@ -314,9 +427,19 @@ fun TrackpadScreen(
                                     return@pointerInteropFilter true
                                 }
 
+                                if (isRightDraggingMode) {
+                                    if (trackpadPointers.size < 2) {
+                                        isRightDraggingMode = false
+                                        val json = JSONObject().put("type", "mouseup").put("button", 3)
+                                        onSendJson(json.toString())
+                                        onVibrate(15L)
+                                        return@pointerInteropFilter true
+                                    }
+                                }
+
                                 if (hasHadTwoFingers) {
                                     val duration = System.currentTimeMillis() - twoFingerTapStartTime
-                                    if (isTwoFingerTapCandidate && duration < 300) {
+                                    if (isTwoFingerTapCandidate && duration < 300 && !isRightDraggingMode) {
                                         cancelClickTimer()
                                         val json = JSONObject().put("type", "click").put("button", 3)
                                         onSendJson(json.toString())
@@ -326,21 +449,11 @@ fun TrackpadScreen(
                                 } else {
                                     val duration = System.currentTimeMillis() - touchDownTime
                                     if (isTapCandidate && duration < 200) {
-                                        if (clickRunnable != null) {
-                                            cancelClickTimer()
-                                            val json = JSONObject().put("type", "click").put("button", 1).put("double", true)
-                                            onSendJson(json.toString())
-                                            onVibrate(25L)
-                                        } else {
-                                            val r = Runnable {
-                                                cancelClickTimer()
-                                                val json = JSONObject().put("type", "click").put("button", 1)
-                                                onSendJson(json.toString())
-                                                onVibrate(15L)
-                                            }
-                                            clickRunnable = r
-                                            mainHandler.postDelayed(r, 200L)
-                                        }
+                                        cancelClickTimer()
+                                        val json = JSONObject().put("type", "click").put("button", 1)
+                                        onSendJson(json.toString())
+                                        onVibrate(15L)
+                                        isTapCandidate = false
                                     }
                                 }
                             }

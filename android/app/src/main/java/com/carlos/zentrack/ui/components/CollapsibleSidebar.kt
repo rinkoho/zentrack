@@ -150,6 +150,7 @@ fun CollapsibleSidebar(
                         Triple("Trackpad", Icons.Default.Mouse, "Trackpad"),
                         Triple("Keyboard", Icons.Default.Keyboard, "Teclado 65%"),
                         Triple("Hybrid", Icons.Default.Dashboard, "Híbrido (Dual)"),
+                        Triple("Settings", Icons.Default.Settings, "Ajustes"),
                         Triple("Gaming", Icons.Default.SportsEsports, "Mando Gaming"),
                         Triple("BSPWM", Icons.AutoMirrored.Filled.ViewQuilt, "Mosaico BSPWM")
                     )

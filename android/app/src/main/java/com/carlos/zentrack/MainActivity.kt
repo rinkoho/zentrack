@@ -170,5 +170,14 @@ class MainActivity : ComponentActivity() {
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
             )
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.decorView.post {
+                try {
+                    window.decorView.requestUnbufferedDispatch(android.view.MotionEvent.ACTION_MOVE)
+                } catch (e: Exception) {
+                    // Fallback if unsupported on legacy API
+                }
+            }
+        }
     }
 }
