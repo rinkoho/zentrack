@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,6 +44,14 @@ fun SettingsScreen(
     keyCasterEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.keyCasterEnabled,
     usbAdbModeEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled,
     invertThreeFingerSwipe: Boolean = com.carlos.zentrack.preferences.ZenPreferences.invertThreeFingerSwipe,
+    trackpadPhysicalButtonsEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.trackpadPhysicalButtonsEnabled,
+    trackpadButtonsPosition: String = com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsPosition,
+    trackpadScrollPosition: String = com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollPosition,
+    trackpadScrollWidth: Int = com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth,
+    trackpadButtonsSidebarWidth: Int = com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth,
+    trackpadButtonsBottomHeight: Int = com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight,
+    hapticTrackpadIntensity: Float = com.carlos.zentrack.preferences.ZenPreferences.hapticTrackpadIntensity,
+    hapticKeyboardIntensity: Float = com.carlos.zentrack.preferences.ZenPreferences.hapticKeyboardIntensity,
     onSensitivityChanged: (Float) -> Unit,
     onScrollSensitivityChanged: (Float) -> Unit,
     onMouseAccelEnabledChanged: (Boolean) -> Unit,
@@ -55,12 +64,29 @@ fun SettingsScreen(
     onKeyCasterEnabledChanged: (Boolean) -> Unit = {},
     onUsbAdbModeChanged: (Boolean) -> Unit = {},
     onInvertThreeFingerSwipeChanged: (Boolean) -> Unit = {},
+    onTrackpadPhysicalButtonsEnabledChanged: (Boolean) -> Unit = {},
+    onTrackpadButtonsPositionChanged: (String) -> Unit = {},
+    onTrackpadScrollPositionChanged: (String) -> Unit = {},
+    onTrackpadScrollWidthChanged: (Int) -> Unit = {},
+    onTrackpadButtonsSidebarWidthChanged: (Int) -> Unit = {},
+    onTrackpadButtonsBottomHeightChanged: (Int) -> Unit = {},
+    onHapticTrackpadIntensityChanged: (Float) -> Unit = {},
+    onHapticKeyboardIntensityChanged: (Float) -> Unit = {},
     onBack: () -> Unit
 ) {
     var keySoundEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.keySoundEnabled) }
     var soundVolume by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.soundVolume) }
     var soundProfile by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.soundProfile) }
     var dropdownExpanded by remember { mutableStateOf(false) }
+
+    var currentPhysicalButtonsEnabled by remember { mutableStateOf(trackpadPhysicalButtonsEnabled) }
+    var currentButtonsPosition by remember { mutableStateOf(trackpadButtonsPosition) }
+    var currentScrollPosition by remember { mutableStateOf(trackpadScrollPosition) }
+    var currentScrollWidth by remember { mutableIntStateOf(trackpadScrollWidth) }
+    var currentButtonsSidebarWidth by remember { mutableIntStateOf(trackpadButtonsSidebarWidth) }
+    var currentButtonsBottomHeight by remember { mutableIntStateOf(trackpadButtonsBottomHeight) }
+    var currentHapticTrackpad by remember { mutableFloatStateOf(hapticTrackpadIntensity) }
+    var currentHapticKeyboard by remember { mutableFloatStateOf(hapticKeyboardIntensity) }
 
     val profiles = listOf(
         "cherry-blue" to "Cherry MX Blue (Clicky)",
@@ -79,16 +105,14 @@ fun SettingsScreen(
             .background(currentTheme.background)
             .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
-        // TOP HEADER BAR (Full-Width, Compact 0.85x scale)
+        // TOP HEADER BAR
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // VOLVER Button
             Surface(
-                modifier = Modifier
-                    .clickable { onBack() },
+                modifier = Modifier.clickable { onBack() },
                 shape = RoundedCornerShape(8.dp),
                 color = currentTheme.card,
                 border = BorderStroke(1.dp, currentTheme.primaryAccent.copy(alpha = 0.4f))
@@ -114,7 +138,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Title & Subtitle
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Settings,
@@ -139,20 +162,19 @@ fun SettingsScreen(
                 }
             }
 
-            // Battery Badge
             BatteryBadge(currentTheme = currentTheme)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // MAIN CONTENT: 3-Column Balanced Dashboard (Scale ~0.85x, 0% squish)
+        // MAIN CONTENT: 3-Column Balanced Dashboard
         Row(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // COLUMN 1: MOTOR DE CURSOR & ACELERACIÓN
+            // COLUMN 1: MOTOR DE CURSOR & ACELERACIÓN & STICKY KEYS
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -166,7 +188,7 @@ fun SettingsScreen(
                     Text("PUNTERO & ACELERACIÓN", color = currentTheme.primaryAccent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                 }
 
-                // Sensibilidad
+                // Sensibilidad Cursor
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
@@ -202,7 +224,7 @@ fun SettingsScreen(
                     }
                 }
 
-                // Algoritmo Aceleración
+                // Algoritmo de Aceleración
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
@@ -217,7 +239,7 @@ fun SettingsScreen(
                         }
 
                         val accelProfiles = listOf(
-                            Triple("none", "Sin Aceleración (1:1)", "Ideal OSU! (Direct Input 100% lineal)"),
+                            Triple("none", "Sin Aceleración (1:1)", "Direct Input 100% lineal"),
                             Triple("linear_offset_cap", "Linear + Offset + Cap", "Pro RawAccel: Offset base + Cap flicks"),
                             Triple("exponential", "Exponencial", "Curva sigmoidea progresiva original")
                         )
@@ -267,9 +289,36 @@ fun SettingsScreen(
                         }
                     }
                 }
+
+                // Sticky Keys
+                Surface(
+                    color = currentTheme.card.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, currentTheme.primaryAccent.copy(alpha = 0.2f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Teclas Adhesivas (Sticky)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Acumular Ctrl/Alt/Shift/Super/Fn en 1 toque", color = currentTheme.textMuted, fontSize = 7.5.sp)
+                        }
+                        Switch(
+                            checked = stickyKeysEnabled,
+                            onCheckedChange = {
+                                onStickyKeysChanged(it)
+                                com.carlos.zentrack.preferences.ZenPreferences.stickyKeysEnabled = it
+                            },
+                            colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.primaryAccent, checkedTrackColor = currentTheme.primaryAccent.copy(alpha = 0.4f))
+                        )
+                    }
+                }
             }
 
-            // COLUMN 2: DESPLAZAMIENTO & NAVEGACIÓN
+            // COLUMN 2: DESPLAZAMIENTO, BOTONES & SCROLL
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -280,10 +329,10 @@ fun SettingsScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Mouse, contentDescription = null, tint = currentTheme.secondaryAccent, modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("DESPLAZAMIENTO & SCROLL", color = currentTheme.secondaryAccent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                    Text("DESPLAZAMIENTO & BOTONES", color = currentTheme.secondaryAccent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                 }
 
-                // Scroll Sensitivity & Natural
+                // Card 1: Sensibilidad de Scroll & Dirección
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
@@ -359,34 +408,186 @@ fun SettingsScreen(
                     }
                 }
 
-                // Sticky Keys
+                // Card 2: Botones Físicos de Click (Posición + Redimensionamiento)
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
                     border = BorderStroke(1.dp, currentTheme.secondaryAccent.copy(alpha = 0.2f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
-                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Teclas Adhesivas (Sticky)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Acumular Ctrl/Alt/Shift/Super/Fn en 1 toque", color = currentTheme.textMuted, fontSize = 7.5.sp)
+                    Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Botones Físicos de Click", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Mostrar clicks Izq, Centro y Der", color = currentTheme.textMuted, fontSize = 7.5.sp)
+                            }
+                            Switch(
+                                checked = currentPhysicalButtonsEnabled,
+                                onCheckedChange = {
+                                    currentPhysicalButtonsEnabled = it
+                                    onTrackpadPhysicalButtonsEnabledChanged(it)
+                                    com.carlos.zentrack.preferences.ZenPreferences.trackpadPhysicalButtonsEnabled = it
+                                },
+                                colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.secondaryAccent, checkedTrackColor = currentTheme.secondaryAccent.copy(alpha = 0.4f))
+                            )
                         }
-                        Switch(
-                            checked = stickyKeysEnabled,
-                            onCheckedChange = {
-                                onStickyKeysChanged(it)
-                                com.carlos.zentrack.preferences.ZenPreferences.stickyKeysEnabled = it
+
+                        if (currentPhysicalButtonsEnabled) {
+                            HorizontalDivider(color = currentTheme.secondaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
+
+                            Text("Posición de los Botones", color = currentTheme.textPrimary, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold)
+
+                            val positions = listOf(
+                                "left" to "Izquierda",
+                                "bottom" to "Abajo (Laptop)",
+                                "right" to "Derecha"
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                positions.forEach { (id, label) ->
+                                    val isSelected = currentButtonsPosition == id
+                                    Surface(
+                                        onClick = {
+                                            currentButtonsPosition = id
+                                            onTrackpadButtonsPositionChanged(id)
+                                            com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsPosition = id
+                                        },
+                                        color = if (isSelected) currentTheme.secondaryAccent.copy(alpha = 0.2f) else currentTheme.surface.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(5.dp),
+                                        border = BorderStroke(1.dp, if (isSelected) currentTheme.secondaryAccent else Color.Transparent),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 5.dp)) {
+                                            Text(
+                                                text = label,
+                                                color = if (isSelected) currentTheme.secondaryAccent else currentTheme.textPrimary,
+                                                fontSize = 8.5.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (currentButtonsPosition == "bottom") {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Altura Barra Inferior", color = currentTheme.textPrimary, fontSize = 9.5.sp)
+                                    Text("${currentButtonsBottomHeight}dp", color = currentTheme.secondaryAccent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Slider(
+                                    value = currentButtonsBottomHeight.toFloat(),
+                                    onValueChange = {
+                                        val h = it.toInt()
+                                        currentButtonsBottomHeight = h
+                                        onTrackpadButtonsBottomHeightChanged(h)
+                                        com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight = h
+                                    },
+                                    valueRange = 34f..75f,
+                                    colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
+                                )
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Ancho Botones Laterales", color = currentTheme.textPrimary, fontSize = 9.5.sp)
+                                    Text("${currentButtonsSidebarWidth}dp", color = currentTheme.secondaryAccent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Slider(
+                                    value = currentButtonsSidebarWidth.toFloat(),
+                                    onValueChange = {
+                                        val w = it.toInt()
+                                        currentButtonsSidebarWidth = w
+                                        onTrackpadButtonsSidebarWidthChanged(w)
+                                        com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth = w
+                                    },
+                                    valueRange = 55f..140f,
+                                    colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Card 3: Barra Lateral de Scroll (Posición + Ancho)
+                Surface(
+                    color = currentTheme.card.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, currentTheme.secondaryAccent.copy(alpha = 0.2f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text("Barra Lateral de Scroll", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+
+                        val scrollPositions = listOf(
+                            "left" to "Izquierda",
+                            "right" to "Derecha"
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            scrollPositions.forEach { (id, label) ->
+                                val isSelected = currentScrollPosition == id
+                                Surface(
+                                    onClick = {
+                                        currentScrollPosition = id
+                                        onTrackpadScrollPositionChanged(id)
+                                        com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollPosition = id
+                                    },
+                                    color = if (isSelected) currentTheme.secondaryAccent.copy(alpha = 0.2f) else currentTheme.surface.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(5.dp),
+                                    border = BorderStroke(1.dp, if (isSelected) currentTheme.secondaryAccent else Color.Transparent),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 5.dp)) {
+                                        Text(
+                                            text = label,
+                                            color = if (isSelected) currentTheme.secondaryAccent else currentTheme.textPrimary,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Ancho Barra de Scroll", color = currentTheme.textPrimary, fontSize = 9.5.sp)
+                            Text("${currentScrollWidth}dp", color = currentTheme.secondaryAccent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = currentScrollWidth.toFloat(),
+                            onValueChange = {
+                                val w = it.toInt()
+                                currentScrollWidth = w
+                                onTrackpadScrollWidthChanged(w)
+                                com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth = w
                             },
-                            colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.secondaryAccent, checkedTrackColor = currentTheme.secondaryAccent.copy(alpha = 0.4f))
+                            valueRange = 16f..45f,
+                            colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                         )
                     }
                 }
 
-                // Altura Teclado Híbrido
+                // Card 4: Altura Teclado Híbrido
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
@@ -401,7 +602,7 @@ fun SettingsScreen(
                         ) {
                             Column {
                                 Text("Altura Teclado Híbrido", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                Text("Proporción de pantalla del teclado (55% a 70%)", color = currentTheme.textMuted, fontSize = 7.5.sp)
+                                Text("Proporción de pantalla del teclado", color = currentTheme.textMuted, fontSize = 7.5.sp)
                             }
                             Surface(color = currentTheme.secondaryAccent.copy(alpha = 0.2f), shape = RoundedCornerShape(4.dp)) {
                                 Text(
@@ -424,9 +625,39 @@ fun SettingsScreen(
                         )
                     }
                 }
+
+                // Card 5: Bordes de Teclas & Botones (Toggleable)
+                Surface(
+                    color = currentTheme.card.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, currentTheme.secondaryAccent.copy(alpha = 0.2f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text("Bordes en Teclas / Botones", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Trazos semitransparentes en teclas y botones", color = currentTheme.textMuted, fontSize = 7.5.sp)
+                            }
+                            var bordersEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.keycapBordersEnabled) }
+                            Switch(
+                                checked = bordersEnabled,
+                                onCheckedChange = {
+                                    bordersEnabled = it
+                                    com.carlos.zentrack.preferences.ZenPreferences.keycapBordersEnabled = it
+                                },
+                                colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.secondaryAccent, checkedTrackColor = currentTheme.secondaryAccent.copy(alpha = 0.4f))
+                            )
+                        }
+                    }
+                }
             }
 
-            // COLUMN 3: AUDIO MECÁNICO & RICE SYNC
+            // COLUMN 3: AUDIO, HÁPTICOS, HYPRLAND & RICE SYNC
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -437,10 +668,64 @@ fun SettingsScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.GraphicEq, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("AUDIO & SISTEMA", color = currentTheme.primaryAccent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                    Text("AUDIO, HÁPTICOS & SISTEMA", color = currentTheme.primaryAccent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                 }
 
-                // Audio Mecánico
+                // Card 1: Intensidad de Vibración Háptica
+                Surface(
+                    color = currentTheme.card.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, currentTheme.primaryAccent.copy(alpha = 0.2f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Vibration, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Intensidad de Vibración", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Trackpad / Gestos / Scroll", color = currentTheme.textPrimary, fontSize = 9.sp)
+                            Text("${(currentHapticTrackpad * 100).toInt()}%", color = currentTheme.primaryAccent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = currentHapticTrackpad,
+                            onValueChange = {
+                                currentHapticTrackpad = it
+                                onHapticTrackpadIntensityChanged(it)
+                                com.carlos.zentrack.preferences.ZenPreferences.hapticTrackpadIntensity = it
+                            },
+                            valueRange = 0f..1.5f,
+                            colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Teclado / Botones / Gamepad", color = currentTheme.textPrimary, fontSize = 9.sp)
+                            Text("${(currentHapticKeyboard * 100).toInt()}%", color = currentTheme.primaryAccent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = currentHapticKeyboard,
+                            onValueChange = {
+                                currentHapticKeyboard = it
+                                onHapticKeyboardIntensityChanged(it)
+                                com.carlos.zentrack.preferences.ZenPreferences.hapticKeyboardIntensity = it
+                            },
+                            valueRange = 0f..1.5f,
+                            colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
+                        )
+                    }
+                }
+
+                // Card 2: Audio Mecánico
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
@@ -524,7 +809,7 @@ fun SettingsScreen(
                     }
                 }
 
-                // Hyprland Transición & Rice Sync
+                // Card 3: Hyprland Transición & Rice Sync & Keycaster & USB
                 Surface(
                     color = currentTheme.card.copy(alpha = 0.7f),
                     shape = RoundedCornerShape(8.dp),
@@ -583,8 +868,6 @@ fun SettingsScreen(
 
                         HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
 
-                        HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
-
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -615,9 +898,9 @@ fun SettingsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Speed, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Conexión USB / ADB (Túnel Estable)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                    Text("Conexión USB / ADB (Túnel)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                                 }
-                                Text("Túnel local 127.0.0.1 (latencia 0.1ms sin interferencias)", color = currentTheme.textMuted, fontSize = 7.5.sp)
+                                Text("Túnel local 127.0.0.1 (latencia 0.1ms)", color = currentTheme.textMuted, fontSize = 7.5.sp)
                             }
                             Switch(
                                 checked = usbAdbModeEnabled,

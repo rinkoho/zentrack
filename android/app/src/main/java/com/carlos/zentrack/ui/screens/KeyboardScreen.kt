@@ -360,7 +360,7 @@ fun KeyboardScreen(
                         KeyCap(".", "period", currentTheme, sublabel = ">", modifier = Modifier.weight(1f), onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
                         KeyCap("/", "slash", currentTheme, sublabel = "?", modifier = Modifier.weight(1f), onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
                         StickyModKeyCap("Shift", "Shift_R", 1.75f)
-                        KeyCap("↑", "Up", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
+                        KeyCap("▲", "Up", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
                         KeyCap("END", "End", currentTheme, modifier = Modifier.weight(1f), isModifier = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
                     }
 
@@ -378,9 +378,9 @@ fun KeyboardScreen(
                         StickyModKeyCap("AltGr", "Alt_R", 1.25f)
                         ModifierKeyCap("Fn", "Fn", currentTheme, mode = if (isFnActive) ModifierMode.LOCKED else ModifierMode.OFF, modifier = Modifier.weight(1f), onTap = { isFnActive = !isFnActive }, onLongPress = { isFnActive = !isFnActive }, onVibrate = onVibrate)
                         StickyModKeyCap("Ctrl", "Control_R", 1.25f)
-                        KeyCap("←", "Left", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
-                        KeyCap("↓", "Down", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
-                        KeyCap("→", "Right", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
+                        KeyCap("◀", "Left", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
+                        KeyCap("▼", "Down", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
+                        KeyCap("▶", "Right", currentTheme, modifier = Modifier.weight(1f), isAccent = true, onSendJson = ::onNormalKeySent, onVibrate = onVibrate)
                     }
                 }
             }

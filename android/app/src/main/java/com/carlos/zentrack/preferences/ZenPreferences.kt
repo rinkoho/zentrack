@@ -23,6 +23,15 @@ object ZenPreferences {
     private const val KEY_KEY_CASTER_ENABLED = "key_caster_enabled"
     private const val KEY_USB_ADB_MODE_ENABLED = "usb_adb_mode_enabled"
     private const val KEY_INVERT_THREE_FINGER_SWIPE = "invert_three_finger_swipe"
+    private const val KEY_TRACKPAD_PHYSICAL_BUTTONS_ENABLED = "trackpad_physical_buttons_enabled"
+    private const val KEY_TRACKPAD_BUTTONS_POSITION = "trackpad_buttons_position"
+    private const val KEY_TRACKPAD_SCROLL_POSITION = "trackpad_scroll_position"
+    private const val KEY_TRACKPAD_SCROLL_WIDTH = "trackpad_scroll_width"
+    private const val KEY_TRACKPAD_BUTTONS_SIDEBAR_WIDTH = "trackpad_buttons_sidebar_width"
+    private const val KEY_TRACKPAD_BUTTONS_BOTTOM_HEIGHT = "trackpad_buttons_bottom_height"
+    private const val KEY_HAPTIC_TRACKPAD_INTENSITY = "haptic_trackpad_intensity"
+    private const val KEY_HAPTIC_KEYBOARD_INTENSITY = "haptic_keyboard_intensity"
+    private const val KEY_KEYCAP_BORDERS_ENABLED = "keycap_borders_enabled"
 
     private const val KEY_GAMEPAD_MODE = "gamepad_mode"
     private const val KEY_GAMEPAD_PC_SENSITIVITY = "gamepad_pc_sensitivity"
@@ -125,6 +134,42 @@ object ZenPreferences {
     var invertThreeFingerSwipe: Boolean
         get() = prefs.getBoolean(KEY_INVERT_THREE_FINGER_SWIPE, false)
         set(value) = prefs.edit().putBoolean(KEY_INVERT_THREE_FINGER_SWIPE, value).apply()
+
+    var trackpadPhysicalButtonsEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TRACKPAD_PHYSICAL_BUTTONS_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_TRACKPAD_PHYSICAL_BUTTONS_ENABLED, value).apply()
+
+    var trackpadButtonsPosition: String
+        get() = prefs.getString(KEY_TRACKPAD_BUTTONS_POSITION, "right") ?: "right" // "right", "left", "bottom"
+        set(value) = prefs.edit().putString(KEY_TRACKPAD_BUTTONS_POSITION, value).apply()
+
+    var trackpadScrollPosition: String
+        get() = prefs.getString(KEY_TRACKPAD_SCROLL_POSITION, "right") ?: "right" // "right", "left"
+        set(value) = prefs.edit().putString(KEY_TRACKPAD_SCROLL_POSITION, value).apply()
+
+    var trackpadScrollWidth: Int
+        get() = prefs.getInt(KEY_TRACKPAD_SCROLL_WIDTH, 24)
+        set(value) = prefs.edit().putInt(KEY_TRACKPAD_SCROLL_WIDTH, value).apply()
+
+    var trackpadButtonsSidebarWidth: Int
+        get() = prefs.getInt(KEY_TRACKPAD_BUTTONS_SIDEBAR_WIDTH, 85)
+        set(value) = prefs.edit().putInt(KEY_TRACKPAD_BUTTONS_SIDEBAR_WIDTH, value).apply()
+
+    var trackpadButtonsBottomHeight: Int
+        get() = prefs.getInt(KEY_TRACKPAD_BUTTONS_BOTTOM_HEIGHT, 48)
+        set(value) = prefs.edit().putInt(KEY_TRACKPAD_BUTTONS_BOTTOM_HEIGHT, value).apply()
+
+    var hapticTrackpadIntensity: Float
+        get() = prefs.getFloat(KEY_HAPTIC_TRACKPAD_INTENSITY, 1.0f)
+        set(value) = prefs.edit().putFloat(KEY_HAPTIC_TRACKPAD_INTENSITY, value).apply()
+
+    var hapticKeyboardIntensity: Float
+        get() = prefs.getFloat(KEY_HAPTIC_KEYBOARD_INTENSITY, 1.0f)
+        set(value) = prefs.edit().putFloat(KEY_HAPTIC_KEYBOARD_INTENSITY, value).apply()
+
+    var keycapBordersEnabled: Boolean
+        get() = prefs.getBoolean(KEY_KEYCAP_BORDERS_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_KEYCAP_BORDERS_ENABLED, value).apply()
 
     // Xbox Custom Layout Preferences
     var xboxBtnScale: Float

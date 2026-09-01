@@ -35,8 +35,10 @@ class MainActivity : ComponentActivity() {
         enableFullScreenAndHighRefreshRate()
 
         com.carlos.zentrack.preferences.ZenPreferences.init(applicationContext)
+        com.carlos.zentrack.vision.data.ZenVisionPreferences.init(applicationContext)
         com.carlos.zentrack.audio.ZenSoundEngine.init(applicationContext)
         com.carlos.zentrack.security.ZenCrypto.init("b8c5838d40a8746d2e79a7212e9f5f02")
+        com.carlos.zentrack.haptics.ZenHapticsEngine.init(this, window.decorView)
 
         // Load saved preferences
         activeTheme = findZenThemeByName(com.carlos.zentrack.preferences.ZenPreferences.activeThemeName)
@@ -82,7 +84,8 @@ class MainActivity : ComponentActivity() {
                     onReconnect = { socketManager.connect() },
                     onSendBinary = { cmd, x, y -> socketManager.sendBinary(cmd, x, y) },
                     onSendJson = { json -> socketManager.sendJson(json) },
-                    onVibrate = { vibrate(it) }
+                    onVibrate = { com.carlos.zentrack.haptics.ZenHapticsEngine.vibrateRaw(it, isKeyboard = false) },
+                    onVibrateKeyboard = { com.carlos.zentrack.haptics.ZenHapticsEngine.vibrateRaw(it, isKeyboard = true) }
                 )
             }
         }
@@ -105,22 +108,6 @@ class MainActivity : ComponentActivity() {
             window.decorView.requestUnbufferedDispatch(ev)
         }
         return super.dispatchTouchEvent(ev)
-    }
-
-    private fun vibrate(durationMs: Long) {
-        try {
-            val vibrator = getSystemService(VIBRATOR_SERVICE) as? Vibrator
-            if (vibrator != null && vibrator.hasVibrator()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(durationMs)
-                }
-            }
-        } catch (e: Exception) {
-            // Ignore vibration errors
-        }
     }
 
     private fun enableFullScreenAndHighRefreshRate() {

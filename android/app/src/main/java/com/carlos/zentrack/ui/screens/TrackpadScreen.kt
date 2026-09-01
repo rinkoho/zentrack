@@ -1,12 +1,15 @@
 package com.carlos.zentrack.ui.screens
 
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Paint
+import android.graphics.Shader
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,18 +20,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlos.zentrack.theme.ZenThemeConfig
 import com.carlos.zentrack.ui.components.*
 import org.json.JSONObject
+import java.util.Random
 import kotlin.math.abs
 import kotlin.math.hypot
-import kotlin.math.roundToInt
 
 data class TrackpadPointer(
     var currentX: Float,
@@ -52,6 +57,12 @@ fun TrackpadScreen(
     mouseAccelProfile: String = com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile,
     naturalScroll: Boolean,
     invertThreeFingerSwipe: Boolean = com.carlos.zentrack.preferences.ZenPreferences.invertThreeFingerSwipe,
+    physicalButtonsEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.trackpadPhysicalButtonsEnabled,
+    buttonsPosition: String = com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsPosition,
+    scrollPosition: String = com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollPosition,
+    scrollWidth: Int = com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth,
+    buttonsSidebarWidth: Int = com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth,
+    buttonsBottomHeight: Int = com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight,
     isCompactMode: Boolean = false,
     onOpenDrawer: () -> Unit,
     onReconnect: () -> Unit,
@@ -63,6 +74,13 @@ fun TrackpadScreen(
 
     // Multi-touch Pointer Map for Trackpad Surface
     val trackpadPointers = remember { mutableMapOf<Int, TrackpadPointer>() }
+
+    // Surface bounds tracking for strict pointer isolation
+    var surfaceWidthPx by remember { mutableFloatStateOf(0f) }
+    var surfaceHeightPx by remember { mutableFloatStateOf(0f) }
+
+    // Active physical button hold counter (to isolate physical click-drag from 2-finger trackpad gestures)
+    var activePhysicalButtonsCount by remember { mutableIntStateOf(0) }
 
     var tapStartX by remember { mutableFloatStateOf(0f) }
     var tapStartY by remember { mutableFloatStateOf(0f) }
@@ -94,6 +112,31 @@ fun TrackpadScreen(
 
     var isRightDraggingMode by remember { mutableStateOf(false) }
 
+    // Procedural Hardware-Accelerated Matte Paper / Hydrogel Flat Texture Shader
+    val paperMattePaint = remember {
+        val size = 128
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val rng = Random(4242)
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                val noise = rng.nextFloat()
+                val alpha = when {
+                    noise > 0.94f -> (rng.nextFloat() * 16 + 10).toInt()
+                    noise < 0.06f -> (rng.nextFloat() * 18 + 8).toInt()
+                    else -> (rng.nextFloat() * 7).toInt()
+                }
+                val shade = if (noise > 0.5f) 255 else 0
+                bitmap.setPixel(x, y, android.graphics.Color.argb(alpha, shade, shade, shade))
+            }
+        }
+        val shader = BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+        Paint().apply {
+            this.shader = shader
+            isAntiAlias = true
+            isFilterBitmap = true
+        }
+    }
+
     fun cancelDragTimer() {
         dragRunnable?.let { mainHandler.removeCallbacks(it) }
         dragRunnable = null
@@ -109,44 +152,26 @@ fun TrackpadScreen(
         clickRunnable = null
     }
 
-    Row(modifier = Modifier.fillMaxSize()) {
-
-        // -------------------------------------------------------------
-        // CENTER AREA: Giant Main Trackpad Surface
-        // -------------------------------------------------------------
+    // MAIN TRACKPAD SURFACE (TRANSPARENT INTERACTIVE ZONE OVER CONTINUOUS FLAT MATTE SCREEN)
+    @Composable
+    fun MainTrackpadSurface(modifier: Modifier = Modifier) {
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(currentTheme.background)
-                .border(1.dp, currentTheme.card)
-        ) {
-            // Background Dot Matrix Grid
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val gridSpacing = 30.dp.toPx()
-                val dotRadius = 1.2.dp.toPx()
-                val cols = (size.width / gridSpacing).toInt()
-                val rows = (size.height / gridSpacing).toInt()
-
-                for (i in 0..cols) {
-                    for (j in 0..rows) {
-                        drawCircle(
-                            color = currentTheme.primaryAccent.copy(alpha = 0.12f),
-                            radius = dotRadius,
-                            center = Offset(i * gridSpacing, j * gridSpacing)
-                        )
-                    }
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .onSizeChanged {
+                    surfaceWidthPx = it.width.toFloat()
+                    surfaceHeightPx = it.height.toFloat()
                 }
-            }
-
-            // Interactive Trackpad Surface
+        ) {
+            // Interactive Multi-Touch Surface Area
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .pointerInteropFilter { motionEvent ->
                         val action = motionEvent.actionMasked
 
-                        // Exclude top-left menu pill touch zone so button clicks are passed directly to Compose clickable
+                        // Exclude top-left menu pill touch zone
                         if (action == MotionEvent.ACTION_DOWN && motionEvent.x < 380f && motionEvent.y < 160f) {
                             return@pointerInteropFilter false
                         }
@@ -154,74 +179,85 @@ fun TrackpadScreen(
                         val actionIdx = motionEvent.actionIndex
                         val actionPointerId = motionEvent.getPointerId(actionIdx)
 
+                        val touchX = motionEvent.getX(actionIdx)
+                        val touchY = motionEvent.getY(actionIdx)
+                        val isOriginInsideSurface = (touchX >= 0f && touchX <= surfaceWidthPx && touchY >= 0f && touchY <= surfaceHeightPx)
+
+                        if (action == MotionEvent.ACTION_DOWN && !isOriginInsideSurface) {
+                            return@pointerInteropFilter false
+                        }
 
                         when (action) {
                             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                                val x = motionEvent.getX(actionIdx)
-                                val y = motionEvent.getY(actionIdx)
-                                trackpadPointers[actionPointerId] = TrackpadPointer(x, y, x, y, x, y, System.currentTimeMillis())
+                                val x = touchX
+                                val y = touchY
 
-                                if (trackpadPointers.size == 1) {
-                                    tapStartX = x
-                                    tapStartY = y
-                                    touchDownTime = System.currentTimeMillis()
-                                    isTapCandidate = true
-                                    hasHadTwoFingers = false
+                                if (isOriginInsideSurface) {
+                                    trackpadPointers[actionPointerId] = TrackpadPointer(x, y, x, y, x, y, System.currentTimeMillis())
 
-                                    subPixelRemainderX = 0f
-                                    subPixelRemainderY = 0f
-                                    scrollRemainderX = 0f
-                                    scrollRemainderY = 0f
+                                    if (trackpadPointers.size == 1) {
+                                        tapStartX = x
+                                        tapStartY = y
+                                        touchDownTime = System.currentTimeMillis()
+                                        isTapCandidate = true
+                                        hasHadTwoFingers = false
 
-                                    cancelDragTimer()
-                                    val r = Runnable {
-                                        if (isTapCandidate && !hasHadTwoFingers && trackpadPointers.size == 1) {
-                                            isDraggingMode = true
-                                            isTapCandidate = false
-                                            cancelClickTimer()
-                                            val json = JSONObject().put("type", "mousedown").put("button", 1)
-                                            onSendJson(json.toString())
-                                            onVibrate(40L)
+                                        subPixelRemainderX = 0f
+                                        subPixelRemainderY = 0f
+                                        scrollRemainderX = 0f
+                                        scrollRemainderY = 0f
+
+                                        cancelDragTimer()
+                                        val r = Runnable {
+                                            if (isTapCandidate && !hasHadTwoFingers && trackpadPointers.size == 1 && activePhysicalButtonsCount == 0) {
+                                                isDraggingMode = true
+                                                isTapCandidate = false
+                                                cancelClickTimer()
+                                                val json = JSONObject().put("type", "mousedown").put("button", 1)
+                                                onSendJson(json.toString())
+                                                onVibrate(40L)
+                                            }
                                         }
-                                    }
-                                    dragRunnable = r
-                                    mainHandler.postDelayed(r, 250L)
-                                } else if (trackpadPointers.size == 2) {
-                                    cancelDragTimer()
-                                    cancelTwoFingerDragTimer()
-                                    isTapCandidate = false
-                                    hasHadTwoFingers = true
-                                    isTwoFingerTapCandidate = true
-                                    twoFingerTapStartTime = System.currentTimeMillis()
+                                        dragRunnable = r
+                                        mainHandler.postDelayed(r, 250L)
+                                    } else if (trackpadPointers.size == 2 && activePhysicalButtonsCount == 0) {
+                                        // 2-Finger Trackpad Gesture: only triggered if no physical button is being held down!
+                                        cancelDragTimer()
+                                        cancelTwoFingerDragTimer()
+                                        isTapCandidate = false
+                                        hasHadTwoFingers = true
+                                        isTwoFingerTapCandidate = true
+                                        twoFingerTapStartTime = System.currentTimeMillis()
 
-                                    val coords = trackpadPointers.values.toList()
-                                    val midX = (coords[0].currentX + coords[1].currentX) / 2f
-                                    val midY = (coords[0].currentY + coords[1].currentY) / 2f
-                                    twoFingerStartX = midX
-                                    twoFingerStartY = midY
-                                    lastScrollX = midX
-                                    lastScrollY = midY
+                                        val coords = trackpadPointers.values.toList()
+                                        val midX = (coords[0].currentX + coords[1].currentX) / 2f
+                                        val midY = (coords[0].currentY + coords[1].currentY) / 2f
+                                        twoFingerStartX = midX
+                                        twoFingerStartY = midY
+                                        lastScrollX = midX
+                                        lastScrollY = midY
 
-                                    val r2 = Runnable {
-                                        if (isTwoFingerTapCandidate && trackpadPointers.size == 2) {
-                                            isRightDraggingMode = true
-                                            isTwoFingerTapCandidate = false
-                                            cancelClickTimer()
-                                            val json = JSONObject().put("type", "mousedown").put("button", 3)
-                                            onSendJson(json.toString())
-                                            onVibrate(40L)
+                                        val r2 = Runnable {
+                                            if (isTwoFingerTapCandidate && trackpadPointers.size == 2 && activePhysicalButtonsCount == 0) {
+                                                isRightDraggingMode = true
+                                                isTwoFingerTapCandidate = false
+                                                cancelClickTimer()
+                                                val json = JSONObject().put("type", "mousedown").put("button", 3)
+                                                onSendJson(json.toString())
+                                                onVibrate(40L)
+                                            }
                                         }
-                                    }
-                                    twoFingerDragRunnable = r2
-                                    mainHandler.postDelayed(r2, 250L)
-                                } else if (trackpadPointers.size == 3) {
-                                    cancelDragTimer()
-                                    cancelTwoFingerDragTimer()
-                                    isTwoFingerTapCandidate = false
-                                    isThreeFingerSwipeCandidate = true
-                                    val coords = trackpadPointers.values.toList()
-                                    if (coords.size >= 3) {
-                                        threeFingerStartX = (coords[0].currentX + coords[1].currentX + coords[2].currentX) / 3f
+                                        twoFingerDragRunnable = r2
+                                        mainHandler.postDelayed(r2, 250L)
+                                    } else if (trackpadPointers.size == 3 && activePhysicalButtonsCount == 0) {
+                                        cancelDragTimer()
+                                        cancelTwoFingerDragTimer()
+                                        isTwoFingerTapCandidate = false
+                                        isThreeFingerSwipeCandidate = true
+                                        val coords = trackpadPointers.values.toList()
+                                        if (coords.size >= 3) {
+                                            threeFingerStartX = (coords[0].currentX + coords[1].currentX + coords[2].currentX) / 3f
+                                        }
                                     }
                                 }
                             }
@@ -279,41 +315,44 @@ fun TrackpadScreen(
                                     }
                                 }
 
-                                if (trackpadPointers.size == 1 && !hasHadTwoFingers) {
-                                    val pId = trackpadPointers.keys.first()
-                                    val pIdx = motionEvent.findPointerIndex(pId)
-                                    val state = trackpadPointers[pId]
+                                // Single finger movement or physical button drag (uninterrupted glide across button zone!)
+                                if ((trackpadPointers.size == 1 && !hasHadTwoFingers) || activePhysicalButtonsCount > 0) {
+                                    val pId = trackpadPointers.keys.firstOrNull()
+                                    if (pId != null) {
+                                        val pIdx = motionEvent.findPointerIndex(pId)
+                                        val state = trackpadPointers[pId]
 
-                                    if (pIdx >= 0 && state != null) {
-                                        val currX = motionEvent.getX(pIdx)
-                                        val currY = motionEvent.getY(pIdx)
-                                        val totalDist = hypot(currX - tapStartX, currY - tapStartY)
+                                        if (pIdx >= 0 && state != null) {
+                                            val currX = motionEvent.getX(pIdx)
+                                            val currY = motionEvent.getY(pIdx)
+                                            val totalDist = hypot(currX - tapStartX, currY - tapStartY)
 
-                                        if (totalDist > 12f) {
-                                            isTapCandidate = false
-                                            cancelDragTimer()
-                                        }
+                                            if (totalDist > 12f) {
+                                                isTapCandidate = false
+                                                cancelDragTimer()
+                                            }
 
-                                        // Process all historical micro-step samples captured by hardware digitizer (1000Hz+ boost!)
-                                        val historySize = motionEvent.historySize
-                                        for (h in 0 until historySize) {
-                                            val hX = motionEvent.getHistoricalX(pIdx, h)
-                                            val hY = motionEvent.getHistoricalY(pIdx, h)
-                                            val stepDx = hX - state.prevX
-                                            val stepDy = hY - state.prevY
-                                            state.prevX = hX
-                                            state.prevY = hY
+                                            // Process all historical micro-step samples captured by hardware digitizer (1000Hz+ boost!)
+                                            val historySize = motionEvent.historySize
+                                            for (h in 0 until historySize) {
+                                                val hX = motionEvent.getHistoricalX(pIdx, h)
+                                                val hY = motionEvent.getHistoricalY(pIdx, h)
+                                                val stepDx = hX - state.prevX
+                                                val stepDy = hY - state.prevY
+                                                state.prevX = hX
+                                                state.prevY = hY
+                                                processCursorDelta(stepDx, stepDy)
+                                            }
+
+                                            // Process current point
+                                            val stepDx = currX - state.prevX
+                                            val stepDy = currY - state.prevY
+                                            state.prevX = currX
+                                            state.prevY = currY
                                             processCursorDelta(stepDx, stepDy)
                                         }
-
-                                        // Process current (latest) point
-                                        val stepDx = currX - state.prevX
-                                        val stepDy = currY - state.prevY
-                                        state.prevX = currX
-                                        state.prevY = currY
-                                        processCursorDelta(stepDx, stepDy)
                                     }
-                                } else if (trackpadPointers.size == 2) {
+                                } else if (trackpadPointers.size == 2 && activePhysicalButtonsCount == 0) {
                                     val coords = trackpadPointers.values.toList()
                                     val currScrollX = (coords[0].currentX + coords[1].currentX) / 2f
                                     val currScrollY = (coords[0].currentY + coords[1].currentY) / 2f
@@ -328,46 +367,7 @@ fun TrackpadScreen(
                                         // 2-Finger Right Click Drag: Cursor movement with Right Mouse Button held down
                                         val frameDx = currScrollX - lastScrollX
                                         val frameDy = currScrollY - lastScrollY
-
-                                        if (frameDx != 0f || frameDy != 0f) {
-                                            val rawDx = frameDx * sensitivity
-                                            val rawDy = frameDy * sensitivity
-
-                                            val velocity = hypot(rawDx, rawDy)
-                                            val accelFactor = when (mouseAccelProfile) {
-                                                "none" -> 1.0f
-                                                "exponential" -> {
-                                                    (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat()
-                                                }
-                                                "linear_offset_cap" -> {
-                                                    val threshold = 1.5f
-                                                    val maxVelocity = 12.0f
-                                                    val maxCap = 2.2f
-                                                    when {
-                                                        velocity <= threshold -> 1.0f
-                                                        velocity >= maxVelocity -> maxCap
-                                                        else -> 1.0f + (maxCap - 1.0f) * ((velocity - threshold) / (maxVelocity - threshold))
-                                                    }
-                                                }
-                                                else -> if (mouseAccelEnabled) (1.0f + 0.22f * Math.pow(velocity.toDouble(), 1.25)).coerceAtMost(3.0).toFloat() else 1.0f
-                                            }
-
-                                            val calcDx = rawDx * accelFactor
-                                            val calcDy = rawDy * accelFactor
-
-                                            subPixelRemainderX += calcDx
-                                            subPixelRemainderY += calcDy
-
-                                            val sendMx = subPixelRemainderX.toInt()
-                                            val sendMy = subPixelRemainderY.toInt()
-
-                                            subPixelRemainderX -= sendMx.toFloat()
-                                            subPixelRemainderY -= sendMy.toFloat()
-
-                                            if (sendMx != 0 || sendMy != 0) {
-                                                onSendBinary(1, sendMx, sendMy)
-                                            }
-                                        }
+                                        processCursorDelta(frameDx, frameDy)
                                     } else {
                                         // 2-Finger Normal Scroll
                                         var dx = (currScrollX - lastScrollX) * sensitivity * scrollSensitivity
@@ -394,7 +394,7 @@ fun TrackpadScreen(
 
                                     lastScrollX = currScrollX
                                     lastScrollY = currScrollY
-                                } else if (trackpadPointers.size == 3 && isThreeFingerSwipeCandidate) {
+                                } else if (trackpadPointers.size == 3 && isThreeFingerSwipeCandidate && activePhysicalButtonsCount == 0) {
                                     val coords = trackpadPointers.values.toList()
                                     val curr3X = (coords[0].currentX + coords[1].currentX + coords[2].currentX) / 3f
                                     val dx = curr3X - threeFingerStartX
@@ -413,7 +413,6 @@ fun TrackpadScreen(
                                     }
                                 }
                             }
-
                             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_CANCEL -> {
                                 cancelDragTimer()
                                 cancelTwoFingerDragTimer()
@@ -437,7 +436,7 @@ fun TrackpadScreen(
                                     }
                                 }
 
-                                if (hasHadTwoFingers) {
+                                if (hasHadTwoFingers && activePhysicalButtonsCount == 0) {
                                     val duration = System.currentTimeMillis() - twoFingerTapStartTime
                                     if (isTwoFingerTapCandidate && duration < 300 && !isRightDraggingMode) {
                                         cancelClickTimer()
@@ -446,7 +445,7 @@ fun TrackpadScreen(
                                         onVibrate(25L)
                                         isTwoFingerTapCandidate = false
                                     }
-                                } else {
+                                } else if (activePhysicalButtonsCount == 0) {
                                     val duration = System.currentTimeMillis() - touchDownTime
                                     if (isTapCandidate && duration < 200) {
                                         cancelClickTimer()
@@ -461,7 +460,7 @@ fun TrackpadScreen(
                         true
                     }
             ) {
-                // Minimal Icon Instructions Overlay (Hidden in compact mode for 100% clean surface)
+                // Minimalist Instruction Pill
                 if (!isCompactMode) {
                     Row(
                         modifier = Modifier
@@ -475,23 +474,23 @@ fun TrackpadScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.TouchApp, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Click", color = currentTheme.textPrimary, fontSize = 10.sp)
+                            Text("1 Dedo: Click / Arrastre", color = currentTheme.textPrimary, fontSize = 10.sp)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.SwapVert, contentDescription = null, tint = currentTheme.secondaryAccent, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Scroll", color = currentTheme.textPrimary, fontSize = 10.sp)
+                            Text("2 Dedos: Scroll / R-Click / R-Drag", color = currentTheme.textPrimary, fontSize = 10.sp)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.DragHandle, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Arrastrar", color = currentTheme.textPrimary, fontSize = 10.sp)
+                            Text("3 Dedos: Escritorios", color = currentTheme.textPrimary, fontSize = 10.sp)
                         }
                     }
                 }
             }
 
-            // Top-Left Aesthetic Integrated Menu Pill (Top Sibling - Receives Touch First!)
+            // Top-Left Aesthetic Integrated Menu Pill
             Surface(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -527,92 +526,150 @@ fun TrackpadScreen(
                 }
             }
         }
+    }
 
-        // -------------------------------------------------------------
-        // RIGHT SIDEBAR / COMPACT SCROLL OVERLAY
-        // -------------------------------------------------------------
-        if (isCompactMode) {
-            // Ultra-slim 18dp right edge scroll strip for compact hybrid mode
-            Box(
-                modifier = Modifier
-                    .width(20.dp)
-                    .fillMaxHeight()
-                    .background(currentTheme.card.copy(alpha = 0.5f))
-            ) {
-                ScrollWheelStrip(
-                    naturalScroll = naturalScroll,
-                    cardColor = currentTheme.card.copy(alpha = 0.8f),
-                    iconColor = currentTheme.primaryAccent,
-                    onSendJson = onSendJson,
-                    onVibrate = onVibrate
-                )
+    // Scroll Wheel Strip Box Component (Transparent Overlay)
+    @Composable
+    fun ScrollStripBox(isLeft: Boolean, modifier: Modifier = Modifier) {
+        Box(
+            modifier = modifier
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
+            ScrollWheelStrip(
+                naturalScroll = naturalScroll,
+                cardColor = currentTheme.card,
+                iconColor = currentTheme.primaryAccent,
+                isLeftPosition = isLeft,
+                onSendJson = onSendJson,
+                onVibrate = onVibrate
+            )
+        }
+    }
+
+    // Sidebar Click Buttons Box Component (Transparent Floating Keycaps)
+    @Composable
+    fun SidebarButtonsBox(modifier: Modifier = Modifier) {
+        Box(
+            modifier = modifier
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
+            TrackpadVerticalButtons(
+                currentTheme = currentTheme,
+                modifier = Modifier.fillMaxSize(),
+                onButtonPressChanged = { isPressed ->
+                    if (isPressed) {
+                        activePhysicalButtonsCount++
+                    } else {
+                        activePhysicalButtonsCount = maxOf(0, activePhysicalButtonsCount - 1)
+                    }
+                },
+                onSendJson = onSendJson,
+                onVibrate = onVibrate
+            )
+        }
+    }
+
+    // -------------------------------------------------------------
+    // FULL-SCREEN CONTINUOUS FLAT MATTE PAPER SURFACE + DYNAMIC LAYOUT
+    // -------------------------------------------------------------
+    val effectiveScrollWidth = scrollWidth.dp
+    val effectiveSidebarWidth = buttonsSidebarWidth.dp
+    val effectiveBottomHeight = buttonsBottomHeight.dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(currentTheme.background)
+    ) {
+        // FULL-SCREEN CONTINUOUS FLAT MATTE PAPER / HYDROGEL TEXTURE CANVAS
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+
+            // Layer 1: Flat Solid Base Color
+            drawRect(color = currentTheme.background)
+
+            // Layer 2: Seamless GPU-Tiled Matte Grain Texture (Zero Vignette / Flat Texture)
+            drawIntoCanvas { canvas ->
+                canvas.nativeCanvas.drawRect(0f, 0f, w, h, paperMattePaint)
+            }
+        }
+
+        // DYNAMIC SCREEN LAYOUT
+        if (isCompactMode || !physicalButtonsEnabled) {
+            // PURE SURFACE + RESIZABLE SCROLL STRIP (LEFT OR RIGHT)
+            Row(modifier = Modifier.fillMaxSize()) {
+                if (scrollPosition == "left") {
+                    ScrollStripBox(isLeft = true, modifier = Modifier.width(effectiveScrollWidth))
+                    MainTrackpadSurface(modifier = Modifier.weight(1f))
+                } else {
+                    MainTrackpadSurface(modifier = Modifier.weight(1f))
+                    ScrollStripBox(isLeft = false, modifier = Modifier.width(effectiveScrollWidth))
+                }
             }
         } else {
-            // Full 120dp Sidebar for Solo Trackpad Mode
-            Row(
-                modifier = Modifier
-                    .width(120.dp)
-                    .fillMaxHeight()
-                    .background(currentTheme.surface)
-            ) {
-                // Scroll Wheel Strip
-                ScrollWheelStrip(
-                    naturalScroll = naturalScroll,
-                    cardColor = currentTheme.card,
-                    iconColor = currentTheme.textMuted,
-                    onSendJson = onSendJson,
-                    onVibrate = onVibrate
-                )
-
-                // Stacked Physical Mouse Buttons (100% Isolated Compose pointerInput!)
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    // Left Click Button
-                    TokyoIconButton(
-                        icon = Icons.Default.Mouse,
-                        label = "L-CLICK",
-                        buttonCode = 1,
-                        activeColor = currentTheme.primaryAccent,
-                        cardColor = currentTheme.card,
-                        textColor = currentTheme.textPrimary,
-                        modifier = Modifier.weight(1.5f),
-                        onSendJson = onSendJson,
-                        onVibrate = onVibrate
-                    )
-
-                    // Middle Click Button
-                    TokyoIconButton(
-                        icon = Icons.Default.Adjust,
-                        label = "MID",
-                        buttonCode = 2,
-                        activeColor = currentTheme.secondaryAccent,
-                        cardColor = currentTheme.card,
-                        textColor = currentTheme.textPrimary,
-                        modifier = Modifier.weight(1f),
-                        onSendJson = onSendJson,
-                        onVibrate = onVibrate
-                    )
-
-                    // Right Click Button
-                    TokyoIconButton(
-                        icon = Icons.Default.AdsClick,
-                        label = "R-CLICK",
-                        buttonCode = 3,
-                        activeColor = currentTheme.primaryAccent,
-                        cardColor = currentTheme.card,
-                        textColor = currentTheme.textPrimary,
-                        modifier = Modifier.weight(1.5f),
-                        onSendJson = onSendJson,
-                        onVibrate = onVibrate
-                    )
+            when (buttonsPosition) {
+                "bottom" -> {
+                    // LAPTOP STYLE (SEAMLESS FLOATING BOTTOM CLICK BAR + LATERAL SCROLL)
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            if (scrollPosition == "left") {
+                                ScrollStripBox(isLeft = true, modifier = Modifier.width(effectiveScrollWidth))
+                                MainTrackpadSurface(modifier = Modifier.weight(1f))
+                            } else {
+                                MainTrackpadSurface(modifier = Modifier.weight(1f))
+                                ScrollStripBox(isLeft = false, modifier = Modifier.width(effectiveScrollWidth))
+                            }
+                        }
+                        TrackpadBottomBar(
+                            currentTheme = currentTheme,
+                            height = effectiveBottomHeight,
+                            onButtonPressChanged = { isPressed ->
+                                if (isPressed) {
+                                    activePhysicalButtonsCount++
+                                } else {
+                                    activePhysicalButtonsCount = maxOf(0, activePhysicalButtonsCount - 1)
+                                }
+                            },
+                            onSendJson = onSendJson,
+                            onVibrate = onVibrate
+                        )
+                    }
+                }
+                "left" -> {
+                    // BUTTONS ON LEFT SIDEBAR (SEAMLESS FLOATING KEYCAPS)
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        SidebarButtonsBox(modifier = Modifier.width(effectiveSidebarWidth))
+                        if (scrollPosition == "left") {
+                            ScrollStripBox(isLeft = true, modifier = Modifier.width(effectiveScrollWidth))
+                            MainTrackpadSurface(modifier = Modifier.weight(1f))
+                        } else {
+                            MainTrackpadSurface(modifier = Modifier.weight(1f))
+                            ScrollStripBox(isLeft = false, modifier = Modifier.width(effectiveScrollWidth))
+                        }
+                    }
+                }
+                else -> { // "right"
+                    // BUTTONS ON RIGHT SIDEBAR (SEAMLESS FLOATING KEYCAPS)
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        if (scrollPosition == "left") {
+                            ScrollStripBox(isLeft = true, modifier = Modifier.width(effectiveScrollWidth))
+                            MainTrackpadSurface(modifier = Modifier.weight(1f))
+                            SidebarButtonsBox(modifier = Modifier.width(effectiveSidebarWidth))
+                        } else {
+                            MainTrackpadSurface(modifier = Modifier.weight(1f))
+                            ScrollStripBox(isLeft = false, modifier = Modifier.width(effectiveScrollWidth))
+                            SidebarButtonsBox(modifier = Modifier.width(effectiveSidebarWidth))
+                        }
+                    }
                 }
             }
         }
     }
 }
-

@@ -492,35 +492,38 @@ wss.on('connection', (ws, req) => {
             }
 
             // 1. Emit Hardware Kernel Input Event via /dev/uinput (100% Real Physical Keyboard)
-            sendUInput({ type: 'keydown', key: k });
+            const uinputOk = uinputDaemon && uinputDaemon.stdin && uinputDaemon.stdin.writable;
+            if (uinputOk) {
+              sendUInput({ type: 'keydown', key: k });
+            } else {
+              // 2. Fallback X11 xdotool handling ONLY if uinput is not available
+              const isAltGrPressed = activeModifiers.has('Alt_R');
+              const isShiftPressed = activeModifiers.has('Shift_L') || activeModifiers.has('Shift_R');
 
-            // 2. Fallback / Complementary X11 xdotool handling
-            const isAltGrPressed = activeModifiers.has('Alt_R');
-            const isShiftPressed = activeModifiers.has('Shift_L') || activeModifiers.has('Shift_R');
-
-            if (isAltGrPressed) {
-              if (k === 'n' || k === 'N') {
-                sendXdotoolCommand(isShiftPressed ? 'key Ntilde' : 'key ntilde');
-                break;
-              } else if (k === 'a' || k === 'A') {
-                sendXdotoolCommand(isShiftPressed ? 'key Aacute' : 'key aacute');
-                break;
-              } else if (k === 'e' || k === 'E') {
-                sendXdotoolCommand(isShiftPressed ? 'key Eacute' : 'key eacute');
-                break;
-              } else if (k === 'i' || k === 'I') {
-                sendXdotoolCommand(isShiftPressed ? 'key Iacute' : 'key iacute');
-                break;
-              } else if (k === 'o' || k === 'O') {
-                sendXdotoolCommand(isShiftPressed ? 'key Oacute' : 'key oacute');
-                break;
-              } else if (k === 'u' || k === 'U') {
-                sendXdotoolCommand(isShiftPressed ? 'key Uacute' : 'key uacute');
-                break;
+              if (isAltGrPressed) {
+                if (k === 'n' || k === 'N') {
+                  sendXdotoolCommand(isShiftPressed ? 'key Ntilde' : 'key ntilde');
+                  break;
+                } else if (k === 'a' || k === 'A') {
+                  sendXdotoolCommand(isShiftPressed ? 'key Aacute' : 'key aacute');
+                  break;
+                } else if (k === 'e' || k === 'E') {
+                  sendXdotoolCommand(isShiftPressed ? 'key Eacute' : 'key eacute');
+                  break;
+                } else if (k === 'i' || k === 'I') {
+                  sendXdotoolCommand(isShiftPressed ? 'key Iacute' : 'key iacute');
+                  break;
+                } else if (k === 'o' || k === 'O') {
+                  sendXdotoolCommand(isShiftPressed ? 'key Oacute' : 'key oacute');
+                  break;
+                } else if (k === 'u' || k === 'U') {
+                  sendXdotoolCommand(isShiftPressed ? 'key Uacute' : 'key uacute');
+                  break;
+                }
               }
-            }
 
-            sendXdotoolCommand(`keydown ${mapXdotoolKey(k)}`);
+              sendXdotoolCommand(`keydown ${mapXdotoolKey(k)}`);
+            }
           }
           break;
 
@@ -530,8 +533,12 @@ wss.on('connection', (ws, req) => {
             if (['Alt_L', 'Alt_R', 'Shift_L', 'Shift_R', 'Control_L', 'Control_R', 'Super_L'].includes(k)) {
               activeModifiers.delete(k);
             }
-            sendUInput({ type: 'keyup', key: k });
-            sendXdotoolCommand(`keyup ${mapXdotoolKey(k)}`);
+            const uinputOk = uinputDaemon && uinputDaemon.stdin && uinputDaemon.stdin.writable;
+            if (uinputOk) {
+              sendUInput({ type: 'keyup', key: k });
+            } else {
+              sendXdotoolCommand(`keyup ${mapXdotoolKey(k)}`);
+            }
           }
           break;
 

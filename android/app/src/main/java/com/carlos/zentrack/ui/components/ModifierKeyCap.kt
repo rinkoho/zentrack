@@ -122,10 +122,16 @@ fun ModifierKeyCap(
                         color = keyBg,
                         shape = RoundedCornerShape(6.dp)
                     )
-                    .border(
-                        width = 0.5.dp,
-                        color = if (isLatched) Color.Transparent else Color.White.copy(alpha = 0.03f),
-                        shape = RoundedCornerShape(6.dp)
+                    .then(
+                        if (com.carlos.zentrack.preferences.ZenPreferences.keycapBordersEnabled) {
+                            Modifier.border(
+                                width = 0.5.dp,
+                                color = if (isLatched) Color.Transparent else Color.White.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                        } else {
+                            Modifier
+                        }
                     )
             ) {
                 if (nerdSymbol != null) {

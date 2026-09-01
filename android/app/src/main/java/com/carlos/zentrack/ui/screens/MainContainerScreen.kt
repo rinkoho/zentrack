@@ -26,6 +26,7 @@ import com.carlos.zentrack.theme.*
 import com.carlos.zentrack.ui.components.SettingsDialog
 import com.carlos.zentrack.ui.components.ThemeSelectionDialog
 import com.carlos.zentrack.ui.components.rememberKeycasterState
+import com.carlos.zentrack.vision.ui.VisionScreen
 
 @Composable
 fun MainContainerScreen(
@@ -38,7 +39,8 @@ fun MainContainerScreen(
     onReconnect: () -> Unit,
     onSendBinary: (Short, Int, Int) -> Unit,
     onSendJson: (String) -> Unit,
-    onVibrate: (Long) -> Unit
+    onVibrate: (Long) -> Unit,
+    onVibrateKeyboard: (Long) -> Unit = onVibrate
 ) {
     var activeAppMode by remember { mutableStateOf("Trackpad") } // "Trackpad", "Keyboard", "Hybrid", or "Settings"
     var previousAppMode by remember { mutableStateOf("Trackpad") }
@@ -55,6 +57,14 @@ fun MainContainerScreen(
     var keyCasterEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.keyCasterEnabled) }
     var usbAdbModeEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled) }
     var invertThreeFingerSwipe by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.invertThreeFingerSwipe) }
+    var trackpadPhysicalButtonsEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.trackpadPhysicalButtonsEnabled) }
+    var trackpadButtonsPosition by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsPosition) }
+    var trackpadScrollPosition by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollPosition) }
+    var trackpadScrollWidth by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth) }
+    var trackpadButtonsSidebarWidth by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth) }
+    var trackpadButtonsBottomHeight by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight) }
+    var hapticTrackpadIntensity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.hapticTrackpadIntensity) }
+    var hapticKeyboardIntensity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.hapticKeyboardIntensity) }
 
     val keycasterState = rememberKeycasterState()
 
@@ -80,6 +90,12 @@ fun MainContainerScreen(
                         mouseAccelProfile = mouseAccelProfile,
                         naturalScroll = naturalScroll,
                         invertThreeFingerSwipe = invertThreeFingerSwipe,
+                        physicalButtonsEnabled = trackpadPhysicalButtonsEnabled,
+                        buttonsPosition = trackpadButtonsPosition,
+                        scrollPosition = trackpadScrollPosition,
+                        scrollWidth = trackpadScrollWidth,
+                        buttonsSidebarWidth = trackpadButtonsSidebarWidth,
+                        buttonsBottomHeight = trackpadButtonsBottomHeight,
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
                         onSendBinary = onSendBinary,
@@ -99,7 +115,7 @@ fun MainContainerScreen(
                         onReconnect = onReconnect,
                         onOpenThemeDialog = { showThemeSelectionDialog = true },
                         onSendJson = onSendJson,
-                        onVibrate = onVibrate
+                        onVibrate = onVibrateKeyboard
                     )
                 }
                 "Settings" -> {
@@ -117,6 +133,14 @@ fun MainContainerScreen(
                         keyCasterEnabled = keyCasterEnabled,
                         usbAdbModeEnabled = usbAdbModeEnabled,
                         invertThreeFingerSwipe = invertThreeFingerSwipe,
+                        trackpadPhysicalButtonsEnabled = trackpadPhysicalButtonsEnabled,
+                        trackpadButtonsPosition = trackpadButtonsPosition,
+                        trackpadScrollPosition = trackpadScrollPosition,
+                        trackpadScrollWidth = trackpadScrollWidth,
+                        trackpadButtonsSidebarWidth = trackpadButtonsSidebarWidth,
+                        trackpadButtonsBottomHeight = trackpadButtonsBottomHeight,
+                        hapticTrackpadIntensity = hapticTrackpadIntensity,
+                        hapticKeyboardIntensity = hapticKeyboardIntensity,
                         onSensitivityChanged = { sensitivity = it },
                         onScrollSensitivityChanged = { scrollSensitivity = it },
                         onMouseAccelEnabledChanged = { mouseAccelEnabled = it },
@@ -135,11 +159,31 @@ fun MainContainerScreen(
                             onReconnect()
                         },
                         onInvertThreeFingerSwipeChanged = { invertThreeFingerSwipe = it },
+                        onTrackpadPhysicalButtonsEnabledChanged = { trackpadPhysicalButtonsEnabled = it },
+                        onTrackpadButtonsPositionChanged = { trackpadButtonsPosition = it },
+                        onTrackpadScrollPositionChanged = { trackpadScrollPosition = it },
+                        onTrackpadScrollWidthChanged = { trackpadScrollWidth = it },
+                        onTrackpadButtonsSidebarWidthChanged = { trackpadButtonsSidebarWidth = it },
+                        onTrackpadButtonsBottomHeightChanged = { trackpadButtonsBottomHeight = it },
+                        onHapticTrackpadIntensityChanged = { hapticTrackpadIntensity = it },
+                        onHapticKeyboardIntensityChanged = { hapticKeyboardIntensity = it },
                         onBack = { activeAppMode = previousAppMode }
                     )
                 }
                 "Gaming", "Gamepad" -> {
                     GamepadScreen(
+                        currentTheme = animatedTheme,
+                        isConnected = isConnected,
+                        statusText = statusText,
+                        onOpenDrawer = { isSidebarExpanded = true },
+                        onReconnect = onReconnect,
+                        onSendBinary = onSendBinary,
+                        onSendJson = onSendJson,
+                        onVibrate = onVibrateKeyboard
+                    )
+                }
+                "Vision", "ZenVision" -> {
+                    VisionScreen(
                         currentTheme = animatedTheme,
                         isConnected = isConnected,
                         statusText = statusText,
@@ -160,6 +204,9 @@ fun MainContainerScreen(
                         mouseAccelEnabled = mouseAccelEnabled,
                         mouseAccelProfile = mouseAccelProfile,
                         naturalScroll = naturalScroll,
+                        scrollPosition = trackpadScrollPosition,
+                        scrollWidth = trackpadScrollWidth,
+                        invertThreeFingerSwipe = invertThreeFingerSwipe,
                         stickyKeysEnabled = stickyKeysEnabled,
                         hybridKeyboardHeightRatio = hybridKeyboardHeightRatio,
                         keyCasterEnabled = keyCasterEnabled,
@@ -410,6 +457,38 @@ fun MainContainerScreen(
                                     Text(
                                         "Mando Gaming",
                                         color = if (isGaming) Color.Black else animatedTheme.textPrimary,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            // 5. ZenVision (Control Espacial)
+                            val isVision = activeAppMode == "Vision" || activeAppMode == "ZenVision"
+                            Surface(
+                                color = if (isVision) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        activeAppMode = "Vision"
+                                        onVibrate(15L)
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Visibility,
+                                        contentDescription = null,
+                                        tint = if (isVision) Color.Black else animatedTheme.textPrimary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "ZenVisión (Spatial)",
+                                        color = if (isVision) Color.Black else animatedTheme.textPrimary,
                                         fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )

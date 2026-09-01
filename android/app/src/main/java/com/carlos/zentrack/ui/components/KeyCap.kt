@@ -1,5 +1,8 @@
 package com.carlos.zentrack.ui.components
 
+import android.graphics.CornerPathEffect
+import android.graphics.Paint
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -13,6 +16,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +26,62 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlos.zentrack.theme.ZenThemeConfig
 import org.json.JSONObject
+
+/**
+ * Centered Rounded Vector Arrow Indicator for Keyboard Directional Keys ( ▲ / ▼ / ◀ / ▶ )
+ */
+@Composable
+fun RoundedArrowIndicator(
+    direction: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val cy = h / 2f
+
+        val path = android.graphics.Path()
+        when (direction) {
+            "▲", "Up" -> {
+                path.moveTo(cx, cy - h * 0.44f)
+                path.lineTo(cx + w * 0.44f, cy + h * 0.38f)
+                path.lineTo(cx - w * 0.44f, cy + h * 0.38f)
+                path.close()
+            }
+            "▼", "Down" -> {
+                path.moveTo(cx, cy + h * 0.44f)
+                path.lineTo(cx - w * 0.44f, cy - h * 0.38f)
+                path.lineTo(cx + w * 0.44f, cy - h * 0.38f)
+                path.close()
+            }
+            "◀", "Left" -> {
+                path.moveTo(cx - w * 0.44f, cy)
+                path.lineTo(cx + w * 0.38f, cy - h * 0.44f)
+                path.lineTo(cx + w * 0.38f, cy + h * 0.44f)
+                path.close()
+            }
+            "▶", "Right" -> {
+                path.moveTo(cx + w * 0.44f, cy)
+                path.lineTo(cx - w * 0.38f, cy + h * 0.44f)
+                path.lineTo(cx - w * 0.38f, cy - h * 0.44f)
+                path.close()
+            }
+        }
+
+        val paint = Paint().apply {
+            this.color = color.toArgb()
+            this.style = Paint.Style.FILL
+            this.pathEffect = CornerPathEffect(2.2.dp.toPx())
+            this.isAntiAlias = true
+        }
+
+        drawIntoCanvas { canvas ->
+            canvas.nativeCanvas.drawPath(path, paint)
+        }
+    }
+}
 
 @Composable
 fun KeyCap(
@@ -132,13 +194,27 @@ fun KeyCap(
                         color = keyBg,
                         shape = RoundedCornerShape(6.dp)
                     )
-                    .border(
-                        width = 0.5.dp,
-                        color = if (isPressed) Color.Transparent else Color.White.copy(alpha = 0.03f),
-                        shape = RoundedCornerShape(6.dp)
+                    .then(
+                        if (com.carlos.zentrack.preferences.ZenPreferences.keycapBordersEnabled) {
+                            Modifier.border(
+                                width = 0.5.dp,
+                                color = if (isPressed) Color.Transparent else Color.White.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                        } else {
+                            Modifier
+                        }
                     )
             ) {
-                if (nerdSymbol != null) {
+                val isArrow = label in listOf("▲", "▼", "◀", "▶") || keyCode in listOf("Up", "Down", "Left", "Right")
+
+                if (isArrow) {
+                    RoundedArrowIndicator(
+                        direction = label.ifEmpty { keyCode },
+                        color = textColor,
+                        modifier = Modifier.size(12.5.dp)
+                    )
+                } else if (nerdSymbol != null) {
                     Text(
                         text = nerdSymbol,
                         fontFamily = com.carlos.zentrack.ui.theme.NerdFontFamily,
