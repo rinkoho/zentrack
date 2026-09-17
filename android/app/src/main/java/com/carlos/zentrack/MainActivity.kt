@@ -27,7 +27,6 @@ class MainActivity : ComponentActivity() {
     private var isConnected by mutableStateOf(false)
     private var statusText by mutableStateOf("Conectando...")
     private var activeTheme by mutableStateOf(ClassicWhiteOrangeTheme)
-    private var syncTheme by mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +57,6 @@ class MainActivity : ComponentActivity() {
 
         // Load saved preferences
         activeTheme = findZenThemeByName(com.carlos.zentrack.preferences.ZenPreferences.activeThemeName)
-        syncTheme = com.carlos.zentrack.preferences.ZenPreferences.syncTheme
         com.carlos.zentrack.audio.ZenSoundEngine.setEnabled(com.carlos.zentrack.preferences.ZenPreferences.keySoundEnabled)
         com.carlos.zentrack.audio.ZenSoundEngine.setProfile(com.carlos.zentrack.preferences.ZenPreferences.soundProfile)
         com.carlos.zentrack.audio.ZenSoundEngine.setVolume(com.carlos.zentrack.preferences.ZenPreferences.soundVolume)
@@ -68,15 +66,6 @@ class MainActivity : ComponentActivity() {
                 runOnUiThread {
                     isConnected = connected
                     statusText = status
-                }
-            },
-            onThemeSyncReceived = { riceName ->
-                if (syncTheme) {
-                    runOnUiThread {
-                        val newTheme = findZenThemeByName(riceName)
-                        activeTheme = newTheme
-                        com.carlos.zentrack.preferences.ZenPreferences.activeThemeName = newTheme.name
-                    }
                 }
             }
         )
@@ -91,11 +80,6 @@ class MainActivity : ComponentActivity() {
                     onThemeChanged = {
                         activeTheme = it
                         com.carlos.zentrack.preferences.ZenPreferences.activeThemeName = it.name
-                    },
-                    syncTheme = syncTheme,
-                    onSyncThemeChanged = {
-                        syncTheme = it
-                        com.carlos.zentrack.preferences.ZenPreferences.syncTheme = it
                     },
                     onReconnect = { socketManager.connect() },
                     onSendBinary = { cmd, x, y ->

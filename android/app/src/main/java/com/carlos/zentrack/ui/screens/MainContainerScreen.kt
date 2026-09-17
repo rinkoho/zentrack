@@ -34,8 +34,6 @@ fun MainContainerScreen(
     statusText: String,
     activeTheme: ZenThemeConfig,
     onThemeChanged: (ZenThemeConfig) -> Unit,
-    syncTheme: Boolean,
-    onSyncThemeChanged: (Boolean) -> Unit,
     onReconnect: () -> Unit,
     onSendBinary: (Short, Int, Int) -> Unit,
     onSendJson: (String) -> Unit,
@@ -129,7 +127,6 @@ fun MainContainerScreen(
                         mouseAccelProfile = mouseAccelProfile,
                         naturalScroll = naturalScroll,
                         stickyKeysEnabled = stickyKeysEnabled,
-                        syncTheme = syncTheme,
                         themeAnimSpeedMs = themeAnimSpeedMs,
                         hybridKeyboardHeightRatio = hybridKeyboardHeightRatio,
                         keyCasterEnabled = keyCasterEnabled,
@@ -152,7 +149,6 @@ fun MainContainerScreen(
                         },
                         onNaturalScrollChanged = { naturalScroll = it },
                         onStickyKeysChanged = { stickyKeysEnabled = it },
-                        onSyncThemeChanged = onSyncThemeChanged,
                         onThemeAnimSpeedChanged = { themeAnimSpeedMs = it },
                         onHybridKeyboardHeightRatioChanged = { hybridKeyboardHeightRatio = it },
                         onKeyCasterEnabledChanged = { keyCasterEnabled = it },
@@ -594,12 +590,30 @@ fun MainContainerScreen(
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        "ZenVisión (Spatial)",
-                                        color = if (isVision) Color.Black else animatedTheme.textPrimary,
-                                        fontSize = 11.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            "ZenVisión (Spatial)",
+                                            color = if (isVision) Color.Black else animatedTheme.textPrimary,
+                                            fontSize = 11.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Surface(
+                                            color = animatedTheme.primaryAccent.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(4.dp)
+                                        ) {
+                                            Text(
+                                                text = "BETA",
+                                                color = animatedTheme.primaryAccent,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Black,
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -608,7 +622,7 @@ fun MainContainerScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Bluetooth HID Card
+                        // Bluetooth HID Card (LABS / Experimental)
                         Text(
                             text = "CONECTIVIDAD BLUETOOTH",
                             color = animatedTheme.textMuted,
@@ -646,17 +660,32 @@ fun MainContainerScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
-                                        Text(
-                                            text = "Bluetooth Universal",
-                                            color = animatedTheme.textPrimary,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "Bluetooth Universal",
+                                                color = animatedTheme.textPrimary,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Surface(
+                                                color = Color(0xFFF59E0B).copy(alpha = 0.2f),
+                                                shape = RoundedCornerShape(4.dp)
+                                            ) {
+                                                Text(
+                                                    text = "LABS",
+                                                    color = Color(0xFFF59E0B),
+                                                    fontSize = 7.5.sp,
+                                                    fontWeight = FontWeight.Black,
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                )
+                                            }
+                                        }
                                         Text(
                                             text = if (isBtConnected) {
                                                 "Conectado: ${btDeviceName ?: "Dispositivo"}"
                                             } else {
-                                                "Smart TV, PC & Mac (0 Servidor)"
+                                                "Experimental • Smart TV & PC"
                                             },
                                             color = if (isBtConnected) animatedTheme.primaryAccent else animatedTheme.textMuted,
                                             fontSize = 9.sp
@@ -709,7 +738,7 @@ fun MainContainerScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
                                     Text(
-                                        text = "Temas & PC Rices",
+                                        text = "Paleta de Temas",
                                         color = animatedTheme.textPrimary,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold

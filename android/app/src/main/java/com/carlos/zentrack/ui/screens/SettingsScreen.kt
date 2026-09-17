@@ -39,7 +39,6 @@ fun SettingsScreen(
     mouseAccelProfile: String = com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile,
     naturalScroll: Boolean,
     stickyKeysEnabled: Boolean,
-    syncTheme: Boolean,
     themeAnimSpeedMs: Int,
     hybridKeyboardHeightRatio: Float = com.carlos.zentrack.preferences.ZenPreferences.hybridKeyboardHeightRatio,
     keyCasterEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.keyCasterEnabled,
@@ -59,7 +58,6 @@ fun SettingsScreen(
     onMouseAccelProfileChanged: (String) -> Unit = {},
     onNaturalScrollChanged: (Boolean) -> Unit,
     onStickyKeysChanged: (Boolean) -> Unit,
-    onSyncThemeChanged: (Boolean) -> Unit,
     onThemeAnimSpeedChanged: (Int) -> Unit,
     onHybridKeyboardHeightRatioChanged: (Float) -> Unit = {},
     onKeyCasterEnabledChanged: (Boolean) -> Unit = {},
@@ -845,28 +843,6 @@ fun SettingsScreen(
                             valueRange = 100f..1000f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
-
-                        HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Sync, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Sincronizar Tema PC", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                                Text("Auto-sync con gh0stzk dotfiles rices", color = currentTheme.textMuted, fontSize = 7.5.sp)
-                            }
-                            Switch(
-                                checked = syncTheme,
-                                onCheckedChange = onSyncThemeChanged,
-                                colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.primaryAccent, checkedTrackColor = currentTheme.primaryAccent.copy(alpha = 0.4f))
-                            )
-                        }
 
                         HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
 

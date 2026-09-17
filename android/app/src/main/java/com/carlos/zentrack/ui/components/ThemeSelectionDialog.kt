@@ -68,7 +68,7 @@ fun ThemeSelectionDialog(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "🎨 TEMAS DEL TECLADO & PC RICES",
+                                text = "🎨 PALETA DE TEMAS ZENTRACK",
                                 color = activeTheme.primaryAccent,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
@@ -87,7 +87,7 @@ fun ThemeSelectionDialog(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 2-Column Grid of 23 gh0stzk Themes
+                    // 2-Column Grid of 23 Community Themes
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),

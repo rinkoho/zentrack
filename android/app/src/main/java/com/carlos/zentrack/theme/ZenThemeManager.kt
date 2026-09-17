@@ -92,9 +92,9 @@ fun rememberAnimatedZenTheme(
     )
 }
 
-// 1. Carbon (Blanco & Naranja Neón Industrial)
+// 1. Carbon Orange (Industrial Neon)
 val ClassicWhiteOrangeTheme = ZenThemeConfig(
-    name = "Blanco & Naranja",
+    name = "Carbon Orange",
     background = Color(0xFF181D26),
     surface = Color(0xFF27272A),
     card = Color(0xFF3F3F46),
@@ -121,7 +121,7 @@ val ClassicWhiteOrangeTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFB91C1C)
 )
 
-// 2. Tokyo Night Premium Theme (emilia)
+// 2. Tokyo Night
 val TokyoNightZenTheme = ZenThemeConfig(
     name = "Tokyo Night",
     background = Color(0xFF1A1B26),
@@ -150,9 +150,9 @@ val TokyoNightZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFA685E3)
 )
 
-// 3. Pamela (gh0stzk Rice - Dark Slate & Electric Cyan)
+// 3. Horizon Dark (Slate & Electric Cyan)
 val PamelaZenTheme = ZenThemeConfig(
-    name = "Pamela",
+    name = "Horizon Dark",
     background = Color(0xFF1D1F28),
     surface = Color(0xFF282A36),
     card = Color(0xFF353748),
@@ -179,7 +179,7 @@ val PamelaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF707ECC)
 )
 
-// 4. Catppuccin Mocha (daniela)
+// 4. Catppuccin Mocha
 val CatppuccinMochaTheme = ZenThemeConfig(
     name = "Catppuccin Mocha",
     background = Color(0xFF181825),
@@ -208,9 +208,9 @@ val CatppuccinMochaTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF82D6C6)
 )
 
-// 5. Laser (jan)
+// 5. Cyberpunk Laser
 val LaserZenTheme = ZenThemeConfig(
-    name = "Laser",
+    name = "Cyberpunk Laser",
     background = Color(0xFF070219),
     surface = Color(0xFF0E062E),
     card = Color(0xFF1E1B4B),
@@ -237,9 +237,9 @@ val LaserZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFDB006B)
 )
 
-// 6. Olivia
+// 6. Olivia Rose
 val OliviaZenTheme = ZenThemeConfig(
-    name = "Olivia",
+    name = "Olivia Rose",
     background = Color(0xFF1C1917),
     surface = Color(0xFF27272A),
     card = Color(0xFF3F3F46),
@@ -266,9 +266,9 @@ val OliviaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFD18A7D)
 )
 
-// 7. Botanical
+// 7. Botanical Green
 val BotanicalZenTheme = ZenThemeConfig(
-    name = "Botanical",
+    name = "Botanical Green",
     background = Color(0xFF1E2D24),
     surface = Color(0xFF26382D),
     card = Color(0xFF2F3E35),
@@ -324,9 +324,9 @@ val RetroClassicZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF991B1B)
 )
 
-// 9. Dolch
+// 9. Dolch Cyan
 val DolchZenTheme = ZenThemeConfig(
-    name = "Dolch",
+    name = "Dolch Cyan",
     background = Color(0xFF111827),
     surface = Color(0xFF1F2937),
     card = Color(0xFF374151),
@@ -353,9 +353,9 @@ val DolchZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF0891B2)
 )
 
-// 10. Isabel (gh0stzk Rice)
+// 10. One Dark Pro
 val IsabelZenTheme = ZenThemeConfig(
-    name = "Isabel",
+    name = "One Dark Pro",
     background = Color(0xFF14171C),
     surface = Color(0xFF1D212A),
     card = Color(0xFF2A303D),
@@ -382,9 +382,9 @@ val IsabelZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF614CB8)
 )
 
-// 11. Andrea (gh0stzk Rice Claro)
+// 11. Warm Sand
 val AndreaZenTheme = ZenThemeConfig(
-    name = "Andrea",
+    name = "Warm Sand",
     background = Color(0xFFE6DFD7),
     surface = Color(0xFFF5EEE6),
     card = Color(0xFFCBD2C9),
@@ -411,9 +411,9 @@ val AndreaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFB394F7)
 )
 
-// 12. Aline (gh0stzk Rice - Rose Pine Dawn Light)
+// 12. Rosé Pine Dawn
 val AlineZenTheme = ZenThemeConfig(
-    name = "Aline",
+    name = "Rosé Pine Dawn",
     background = Color(0xFFFAF4ED),
     surface = Color(0xFFF2E9E1),
     card = Color(0xFFE4DCD3),
@@ -440,9 +440,9 @@ val AlineZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF7F6C96)
 )
 
-// 13. Brenda (gh0stzk Rice - Everforest Dark)
+// 13. Everforest
 val BrendaZenTheme = ZenThemeConfig(
-    name = "Brenda",
+    name = "Everforest",
     background = Color(0xFF2D353B),
     surface = Color(0xFF343F44),
     card = Color(0xFF3D494E),
@@ -469,9 +469,9 @@ val BrendaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF97AF76)
 )
 
-// 14. Cristina (gh0stzk Rice - Rose Pine Dark)
+// 14. Rosé Pine
 val CristinaZenTheme = ZenThemeConfig(
-    name = "Cristina",
+    name = "Rosé Pine",
     background = Color(0xFF232136),
     surface = Color(0xFF2A283E),
     card = Color(0xFF33314C),
@@ -498,9 +498,9 @@ val CristinaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFAF92D6)
 )
 
-// 15. Cynthia (gh0stzk Rice - Kanagawa)
+// 15. Kanagawa
 val CynthiaZenTheme = ZenThemeConfig(
-    name = "Cynthia",
+    name = "Kanagawa",
     background = Color(0xFF181616),
     surface = Color(0xFF222020),
     card = Color(0xFF2D2A2A),
@@ -527,9 +527,9 @@ val CynthiaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF827899)
 )
 
-// 16. H4ck3r (gh0stzk Rice - Matrix Green)
+// 16. Matrix Green
 val HackerZenTheme = ZenThemeConfig(
-    name = "H4ck3r",
+    name = "Matrix Green",
     background = Color(0xFF0C1018),
     surface = Color(0xFF121824),
     card = Color(0xFF1B2333),
@@ -556,9 +556,9 @@ val HackerZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF6BD400)
 )
 
-// 17. Karla (gh0stzk Rice - Purple Crimson)
+// 17. Crimson Abyss
 val KarlaZenTheme = ZenThemeConfig(
-    name = "Karla",
+    name = "Crimson Abyss",
     background = Color(0xFF0E1113),
     surface = Color(0xFF161B1F),
     card = Color(0xFF20272C),
@@ -585,9 +585,9 @@ val KarlaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFC4023E)
 )
 
-// 18. Marisol (gh0stzk Rice - Dracula)
+// 18. Dracula
 val MarisolZenTheme = ZenThemeConfig(
-    name = "Marisol",
+    name = "Dracula",
     background = Color(0xFF282A36),
     surface = Color(0xFF343746),
     card = Color(0xFF44475A),
@@ -614,9 +614,9 @@ val MarisolZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFA479EB)
 )
 
-// 19. Melissa (gh0stzk Rice - Nord)
+// 19. Nord Frost
 val MelissaZenTheme = ZenThemeConfig(
-    name = "Melissa",
+    name = "Nord Frost",
     background = Color(0xFF2E3440),
     surface = Color(0xFF3B4252),
     card = Color(0xFF434C5E),
@@ -643,9 +643,9 @@ val MelissaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF70B2C4)
 )
 
-// 20. Silvia (gh0stzk Rice - Gruvbox)
+// 20. Gruvbox Dark
 val SilviaZenTheme = ZenThemeConfig(
-    name = "Silvia",
+    name = "Gruvbox Dark",
     background = Color(0xFF282828),
     surface = Color(0xFF3C3836),
     card = Color(0xFF504945),
@@ -672,9 +672,9 @@ val SilviaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFDBAB32)
 )
 
-// 21. Varinka (gh0stzk Rice - Monochrome Dark)
+// 21. Monochrome Dark
 val VarinkaZenTheme = ZenThemeConfig(
-    name = "Varinka",
+    name = "Monochrome Dark",
     background = Color(0xFF212529),
     surface = Color(0xFF2C3136),
     card = Color(0xFF3B4249),
@@ -701,9 +701,9 @@ val VarinkaZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFFE9ECEF)
 )
 
-// 22. Yael (gh0stzk Rice - Minimal Black & White)
+// 22. OLED Minimal
 val YaelZenTheme = ZenThemeConfig(
-    name = "Yael",
+    name = "OLED Minimal",
     background = Color(0xFF161616),
     surface = Color(0xFF262626),
     card = Color(0xFF353535),
@@ -730,9 +730,9 @@ val YaelZenTheme = ZenThemeConfig(
     keyAccentActiveBg = Color(0xFF37A155)
 )
 
-// 23. Z0mbi3 (gh0stzk Rice - Red Cyberpunk)
+// 23. Cyberpunk Red
 val ZombieZenTheme = ZenThemeConfig(
-    name = "Z0mbi3",
+    name = "Cyberpunk Red",
     background = Color(0xFF0D0F18),
     surface = Color(0xFF171A29),
     card = Color(0xFF24283F),
@@ -792,28 +792,29 @@ fun findZenThemeByName(name: String): ZenThemeConfig {
         val tName = it.name.lowercase().replace("-", "").replace(" ", "").replace("_", "")
         tName.contains(cleanName) || cleanName.contains(tName)
     } ?: when {
-        cleanName.contains("pamela") -> PamelaZenTheme
-        cleanName.contains("emilia") || cleanName.contains("tokyo") -> TokyoNightZenTheme
-        cleanName.contains("daniela") || cleanName.contains("catppuccin") -> CatppuccinMochaTheme
-        cleanName.contains("jan") || cleanName.contains("laser") -> LaserZenTheme
-        cleanName.contains("isabel") -> IsabelZenTheme
-        cleanName.contains("andrea") -> AndreaZenTheme
-        cleanName.contains("aline") -> AlineZenTheme
-        cleanName.contains("brenda") -> BrendaZenTheme
-        cleanName.contains("cristina") -> CristinaZenTheme
-        cleanName.contains("cynthia") -> CynthiaZenTheme
-        cleanName.contains("karla") -> KarlaZenTheme
-        cleanName.contains("marisol") || cleanName.contains("dracula") -> MarisolZenTheme
-        cleanName.contains("melissa") || cleanName.contains("nord") -> MelissaZenTheme
-        cleanName.contains("silvia") || cleanName.contains("gruvbox") -> SilviaZenTheme
-        cleanName.contains("varinka") -> VarinkaZenTheme
-        cleanName.contains("yael") -> YaelZenTheme
-        cleanName.contains("z0mbi3") || cleanName.contains("zombie") -> ZombieZenTheme
-        cleanName.contains("hacker") || cleanName.contains("matrix") -> HackerZenTheme
-        cleanName.contains("dolch") -> DolchZenTheme
-        cleanName.contains("botanical") -> BotanicalZenTheme
+        cleanName.contains("carbon") || cleanName.contains("blanco") || cleanName.contains("orange") -> ClassicWhiteOrangeTheme
+        cleanName.contains("tokyo") || cleanName.contains("emilia") -> TokyoNightZenTheme
+        cleanName.contains("horizon") || cleanName.contains("pamela") -> PamelaZenTheme
+        cleanName.contains("catppuccin") || cleanName.contains("daniela") || cleanName.contains("mocha") -> CatppuccinMochaTheme
+        cleanName.contains("laser") || cleanName.contains("jan") -> LaserZenTheme
         cleanName.contains("olivia") -> OliviaZenTheme
+        cleanName.contains("botanical") -> BotanicalZenTheme
         cleanName.contains("retro") -> RetroClassicZenTheme
+        cleanName.contains("dolch") -> DolchZenTheme
+        cleanName.contains("onedark") || cleanName.contains("isabel") -> IsabelZenTheme
+        cleanName.contains("warmsand") || cleanName.contains("andrea") -> AndreaZenTheme
+        cleanName.contains("rosepinedawn") || cleanName.contains("dawn") || cleanName.contains("aline") -> AlineZenTheme
+        cleanName.contains("everforest") || cleanName.contains("brenda") -> BrendaZenTheme
+        cleanName.contains("rosepine") || cleanName.contains("cristina") -> CristinaZenTheme
+        cleanName.contains("kanagawa") || cleanName.contains("cynthia") -> CynthiaZenTheme
+        cleanName.contains("matrix") || cleanName.contains("hacker") -> HackerZenTheme
+        cleanName.contains("crimson") || cleanName.contains("karla") -> KarlaZenTheme
+        cleanName.contains("dracula") || cleanName.contains("marisol") -> MarisolZenTheme
+        cleanName.contains("nord") || cleanName.contains("melissa") -> MelissaZenTheme
+        cleanName.contains("gruvbox") || cleanName.contains("silvia") -> SilviaZenTheme
+        cleanName.contains("monochrome") || cleanName.contains("varinka") -> VarinkaZenTheme
+        cleanName.contains("oled") || cleanName.contains("yael") -> YaelZenTheme
+        cleanName.contains("cyberpunkred") || cleanName.contains("z0mbi3") || cleanName.contains("zombie") -> ZombieZenTheme
         else -> ClassicWhiteOrangeTheme
     }
 }

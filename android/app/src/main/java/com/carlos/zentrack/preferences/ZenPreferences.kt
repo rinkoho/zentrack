@@ -116,7 +116,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putBoolean(KEY_SYNC_THEME, value).apply()
 
     var activeThemeName: String
-        get() = prefs.getString(KEY_ACTIVE_THEME, "Blanco & Naranja") ?: "Blanco & Naranja"
+        get() = prefs.getString(KEY_ACTIVE_THEME, "Carbon Orange") ?: "Carbon Orange"
         set(value) = prefs.edit().putString(KEY_ACTIVE_THEME, value).apply()
 
     var hybridKeyboardHeightRatio: Float

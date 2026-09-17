@@ -43,8 +43,6 @@ fun SettingsDialog(
     onMouseAccelProfileChanged: (String) -> Unit = {},
     onNaturalScrollChanged: (Boolean) -> Unit,
     onStickyKeysChanged: (Boolean) -> Unit,
-    syncTheme: Boolean,
-    onSyncThemeChanged: (Boolean) -> Unit,
     themeAnimSpeedMs: Int,
     onThemeAnimSpeedChanged: (Int) -> Unit,
     trackpadPhysicalButtonsEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.trackpadPhysicalButtonsEnabled,
@@ -578,28 +576,6 @@ fun SettingsDialog(
                                                 onStickyKeysChanged(it)
                                                 com.carlos.zentrack.preferences.ZenPreferences.stickyKeysEnabled = it
                                             },
-                                            colors = SwitchDefaults.colors(checkedThumbColor = TokyoCyan, checkedTrackColor = TokyoCyan.copy(alpha = 0.4f))
-                                        )
-                                    }
-
-                                    HorizontalDivider(color = TokyoCyan.copy(alpha = 0.15f), thickness = 1.dp)
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(Icons.Default.Sync, contentDescription = null, tint = TokyoCyan, modifier = Modifier.size(12.dp))
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                                Text("Sincronizar Tema PC", color = TokyoText, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
-                                            }
-                                            Text("Auto-sync dotfiles", color = TokyoMuted, fontSize = 8.sp)
-                                        }
-                                        Switch(
-                                            checked = syncTheme,
-                                            onCheckedChange = onSyncThemeChanged,
                                             colors = SwitchDefaults.colors(checkedThumbColor = TokyoCyan, checkedTrackColor = TokyoCyan.copy(alpha = 0.4f))
                                         )
                                     }

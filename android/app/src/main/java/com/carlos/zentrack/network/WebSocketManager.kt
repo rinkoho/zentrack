@@ -10,8 +10,7 @@ import java.nio.ByteOrder
 import java.util.concurrent.Executors
 
 class WebSocketManager(
-    private val onStateChanged: (Boolean, String) -> Unit,
-    private val onThemeSyncReceived: ((String) -> Unit)? = null
+    private val onStateChanged: (Boolean, String) -> Unit
 ) {
     private var webSocketClient: WebSocketClient? = null
     private val socketExecutor = Executors.newSingleThreadExecutor()
@@ -31,16 +30,7 @@ class WebSocketManager(
                     }
 
                     override fun onMessage(message: String?) {
-                        if (message.isNullOrEmpty()) return
-                        try {
-                            val json = JSONObject(message)
-                            if (json.has("rice")) {
-                                val riceName = json.getString("rice")
-                                onThemeSyncReceived?.invoke(riceName)
-                            }
-                        } catch (e: Exception) {
-                            // Non-JSON message, ignore
-                        }
+                        // Incoming server messages handler
                     }
 
                     override fun onClose(code: Int, reason: String?, remote: Boolean) {
