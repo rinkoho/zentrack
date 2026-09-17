@@ -375,4 +375,18 @@ object ZenPreferences {
     var xboxActiveProfileId: String
         get() = prefs.getString("xbox_active_profile_id", "default") ?: "default"
         set(value) = prefs.edit().putString("xbox_active_profile_id", value).apply()
+
+    // Server Connection Preferences
+    var serverIp: String
+        get() = prefs.getString("server_ip", "192.168.18.226") ?: "192.168.18.226"
+        set(value) = prefs.edit().putString("server_ip", value).apply()
+
+    var serverPort: Int
+        get() = prefs.getInt("server_port", 3000)
+        set(value) = prefs.edit().putInt("server_port", value).apply()
+
+    var serverToken: String
+        get() = prefs.getString("server_token", "b8c5838d40a8746d2e79a7212e9f5f02") ?: "b8c5838d40a8746d2e79a7212e9f5f02"
+        set(value) = prefs.edit().putString("server_token", value).apply()
 }
+

@@ -35,6 +35,7 @@ fun MainContainerScreen(
     activeTheme: ZenThemeConfig,
     onThemeChanged: (ZenThemeConfig) -> Unit,
     onReconnect: () -> Unit,
+    onConfigureConnection: (String, Int, String) -> Unit = { _, _, _ -> },
     onSendBinary: (Short, Int, Int) -> Unit,
     onSendJson: (String) -> Unit,
     onVibrate: (Long) -> Unit,
@@ -45,6 +46,7 @@ fun MainContainerScreen(
     var isSidebarExpanded by remember { mutableStateOf(false) }
     var showThemeSelectionDialog by remember { mutableStateOf(false) }
     var showBluetoothDialog by remember { mutableStateOf(false) }
+    var showServerConnectionDialog by remember { mutableStateOf(false) }
     var sensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.sensitivity) }
     var scrollSensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.scrollSensitivity) }
     var mouseAccelProfile by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile) }
@@ -98,6 +100,7 @@ fun MainContainerScreen(
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
                         onOpenBluetoothDialog = { showBluetoothDialog = true },
+                        onOpenServerConnectionDialog = { showServerConnectionDialog = true },
                         onSendBinary = onSendBinary,
                         onSendJson = onSendJson,
                         onVibrate = onVibrate
@@ -379,9 +382,11 @@ fun MainContainerScreen(
                                         showBluetoothDialog = true
                                         isSidebarExpanded = false
                                     } else {
-                                        onReconnect()
+                                        showServerConnectionDialog = true
+                                        isSidebarExpanded = false
                                     }
                                 }
+
                         ) {
                             Row(
                                 modifier = Modifier.padding(8.dp),
@@ -794,5 +799,16 @@ fun MainContainerScreen(
             theme = animatedTheme,
             onDismiss = { showBluetoothDialog = false }
         )
+
+        // Server Connection & Auto-Discovery Dialog Modal
+        com.carlos.zentrack.ui.components.ServerConnectionDialog(
+            show = showServerConnectionDialog,
+            currentTheme = animatedTheme,
+            onConnect = { ip, port, token ->
+                onConfigureConnection(ip, port, token)
+            },
+            onDismiss = { showServerConnectionDialog = false }
+        )
     }
 }
+

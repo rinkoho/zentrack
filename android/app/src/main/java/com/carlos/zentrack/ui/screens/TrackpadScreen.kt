@@ -68,6 +68,7 @@ fun TrackpadScreen(
     onOpenDrawer: () -> Unit,
     onReconnect: () -> Unit,
     onOpenBluetoothDialog: () -> Unit = {},
+    onOpenServerConnectionDialog: () -> Unit = {},
     onSendBinary: (Short, Int, Int) -> Unit,
     onSendJson: (String) -> Unit,
     onVibrate: (Long) -> Unit
@@ -553,9 +554,10 @@ fun TrackpadScreen(
                         if (isBtMode) {
                             onOpenBluetoothDialog()
                         } else {
-                            if (!isConnected) onReconnect() else onOpenBluetoothDialog()
+                            onOpenServerConnectionDialog()
                         }
                     },
+
                 shape = RoundedCornerShape(20.dp),
                 color = currentTheme.surface.copy(alpha = 0.95f),
                 border = BorderStroke(1.dp, if (activeConnected) currentTheme.primaryAccent.copy(alpha = 0.45f) else currentTheme.card)

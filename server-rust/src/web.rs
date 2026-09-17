@@ -20,6 +20,9 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use qrcode::render::svg;
+use qrcode::QrCode;
+
 #[derive(Embed)]
 #[folder = "../public/"]
 struct Assets;
@@ -30,6 +33,7 @@ pub struct AppState {
     pub crypto: Arc<CryptoEngine>,
     pub driver: Arc<Mutex<Box<dyn InputDriver>>>,
     pub connected_clients: Arc<AtomicUsize>,
+    pub device_registry: crate::discovery::DeviceRegistry,
 }
 
 #[derive(Deserialize)]
@@ -41,8 +45,45 @@ pub fn create_router(state: AppState) -> Router {
     Router::new()
         .route("/", get(ws_or_index_handler))
         .route("/status", get(status_handler))
+        .route("/api/devices", get(devices_handler))
+        .route("/qr.svg", get(qr_svg_handler))
+        .route("/pair", get(pair_handler))
         .fallback(static_handler)
         .with_state(state)
+}
+
+async fn devices_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let devices = crate::discovery::get_discovered_devices(&state.device_registry).await;
+    (
+        [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
+        serde_json::to_string(&devices).unwrap_or_else(|_| "[]".to_string()),
+    )
+}
+
+async fn qr_svg_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let local_ip = local_ip_address::local_ip()
+        .map(|ip| ip.to_string())
+        .unwrap_or_else(|_| "127.0.0.1".to_string());
+    let url = format!(
+        "http://{}:{}/?token={}",
+        local_ip, state.config.port, state.config.token
+    );
+
+    let svg_content = match QrCode::new(url.as_bytes()) {
+        Ok(code) => code
+            .render::<svg::Color>()
+            .min_dimensions(300, 300)
+            .dark_color(svg::Color("#ff6b35"))
+            .light_color(svg::Color("#000000"))
+            .build(),
+        Err(_) => String::new(),
+    };
+
+    ([(header::CONTENT_TYPE, "image/svg+xml; charset=utf-8")], svg_content)
+}
+
+async fn pair_handler() -> Response {
+    serve_static_asset("pair.html")
 }
 
 async fn status_handler(State(state): State<AppState>) -> impl IntoResponse {

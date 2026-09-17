@@ -1,5 +1,6 @@
 mod config;
 mod crypto;
+mod discovery;
 mod driver;
 mod protocol;
 mod web;
@@ -44,19 +45,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let crypto = Arc::new(CryptoEngine::new(&token));
     let connected_clients = Arc::new(AtomicUsize::new(0));
+    let device_registry = discovery::new_device_registry();
+
+    let local_ip = local_ip_address::local_ip()
+        .map(|ip| ip.to_string())
+        .unwrap_or_else(|_| "127.0.0.1".to_string());
+
+    // Start background UDP discovery & beacon engine
+    discovery::start_discovery(local_ip.clone(), port, token.clone(), device_registry.clone()).await;
 
     let state = AppState {
         config: cfg,
         crypto,
         driver,
         connected_clients,
+        device_registry,
     };
 
-    let local_ip = local_ip_address::local_ip()
-        .map(|ip| ip.to_string())
-        .unwrap_or_else(|_| "127.0.0.1".to_string());
-
     let mobile_url = format!("http://{}:{}/?token={}", local_ip, port, token);
+    let pairing_url = format!("http://127.0.0.1:{}/pair", port);
 
     println!("========================================================");
     println!("        ⚡ ZENTRACK ULTRA-LOW LATENCY NATIVE SERVER ⚡   ");
@@ -64,6 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Platform      : {}", std::env::consts::OS);
     println!("Local Address : http://127.0.0.1:{}", port);
     println!("Mobile URL    : {}", mobile_url);
+    println!("Pairing GUI   : {}", pairing_url);
     println!("Security Token: {}", token);
     println!("--------------------------------------------------------");
     println!("Scan this QR Code with your ZenTrack Mobile App / Camera:");

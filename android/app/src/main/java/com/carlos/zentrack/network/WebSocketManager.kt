@@ -15,7 +15,12 @@ class WebSocketManager(
     private var webSocketClient: WebSocketClient? = null
     private val socketExecutor = Executors.newSingleThreadExecutor()
 
-    fun connect(ip: String = "192.168.18.226", port: Int = 3000, token: String = "b8c5838d40a8746d2e79a7212e9f5f02") {
+    fun connect(
+        ip: String = com.carlos.zentrack.preferences.ZenPreferences.serverIp,
+        port: Int = com.carlos.zentrack.preferences.ZenPreferences.serverPort,
+        token: String = com.carlos.zentrack.preferences.ZenPreferences.serverToken
+    ) {
+        com.carlos.zentrack.security.ZenCrypto.init(token)
         socketExecutor.execute {
             try {
                 val isUsbAdb = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
@@ -28,6 +33,7 @@ class WebSocketManager(
                         Log.d("ZenTrack", "WebSocket Connected Successfully! Mode: ${if (isUsbAdb) "USB ADB" else "Wi-Fi"}")
                         onStateChanged(true, if (isUsbAdb) "USB (Estable)" else "Wi-Fi (500Hz)")
                     }
+
 
                     override fun onMessage(message: String?) {
                         // Incoming server messages handler

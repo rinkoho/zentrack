@@ -70,6 +70,7 @@ class MainActivity : ComponentActivity() {
             }
         )
         socketManager.connect()
+        com.carlos.zentrack.network.ZenDiscoveryManager.announceBroadcast(this)
 
         setContent {
             MaterialTheme {
@@ -82,6 +83,10 @@ class MainActivity : ComponentActivity() {
                         com.carlos.zentrack.preferences.ZenPreferences.activeThemeName = it.name
                     },
                     onReconnect = { socketManager.connect() },
+                    onConfigureConnection = { ip, port, token ->
+                        socketManager.connect(ip, port, token)
+                        com.carlos.zentrack.network.ZenDiscoveryManager.announceClientToServer(ip)
+                    },
                     onSendBinary = { cmd, x, y ->
                         if (cmd == 1.toShort()) {
                             com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseMove(x.toFloat(), y.toFloat(), socketManager::sendBinary)
