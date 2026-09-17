@@ -12,6 +12,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -66,6 +67,7 @@ fun TrackpadScreen(
     isCompactMode: Boolean = false,
     onOpenDrawer: () -> Unit,
     onReconnect: () -> Unit,
+    onOpenBluetoothDialog: () -> Unit = {},
     onSendBinary: (Short, Int, Int) -> Unit,
     onSendJson: (String) -> Unit,
     onVibrate: (Long) -> Unit
@@ -289,17 +291,23 @@ fun TrackpadScreen(
                                         val calcDx = rawDx * accelFactor
                                         val calcDy = rawDy * accelFactor
 
-                                        subPixelRemainderX += calcDx
-                                        subPixelRemainderY += calcDy
+                                        if (com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode == com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH && com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected) {
+                                            // Pure continuous sub-pixel floating point feed (Zero staircase quantization)
+                                            com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseMove(calcDx, calcDy, onSendBinary)
+                                        } else {
+                                            // Network Mode: 500Hz integer binary protocol
+                                            subPixelRemainderX += calcDx
+                                            subPixelRemainderY += calcDy
 
-                                        val sendMx = subPixelRemainderX.toInt()
-                                        val sendMy = subPixelRemainderY.toInt()
+                                            val sendMx = subPixelRemainderX.toInt()
+                                            val sendMy = subPixelRemainderY.toInt()
 
-                                        subPixelRemainderX -= sendMx.toFloat()
-                                        subPixelRemainderY -= sendMy.toFloat()
+                                            subPixelRemainderX -= sendMx.toFloat()
+                                            subPixelRemainderY -= sendMy.toFloat()
 
-                                        if (sendMx != 0 || sendMy != 0) {
-                                            onSendBinary(1, sendMx, sendMy)
+                                            if (sendMx != 0 || sendMy != 0) {
+                                                onSendBinary(1, sendMx, sendMy)
+                                            }
                                         }
                                     }
                                 }
@@ -378,17 +386,21 @@ fun TrackpadScreen(
                                             dy = -dy
                                         }
 
-                                        scrollRemainderX += dx
-                                        scrollRemainderY += dy
+                                        if (com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode == com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH && com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected) {
+                                            com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseScroll(dy, dx, onSendBinary)
+                                        } else {
+                                            scrollRemainderX += dx
+                                            scrollRemainderY += dy
 
-                                        val sendDx = scrollRemainderX.toInt()
-                                        val sendDy = scrollRemainderY.toInt()
+                                            val sendDx = scrollRemainderX.toInt()
+                                            val sendDy = scrollRemainderY.toInt()
 
-                                        scrollRemainderX -= sendDx.toFloat()
-                                        scrollRemainderY -= sendDy.toFloat()
+                                            scrollRemainderX -= sendDx.toFloat()
+                                            scrollRemainderY -= sendDy.toFloat()
 
-                                        if (sendDx != 0 || sendDy != 0) {
-                                            onSendBinary(2, sendDx * 10, sendDy * 10)
+                                            if (sendDx != 0 || sendDy != 0) {
+                                                onSendBinary(2, sendDx * 10, sendDy * 10)
+                                            }
                                         }
                                     }
 
@@ -523,6 +535,83 @@ fun TrackpadScreen(
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     BatteryBadge(currentTheme = currentTheme)
+                }
+            }
+
+            // Top-Right Aesthetic Integrated Connection Mode Pill
+            val activeMode = com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode
+            val isBtMode = activeMode == com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH
+            val isBtConnected = com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected
+            val activeConnected = if (isBtMode) isBtConnected else isConnected
+
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp)
+                    .clickable {
+                        onVibrate(15L)
+                        if (isBtMode) {
+                            onOpenBluetoothDialog()
+                        } else {
+                            if (!isConnected) onReconnect() else onOpenBluetoothDialog()
+                        }
+                    },
+                shape = RoundedCornerShape(20.dp),
+                color = currentTheme.surface.copy(alpha = 0.95f),
+                border = BorderStroke(1.dp, if (activeConnected) currentTheme.primaryAccent.copy(alpha = 0.45f) else currentTheme.card)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .background(
+                                color = if (activeConnected) Color(0xFF10B981) else Color(0xFFF7768E),
+                                shape = CircleShape
+                            )
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = if (isBtMode) Icons.Default.Bluetooth else Icons.Default.Wifi,
+                        contentDescription = null,
+                        tint = if (activeConnected) currentTheme.primaryAccent else currentTheme.textMuted,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isBtMode) {
+                            if (isBtConnected) {
+                                (com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName ?: "BT HID")
+                            } else {
+                                "BT Offline"
+                            }
+                        } else {
+                            if (isConnected) "RED 500Hz" else "Red Offline"
+                        },
+                        color = currentTheme.textPrimary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1
+                    )
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = currentTheme.card,
+                        modifier = Modifier.clickable {
+                            onVibrate(15L)
+                            com.carlos.zentrack.bluetooth.ZenInputRouter.toggleMode()
+                        }
+                    ) {
+                        Text(
+                            text = if (isBtMode) "BT" else "RED",
+                            color = currentTheme.primaryAccent,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
         }

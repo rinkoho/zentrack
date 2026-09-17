@@ -39,6 +39,22 @@ class MainActivity : ComponentActivity() {
         com.carlos.zentrack.audio.ZenSoundEngine.init(applicationContext)
         com.carlos.zentrack.security.ZenCrypto.init("b8c5838d40a8746d2e79a7212e9f5f02")
         com.carlos.zentrack.haptics.ZenHapticsEngine.init(this, window.decorView)
+        com.carlos.zentrack.bluetooth.ZenBluetoothHidManager.init(this)
+        com.carlos.zentrack.bluetooth.ZenBleHidServer.init(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val btPermissions = arrayOf(
+                android.Manifest.permission.BLUETOOTH_CONNECT,
+                android.Manifest.permission.BLUETOOTH_ADVERTISE,
+                android.Manifest.permission.BLUETOOTH_SCAN
+            )
+            val missing = btPermissions.filter {
+                checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            }
+            if (missing.isNotEmpty()) {
+                requestPermissions(missing.toTypedArray(), 1001)
+            }
+        }
 
         // Load saved preferences
         activeTheme = findZenThemeByName(com.carlos.zentrack.preferences.ZenPreferences.activeThemeName)
@@ -82,8 +98,18 @@ class MainActivity : ComponentActivity() {
                         com.carlos.zentrack.preferences.ZenPreferences.syncTheme = it
                     },
                     onReconnect = { socketManager.connect() },
-                    onSendBinary = { cmd, x, y -> socketManager.sendBinary(cmd, x, y) },
-                    onSendJson = { json -> socketManager.sendJson(json) },
+                    onSendBinary = { cmd, x, y ->
+                        if (cmd == 1.toShort()) {
+                            com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseMove(x.toFloat(), y.toFloat(), socketManager::sendBinary)
+                        } else if (cmd == 2.toShort()) {
+                            com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseScroll(x.toFloat(), y.toFloat(), socketManager::sendBinary)
+                        } else {
+                            socketManager.sendBinary(cmd, x, y)
+                        }
+                    },
+                    onSendJson = { json ->
+                        com.carlos.zentrack.bluetooth.ZenInputRouter.sendRawJson(json, socketManager::sendJson)
+                    },
                     onVibrate = { com.carlos.zentrack.haptics.ZenHapticsEngine.vibrateRaw(it, isKeyboard = false) },
                     onVibrateKeyboard = { com.carlos.zentrack.haptics.ZenHapticsEngine.vibrateRaw(it, isKeyboard = true) }
                 )

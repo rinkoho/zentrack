@@ -52,7 +52,11 @@ fun KeyboardScreen(
 
     fun sendKeyPayload(rawJson: String) {
         keycasterState.processEvent(rawJson, scope, keyCasterEnabled)
-        val payload = com.carlos.zentrack.security.ZenCrypto.encryptKeyboardPayload(rawJson) ?: rawJson
+        val payload = if (com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode == com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH) {
+            rawJson
+        } else {
+            com.carlos.zentrack.security.ZenCrypto.encryptKeyboardPayload(rawJson) ?: rawJson
+        }
         onSendJson(payload)
     }
 

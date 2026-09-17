@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Mouse
@@ -72,6 +73,7 @@ fun SettingsScreen(
     onTrackpadButtonsBottomHeightChanged: (Int) -> Unit = {},
     onHapticTrackpadIntensityChanged: (Float) -> Unit = {},
     onHapticKeyboardIntensityChanged: (Float) -> Unit = {},
+    onOpenBluetoothDialog: () -> Unit = {},
     onBack: () -> Unit
 ) {
     var keySoundEnabled by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.keySoundEnabled) }
@@ -910,6 +912,40 @@ fun SettingsScreen(
                                 },
                                 colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.primaryAccent, checkedTrackColor = currentTheme.primaryAccent.copy(alpha = 0.4f))
                             )
+                        }
+
+                        HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Bluetooth, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Bluetooth HID Universal", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                }
+                                Text(
+                                    if (com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected) {
+                                        "Conectado: ${com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName} (${com.carlos.zentrack.bluetooth.ZenInputRouter.activeBluetoothSubModeName})"
+                                    } else {
+                                        "Smart TV, PC, Mac, iPad (0 Servidor)"
+                                    },
+                                    color = if (com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected) currentTheme.primaryAccent else currentTheme.textMuted,
+                                    fontSize = 7.5.sp
+                                )
+                            }
+                            Button(
+                                onClick = onOpenBluetoothDialog,
+                                colors = ButtonDefaults.buttonColors(containerColor = currentTheme.primaryAccent),
+                                shape = RoundedCornerShape(5.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                                modifier = Modifier.height(24.dp)
+                            ) {
+                                Text("Emparejar", color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }

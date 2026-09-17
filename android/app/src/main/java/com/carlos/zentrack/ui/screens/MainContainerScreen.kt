@@ -46,6 +46,7 @@ fun MainContainerScreen(
     var previousAppMode by remember { mutableStateOf("Trackpad") }
     var isSidebarExpanded by remember { mutableStateOf(false) }
     var showThemeSelectionDialog by remember { mutableStateOf(false) }
+    var showBluetoothDialog by remember { mutableStateOf(false) }
     var sensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.sensitivity) }
     var scrollSensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.scrollSensitivity) }
     var mouseAccelProfile by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile) }
@@ -98,6 +99,7 @@ fun MainContainerScreen(
                         buttonsBottomHeight = trackpadButtonsBottomHeight,
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
+                        onOpenBluetoothDialog = { showBluetoothDialog = true },
                         onSendBinary = onSendBinary,
                         onSendJson = onSendJson,
                         onVibrate = onVibrate
@@ -167,6 +169,7 @@ fun MainContainerScreen(
                         onTrackpadButtonsBottomHeightChanged = { trackpadButtonsBottomHeight = it },
                         onHapticTrackpadIntensityChanged = { hapticTrackpadIntensity = it },
                         onHapticKeyboardIntensityChanged = { hapticKeyboardIntensity = it },
+                        onOpenBluetoothDialog = { showBluetoothDialog = true },
                         onBack = { activeAppMode = previousAppMode }
                     )
                 }
@@ -287,13 +290,102 @@ fun MainContainerScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Connection Status Card
+                        // Unified Mode Tabs: Network vs Bluetooth
+                        val activeConnMode = com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode
+                        val isBtActive = activeConnMode == com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH
+                        val isBtConn = com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected
+                        val isCurrentConnected = if (isBtActive) isBtConn else isConnected
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(animatedTheme.card, RoundedCornerShape(8.dp))
+                                .padding(2.dp),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            // Tab 1: Red (500Hz)
+                            Surface(
+                                color = if (!isBtActive) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(6.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode = com.carlos.zentrack.bluetooth.ConnectionMode.NETWORK
+                                        onVibrate(15L)
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 5.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Wifi,
+                                        contentDescription = null,
+                                        tint = if (!isBtActive) Color.Black else animatedTheme.textMuted,
+                                        modifier = Modifier.size(11.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        "Red 500Hz",
+                                        color = if (!isBtActive) Color.Black else animatedTheme.textMuted,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            // Tab 2: Bluetooth HID
+                            Surface(
+                                color = if (isBtActive) animatedTheme.primaryAccent else Color.Transparent,
+                                shape = RoundedCornerShape(6.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        com.carlos.zentrack.bluetooth.ZenInputRouter.activeMode = com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH
+                                        onVibrate(15L)
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 5.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Bluetooth,
+                                        contentDescription = null,
+                                        tint = if (isBtActive) Color.Black else animatedTheme.textMuted,
+                                        modifier = Modifier.size(11.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        "Bluetooth",
+                                        color = if (isBtActive) Color.Black else animatedTheme.textMuted,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // Dynamic Connection Status Card
                         Surface(
                             color = animatedTheme.card,
                             shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, if (isCurrentConnected) animatedTheme.primaryAccent.copy(alpha = 0.4f) else Color.Transparent),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onReconnect() }
+                                .clickable {
+                                    onVibrate(15L)
+                                    if (isBtActive) {
+                                        showBluetoothDialog = true
+                                        isSidebarExpanded = false
+                                    } else {
+                                        onReconnect()
+                                    }
+                                }
                         ) {
                             Row(
                                 modifier = Modifier.padding(8.dp),
@@ -303,17 +395,33 @@ fun MainContainerScreen(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .background(
-                                            color = if (isConnected) animatedTheme.primaryAccent else Color(0xFFF7768E),
+                                            color = if (isCurrentConnected) Color(0xFF10B981) else Color(0xFFF7768E),
                                             shape = CircleShape
                                         )
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = statusText,
-                                    color = animatedTheme.textPrimary,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = if (isBtActive) {
+                                            if (isBtConn) (com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName ?: "Dispositivo Bluetooth") else "Bluetooth Desconectado"
+                                        } else {
+                                            if (isConnected) "Servidor Conectado" else statusText
+                                        },
+                                        color = animatedTheme.textPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1
+                                    )
+                                    Text(
+                                        text = if (isBtActive) {
+                                            if (isBtConn) com.carlos.zentrack.bluetooth.ZenInputRouter.activeBluetoothSubModeName else "Toca para emparejar o conectar"
+                                        } else {
+                                            if (isConnected) "Wi-Fi UDP / USB ADB (500Hz)" else "Toca para reintentar"
+                                        },
+                                        color = if (isCurrentConnected) animatedTheme.primaryAccent else animatedTheme.textMuted,
+                                        fontSize = 8.5.sp
+                                    )
+                                }
                             }
                         }
 
@@ -498,6 +606,75 @@ fun MainContainerScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Bluetooth HID Card
+                        Text(
+                            text = "CONECTIVIDAD BLUETOOTH",
+                            color = animatedTheme.textMuted,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        val isBtConnected = com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected
+                        val btDeviceName = com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName
+
+                        Surface(
+                            color = if (isBtConnected) animatedTheme.primaryAccent.copy(alpha = 0.15f) else animatedTheme.card,
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, if (isBtConnected) animatedTheme.primaryAccent else animatedTheme.primaryAccent.copy(alpha = 0.3f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showBluetoothDialog = true
+                                    isSidebarExpanded = false
+                                    onVibrate(15L)
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Bluetooth,
+                                        contentDescription = "Bluetooth",
+                                        tint = if (isBtConnected) animatedTheme.primaryAccent else animatedTheme.textPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = "Bluetooth Universal",
+                                            color = animatedTheme.textPrimary,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = if (isBtConnected) {
+                                                "Conectado: ${btDeviceName ?: "Dispositivo"}"
+                                            } else {
+                                                "Smart TV, PC & Mac (0 Servidor)"
+                                            },
+                                            color = if (isBtConnected) animatedTheme.primaryAccent else animatedTheme.textMuted,
+                                            fontSize = 9.sp
+                                        )
+                                    }
+                                }
+                                if (isBtConnected) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .background(Color(0xFF10B981), CircleShape)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
                         // Theme Dialog Button (Uncluttered Drawer)
                         Text(
                             text = "APARIENCIA & TEMAS",
@@ -580,6 +757,13 @@ fun MainContainerScreen(
                 showThemeSelectionDialog = false
             },
             onDismiss = { showThemeSelectionDialog = false }
+        )
+
+        // Bluetooth HID Universal Dialog Modal
+        com.carlos.zentrack.ui.components.BluetoothPairingDialog(
+            show = showBluetoothDialog,
+            theme = animatedTheme,
+            onDismiss = { showBluetoothDialog = false }
         )
     }
 }
