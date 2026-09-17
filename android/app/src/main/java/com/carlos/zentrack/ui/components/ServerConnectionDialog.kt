@@ -107,14 +107,14 @@ fun ServerConnectionDialog(
                     ) {
                         Column {
                             Text(
-                                text = "📡 CONECTAR A TU PC",
+                                text = if (!ZenPreferences.isConfigured) "👋 BIENVENIDO A ZENTRACK" else "📡 CONECTAR A TU PC",
                                 color = currentTheme.primaryAccent,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = 0.8.sp
                             )
                             Text(
-                                text = "Detección automática en red Wi-Fi o escaneo QR",
+                                text = if (!ZenPreferences.isConfigured) "Para comenzar, conéctate a tu PC usando una de las siguientes opciones:" else "Detección automática en red Wi-Fi o escaneo QR",
                                 color = currentTheme.textMuted,
                                 fontSize = 9.sp
                             )
@@ -145,8 +145,40 @@ fun ServerConnectionDialog(
                         OutlinedButton(
                             onClick = {
                                 ZenPreferences.usbAdbModeEnabled = true
-                                onConnect("127.0.0.1", ZenPreferences.serverPort, ZenPreferences.serverToken)
-                                onDismiss()
+                                if (ZenPreferences.serverToken.isNotBlank()) {
+                                    onConnect("127.0.0.1", ZenPreferences.serverPort, ZenPreferences.serverToken)
+                                    onDismiss()
+                                } else {
+                                    // Auto-fetch token via local ADB reverse endpoint
+                                    kotlin.concurrent.thread {
+                                        try {
+                                            val url = java.net.URL("http://127.0.0.1:${ZenPreferences.serverPort}/status")
+                                            val conn = url.openConnection() as java.net.HttpURLConnection
+                                            conn.connectTimeout = 1500
+                                            conn.readTimeout = 1500
+                                            if (conn.responseCode == 200) {
+                                                val text = conn.inputStream.bufferedReader().readText()
+                                                val json = org.json.JSONObject(text)
+                                                val token = json.optString("token", "")
+                                                if (token.isNotEmpty()) {
+                                                    ZenPreferences.serverToken = token
+                                                    ZenPreferences.serverIp = "127.0.0.1"
+                                                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                                        onConnect("127.0.0.1", ZenPreferences.serverPort, token)
+                                                        onDismiss()
+                                                    }
+                                                    return@thread
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("ZenTrack", "USB auto-pair: ${e.message}")
+                                        }
+                                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                            onConnect("127.0.0.1", ZenPreferences.serverPort, ZenPreferences.serverToken)
+                                            onDismiss()
+                                        }
+                                    }
+                                }
                             },
                             border = BorderStroke(1.dp, currentTheme.primaryAccent),
                             shape = RoundedCornerShape(8.dp),

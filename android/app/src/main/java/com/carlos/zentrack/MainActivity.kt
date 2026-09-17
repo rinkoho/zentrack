@@ -36,7 +36,9 @@ class MainActivity : ComponentActivity() {
         com.carlos.zentrack.preferences.ZenPreferences.init(applicationContext)
         com.carlos.zentrack.vision.data.ZenVisionPreferences.init(applicationContext)
         com.carlos.zentrack.audio.ZenSoundEngine.init(applicationContext)
-        com.carlos.zentrack.security.ZenCrypto.init("b8c5838d40a8746d2e79a7212e9f5f02")
+        if (com.carlos.zentrack.preferences.ZenPreferences.serverToken.isNotBlank()) {
+            com.carlos.zentrack.security.ZenCrypto.init(com.carlos.zentrack.preferences.ZenPreferences.serverToken)
+        }
         com.carlos.zentrack.haptics.ZenHapticsEngine.init(this, window.decorView)
         com.carlos.zentrack.bluetooth.ZenBluetoothHidManager.init(this)
         com.carlos.zentrack.bluetooth.ZenBleHidServer.init(this)
@@ -69,8 +71,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         )
-        socketManager.connect()
-        com.carlos.zentrack.network.ZenDiscoveryManager.announceBroadcast(this)
+        if (com.carlos.zentrack.preferences.ZenPreferences.isConfigured) {
+            socketManager.connect()
+            com.carlos.zentrack.network.ZenDiscoveryManager.announceBroadcast(this)
+        }
 
         setContent {
             MaterialTheme {

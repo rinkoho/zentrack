@@ -20,11 +20,18 @@ class WebSocketManager(
         port: Int = com.carlos.zentrack.preferences.ZenPreferences.serverPort,
         token: String = com.carlos.zentrack.preferences.ZenPreferences.serverToken
     ) {
+        val isUsbAdb = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
+        val targetIp = if (isUsbAdb) "127.0.0.1" else ip
+
+        if (token.isBlank() || targetIp.isBlank()) {
+            Log.w("ZenTrack", "Cannot connect: Server token or IP is not configured")
+            onStateChanged(false, "Desconectado")
+            return
+        }
+
         com.carlos.zentrack.security.ZenCrypto.init(token)
         socketExecutor.execute {
             try {
-                val isUsbAdb = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
-                val targetIp = if (isUsbAdb) "127.0.0.1" else ip
                 val serverUri = URI("ws://$targetIp:$port/?token=$token")
                 webSocketClient?.close()
 

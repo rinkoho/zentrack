@@ -46,7 +46,7 @@ fun MainContainerScreen(
     var isSidebarExpanded by remember { mutableStateOf(false) }
     var showThemeSelectionDialog by remember { mutableStateOf(false) }
     var showBluetoothDialog by remember { mutableStateOf(false) }
-    var showServerConnectionDialog by remember { mutableStateOf(false) }
+    var showServerConnectionDialog by remember { mutableStateOf(!com.carlos.zentrack.preferences.ZenPreferences.isConfigured) }
     var sensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.sensitivity) }
     var scrollSensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.scrollSensitivity) }
     var mouseAccelProfile by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile) }

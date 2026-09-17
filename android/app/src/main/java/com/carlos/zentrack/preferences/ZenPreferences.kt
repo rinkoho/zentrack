@@ -378,7 +378,7 @@ object ZenPreferences {
 
     // Server Connection Preferences
     var serverIp: String
-        get() = prefs.getString("server_ip", "192.168.18.226") ?: "192.168.18.226"
+        get() = prefs.getString("server_ip", "") ?: ""
         set(value) = prefs.edit().putString("server_ip", value).apply()
 
     var serverPort: Int
@@ -386,7 +386,11 @@ object ZenPreferences {
         set(value) = prefs.edit().putInt("server_port", value).apply()
 
     var serverToken: String
-        get() = prefs.getString("server_token", "b8c5838d40a8746d2e79a7212e9f5f02") ?: "b8c5838d40a8746d2e79a7212e9f5f02"
+        get() = prefs.getString("server_token", "") ?: ""
         set(value) = prefs.edit().putString("server_token", value).apply()
+
+    val isConfigured: Boolean
+        get() = serverToken.isNotBlank() && (serverIp.isNotBlank() || usbAdbModeEnabled)
 }
+
 
