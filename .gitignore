@@ -2,5 +2,7 @@ node_modules/
 config.json
 server.log
 backup_trackpad/
+target/
 *.log
 tools/*.log
+
