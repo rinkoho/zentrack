@@ -37,7 +37,7 @@ class WebSocketManager(
 
                 webSocketClient = object : WebSocketClient(serverUri) {
                     override fun onOpen(handshakedata: ServerHandshake?) {
-                        Log.d("ZenTrack", "WebSocket Connected Successfully! Mode: ${if (isUsbAdb) "USB ADB" else "Wi-Fi"}")
+                        Log.i("ZenTrack", "WebSocket Connected Successfully! Mode: ${if (isUsbAdb) "USB ADB" else "Wi-Fi"}")
                         onStateChanged(true, if (isUsbAdb) "USB (Estable)" else "Wi-Fi (500Hz)")
                     }
 

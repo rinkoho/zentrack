@@ -3,12 +3,24 @@ use super::InputDriver;
 #[cfg(target_os = "windows")]
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::*;
 
+#[cfg(target_os = "windows")]
+use vigem_client::{Client, TargetId, Xbox360Wired, XGamepad, XButtons};
+
 pub struct WindowsDriver {
     #[cfg(target_os = "windows")]
     accum_scroll_y: f64,
     #[cfg(target_os = "windows")]
     accum_scroll_x: f64,
+    #[cfg(target_os = "windows")]
+    repeat_cancel: Option<tokio::sync::oneshot::Sender<()>>,
+    #[cfg(target_os = "windows")]
+    gamepad: Option<Xbox360Wired<Client>>,
+    #[cfg(target_os = "windows")]
+    gamepad_state: XGamepad,
 }
+
+unsafe impl Send for WindowsDriver {}
+unsafe impl Sync for WindowsDriver {}
 
 impl WindowsDriver {
     pub fn new() -> Result<Self, String> {
@@ -17,7 +29,22 @@ impl WindowsDriver {
             accum_scroll_y: 0.0,
             #[cfg(target_os = "windows")]
             accum_scroll_x: 0.0,
+            #[cfg(target_os = "windows")]
+            repeat_cancel: None,
+            #[cfg(target_os = "windows")]
+            gamepad: None,
+            #[cfg(target_os = "windows")]
+            gamepad_state: XGamepad::default(),
         })
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl Drop for WindowsDriver {
+    fn drop(&mut self) {
+        if let Some(mut pad) = self.gamepad.take() {
+            let _ = pad.unplug();
+        }
     }
 }
 
@@ -81,7 +108,6 @@ impl InputDriver for WindowsDriver {
 
     fn smooth_scroll(&mut self, dx: f64, dy: f64) {
         // High-resolution Windows wheel input
-        // WHEEL_DELTA is 120
         self.accum_scroll_y += -dy * 12.0;
         self.accum_scroll_x += dx * 12.0;
 
@@ -134,31 +160,82 @@ impl InputDriver for WindowsDriver {
     }
 
     fn key_down(&mut self, key: &str) {
+        if let Some(cancel) = self.repeat_cancel.take() {
+            let _ = cancel.send(());
+        }
+
         if let Some(vk) = map_windows_key(key) {
+            let scan = unsafe { MapVirtualKeyW(vk as u32, 0) as u16 };
+            let is_extended = is_extended_key(vk);
+            let flags = if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
+
             unsafe {
                 let mut input: INPUT = std::mem::zeroed();
                 input.r#type = INPUT_KEYBOARD;
                 input.Anonymous.ki = KEYBDINPUT {
                     wVk: vk,
-                    wScan: 0,
-                    dwFlags: 0,
+                    wScan: scan,
+                    dwFlags: flags,
                     time: 0,
                     dwExtraInfo: 0,
                 };
                 SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
             }
+
+            if is_repeatable_key(key) {
+                let (tx, mut rx) = tokio::sync::oneshot::channel::<()>();
+                self.repeat_cancel = Some(tx);
+
+                tokio::spawn(async move {
+                    tokio::select! {
+                        _ = &mut rx => return,
+                        _ = tokio::time::sleep(std::time::Duration::from_millis(300)) => {}
+                    }
+
+                    let mut interval = tokio::time::interval(std::time::Duration::from_millis(33));
+                    interval.tick().await;
+
+                    loop {
+                        tokio::select! {
+                            _ = &mut rx => break,
+                            _ = interval.tick() => {
+                                unsafe {
+                                    let mut input: INPUT = std::mem::zeroed();
+                                    input.r#type = INPUT_KEYBOARD;
+                                    input.Anonymous.ki = KEYBDINPUT {
+                                        wVk: vk,
+                                        wScan: scan,
+                                        dwFlags: flags,
+                                        time: 0,
+                                        dwExtraInfo: 0,
+                                    };
+                                    SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 
     fn key_up(&mut self, key: &str) {
+        if let Some(cancel) = self.repeat_cancel.take() {
+            let _ = cancel.send(());
+        }
+
         if let Some(vk) = map_windows_key(key) {
+            let scan = unsafe { MapVirtualKeyW(vk as u32, 0) as u16 };
+            let is_extended = is_extended_key(vk);
+            let flags = KEYEVENTF_KEYUP | if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
+
             unsafe {
                 let mut input: INPUT = std::mem::zeroed();
                 input.r#type = INPUT_KEYBOARD;
                 input.Anonymous.ki = KEYBDINPUT {
                     wVk: vk,
-                    wScan: 0,
-                    dwFlags: KEYEVENTF_KEYUP,
+                    wScan: scan,
+                    dwFlags: flags,
                     time: 0,
                     dwExtraInfo: 0,
                 };
@@ -169,21 +246,130 @@ impl InputDriver for WindowsDriver {
 
     fn key_click(&mut self, key: &str) {
         self.key_down(key);
+        std::thread::sleep(std::time::Duration::from_millis(10));
         self.key_up(key);
     }
 
     fn release_all_modifiers(&mut self) {
-        for key in &["Control_L", "Control_R", "Alt_L", "Alt_R", "Shift_L", "Shift_R", "Super_L", "Super_R"] {
+        if let Some(cancel) = self.repeat_cancel.take() {
+            let _ = cancel.send(());
+        }
+        for key in &[
+            "Control_L", "Control_R", "Alt_L", "Alt_R",
+            "Shift_L", "Shift_R", "Super_L", "Super_R",
+        ] {
             self.key_up(key);
         }
     }
 
-    fn set_gamepad_mode(&mut self, _enabled: bool) {
-        // Gamepad on Windows
+    fn set_gamepad_mode(&mut self, enabled: bool) {
+        if enabled {
+            if self.gamepad.is_none() {
+                match Client::connect() {
+                    Ok(client) => {
+                        let id = TargetId::XBOX360_WIRED;
+                        let mut target = Xbox360Wired::new(client, id);
+                        if let Err(e) = target.plugin() {
+                            eprintln!("[WindowsDriver] Failed to plugin virtual Xbox 360 gamepad: {:?}", e);
+                            return;
+                        }
+                        if let Err(e) = target.wait_ready() {
+                            eprintln!("[WindowsDriver] Failed waiting for virtual Xbox 360 gamepad: {:?}", e);
+                            return;
+                        }
+                        println!("[WindowsDriver] Virtual Xbox 360 Gamepad connected via ViGEmBus!");
+                        self.gamepad_state = XGamepad::default();
+                        let _ = target.update(&self.gamepad_state);
+                        self.gamepad = Some(target);
+                    }
+                    Err(e) => {
+                        eprintln!("[WindowsDriver] ViGEmBus driver not found or failed to connect ({:?}).", e);
+                        eprintln!("[WindowsDriver] To use Xbox Gamepad on Windows, install ViGEmBus: 'winget install Nefarius.ViGEmBus'");
+                    }
+                }
+            }
+        } else {
+            if let Some(mut pad) = self.gamepad.take() {
+                let _ = pad.unplug();
+                println!("[WindowsDriver] Virtual Xbox 360 Gamepad disconnected.");
+            }
+        }
     }
 
-    fn gamepad_btn(&mut self, _name: &str, _value: i32) {}
-    fn gamepad_axis(&mut self, _name: &str, _value: i32) {}
+    fn gamepad_btn(&mut self, name: &str, value: i32) {
+        let is_down = value != 0;
+        let mask = match name.to_uppercase().as_str() {
+            "A" => XButtons::A,
+            "B" => XButtons::B,
+            "X" => XButtons::X,
+            "Y" => XButtons::Y,
+            "L" | "LB" => XButtons::LB,
+            "R" | "RB" => XButtons::RB,
+            "SELECT" | "BACK" => XButtons::BACK,
+            "START" => XButtons::START,
+            "MODE" | "GUIDE" => XButtons::GUIDE,
+            "THUMBL" => XButtons::LTHUMB,
+            "THUMBR" => XButtons::RTHUMB,
+            _ => return,
+        };
+
+        if is_down {
+            self.gamepad_state.buttons.raw |= mask;
+        } else {
+            self.gamepad_state.buttons.raw &= !mask;
+        }
+
+        if let Some(pad) = self.gamepad.as_mut() {
+            let _ = pad.update(&self.gamepad_state);
+        }
+    }
+
+    fn gamepad_axis(&mut self, name: &str, val: i32) {
+        match name.to_uppercase().as_str() {
+            "X" => {
+                self.gamepad_state.thumb_lx = scale_stick(val);
+            }
+            "Y" => {
+                // In XInput / ViGEm, Y axis: positive is UP, negative is DOWN.
+                self.gamepad_state.thumb_ly = -scale_stick(val);
+            }
+            "RX" => {
+                self.gamepad_state.thumb_rx = scale_stick(val);
+            }
+            "RY" => {
+                self.gamepad_state.thumb_ry = -scale_stick(val);
+            }
+            "Z" => {
+                // Left Trigger (0 to 255)
+                self.gamepad_state.left_trigger = val.clamp(0, 255) as u8;
+            }
+            "RZ" => {
+                // Right Trigger (0 to 255)
+                self.gamepad_state.right_trigger = val.clamp(0, 255) as u8;
+            }
+            "HATX" | "HAT0X" => {
+                self.gamepad_state.buttons.raw &= !(XButtons::LEFT | XButtons::RIGHT);
+                if val < 0 {
+                    self.gamepad_state.buttons.raw |= XButtons::LEFT;
+                } else if val > 0 {
+                    self.gamepad_state.buttons.raw |= XButtons::RIGHT;
+                }
+            }
+            "HATY" | "HAT0Y" => {
+                self.gamepad_state.buttons.raw &= !(XButtons::UP | XButtons::DOWN);
+                if val < 0 {
+                    self.gamepad_state.buttons.raw |= XButtons::UP;
+                } else if val > 0 {
+                    self.gamepad_state.buttons.raw |= XButtons::DOWN;
+                }
+            }
+            _ => return,
+        }
+
+        if let Some(pad) = self.gamepad.as_mut() {
+            let _ = pad.update(&self.gamepad_state);
+        }
+    }
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -204,8 +390,36 @@ impl InputDriver for WindowsDriver {
 }
 
 #[cfg(target_os = "windows")]
+fn scale_stick(val: i32) -> i16 {
+    let clamped = val.clamp(0, 255);
+    let scaled = ((clamped - 128) as f64 / 128.0) * 32767.0;
+    (scaled as i32).clamp(-32768, 32767) as i16
+}
+
+#[cfg(target_os = "windows")]
+fn is_repeatable_key(key: &str) -> bool {
+    !matches!(
+        key,
+        "Control_L" | "Control_R" | "Shift_L" | "Shift_R" |
+        "Alt_L" | "Alt_R" | "Super_L" | "Super_R" | "Caps_Lock"
+    )
+}
+
+#[cfg(target_os = "windows")]
+fn is_extended_key(vk: u16) -> bool {
+    matches!(
+        vk,
+        VK_LEFT | VK_RIGHT | VK_UP | VK_DOWN |
+        VK_PRIOR | VK_NEXT | VK_END | VK_HOME |
+        VK_INSERT | VK_DELETE | VK_DIVIDE |
+        VK_RCONTROL | VK_RMENU | VK_LWIN | VK_RWIN
+    )
+}
+
+#[cfg(target_os = "windows")]
 fn map_windows_key(key: &str) -> Option<u16> {
     match key {
+        // Alphabet
         "a" | "A" => Some(VK_A),
         "b" | "B" => Some(VK_B),
         "c" | "C" => Some(VK_C),
@@ -232,6 +446,8 @@ fn map_windows_key(key: &str) -> Option<u16> {
         "x" | "X" => Some(VK_X),
         "y" | "Y" => Some(VK_Y),
         "z" | "Z" => Some(VK_Z),
+
+        // Numbers
         "0" => Some(VK_0),
         "1" => Some(VK_1),
         "2" => Some(VK_2),
@@ -242,11 +458,31 @@ fn map_windows_key(key: &str) -> Option<u16> {
         "7" => Some(VK_7),
         "8" => Some(VK_8),
         "9" => Some(VK_9),
+
+        // Symbols & OEM punctuation
+        "grave" | "`" => Some(VK_OEM_3),
+        "minus" | "-" => Some(VK_OEM_MINUS),
+        "equal" | "=" => Some(VK_OEM_PLUS),
+        "bracketleft" | "[" => Some(VK_OEM_4),
+        "bracketright" | "]" => Some(VK_OEM_6),
+        "backslash" | "\\" => Some(VK_OEM_5),
+        "semicolon" | ";" => Some(VK_OEM_1),
+        "apostrophe" | "'" => Some(VK_OEM_7),
+        "comma" | "," => Some(VK_OEM_COMMA),
+        "period" | "." => Some(VK_OEM_PERIOD),
+        "slash" | "/" => Some(VK_OEM_2),
+
+        // Whitespace and Editing
         "space" => Some(VK_SPACE),
-        "Return" => Some(VK_RETURN),
+        "Return" | "Enter" => Some(VK_RETURN),
         "BackSpace" => Some(VK_BACK),
         "Tab" => Some(VK_TAB),
-        "Escape" => Some(VK_ESCAPE),
+        "Escape" | "Esc" => Some(VK_ESCAPE),
+        "Delete" => Some(VK_DELETE),
+        "Insert" => Some(VK_INSERT),
+
+        // Modifiers
+        "Caps_Lock" => Some(VK_CAPITAL),
         "Control_L" => Some(VK_LCONTROL),
         "Control_R" => Some(VK_RCONTROL),
         "Shift_L" => Some(VK_LSHIFT),
@@ -255,10 +491,23 @@ fn map_windows_key(key: &str) -> Option<u16> {
         "Alt_R" => Some(VK_RMENU),
         "Super_L" => Some(VK_LWIN),
         "Super_R" => Some(VK_RWIN),
+
+        // Navigation
         "Left" => Some(VK_LEFT),
         "Right" => Some(VK_RIGHT),
         "Up" => Some(VK_UP),
         "Down" => Some(VK_DOWN),
+        "Home" => Some(VK_HOME),
+        "End" => Some(VK_END),
+        "Prior" | "Page_Up" => Some(VK_PRIOR),
+        "Next" | "Page_Down" => Some(VK_NEXT),
+
+        // System
+        "Print" => Some(VK_SNAPSHOT),
+        "Scroll_Lock" => Some(VK_SCROLL),
+        "Pause" => Some(VK_PAUSE),
+
+        // Function Keys
         "F1" => Some(VK_F1),
         "F2" => Some(VK_F2),
         "F3" => Some(VK_F3),

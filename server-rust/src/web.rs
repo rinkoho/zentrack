@@ -10,7 +10,7 @@ use axum::{
     },
     http::{header, HeaderMap, StatusCode, Uri},
     response::{IntoResponse, Response},
-    routing::get,
+    routing::{get, post},
     Router,
 };
 use rust_embed::Embed;
@@ -46,10 +46,69 @@ pub fn create_router(state: AppState) -> Router {
         .route("/", get(ws_or_index_handler))
         .route("/status", get(status_handler))
         .route("/api/devices", get(devices_handler))
+        .route("/api/system-health", get(health_handler))
+        .route("/api/usb/reverse", post(usb_reverse_handler))
+        .route("/api/install_vigem", post(install_vigem_handler))
         .route("/qr.svg", get(qr_svg_handler))
         .route("/pair", get(pair_handler))
         .fallback(static_handler)
         .with_state(state)
+}
+
+async fn install_vigem_handler() -> impl IntoResponse {
+    #[cfg(target_os = "windows")]
+    {
+        let candidates = [
+            "drivers\\ViGEmBus_Setup.exe",
+            ".\\ViGEmBus_Setup.exe",
+            "..\\drivers\\ViGEmBus_Setup.exe",
+        ];
+        for path in &candidates {
+            if std::path::Path::new(path).exists() {
+                let _ = std::process::Command::new("cmd")
+                    .args(["/C", "start", "", path])
+                    .spawn();
+                let res = json!({"success": true, "message": "Instalador oficial ViGEmBus iniciado. Sigue los pasos en pantalla."});
+                return ([(header::CONTENT_TYPE, "application/json; charset=utf-8")], res.to_string());
+            }
+        }
+
+        let _ = std::process::Command::new("cmd")
+            .args(["/C", "start", "", "https://github.com/nefarius/ViGEmBus/releases/download/v1.22.0/ViGEmBus_1.22.0_x64_x86_arm64.exe"])
+            .spawn();
+
+        let res = json!({"success": true, "message": "Descargando instalador oficial de ViGEmBus..."});
+        ([(header::CONTENT_TYPE, "application/json; charset=utf-8")], res.to_string())
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let res = json!({"success": true, "message": "En Linux el driver de gamepad viene integrado en el kernel (/dev/uinput)"});
+        ([(header::CONTENT_TYPE, "application/json; charset=utf-8")], res.to_string())
+    }
+}
+
+async fn health_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let health = crate::health::inspect_system(state.config.port);
+    (
+        [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
+        serde_json::to_string(&health).unwrap_or_else(|_| "{}".to_string()),
+    )
+}
+
+async fn usb_reverse_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let res = if let Some(adb) = crate::health::find_adb_binary() {
+        crate::health::run_adb_reverse(&adb, state.config.port)
+            .map(|_| json!({"success": true, "message": "Túnel USB ADB activado con éxito"}))
+            .unwrap_or_else(|e| json!({"success": false, "error": e}))
+    } else {
+        json!({"success": false, "error": "Herramienta ADB no encontrada en el sistema"})
+    };
+
+    (
+        [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
+        res.to_string(),
+    )
 }
 
 async fn devices_handler(State(state): State<AppState>) -> impl IntoResponse {
@@ -69,12 +128,14 @@ async fn qr_svg_handler(State(state): State<AppState>) -> impl IntoResponse {
         local_ip, state.config.port, state.config.token
     );
 
+    // High contrast QR: Pure white background (#ffffff) and black modules (#000000)
+    // Ensures ISO/IEC 18004 compliance and instant camera detection
     let svg_content = match QrCode::new(url.as_bytes()) {
         Ok(code) => code
             .render::<svg::Color>()
-            .min_dimensions(300, 300)
-            .dark_color(svg::Color("#ff6b35"))
-            .light_color(svg::Color("#000000"))
+            .min_dimensions(320, 320)
+            .dark_color(svg::Color("#000000"))
+            .light_color(svg::Color("#ffffff"))
             .build(),
         Err(_) => String::new(),
     };
@@ -137,6 +198,18 @@ async fn static_handler(uri: Uri) -> Response {
 }
 
 fn serve_static_asset(path: &str) -> Response {
+    // Check local filesystem first (allows instant live customization)
+    let local_candidates = [
+        format!("public/{}", path),
+        format!("../public/{}", path),
+    ];
+    for p in &local_candidates {
+        if let Ok(bytes) = std::fs::read(p) {
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+            return ([(header::CONTENT_TYPE, mime.as_ref())], bytes).into_response();
+        }
+    }
+
     match Assets::get(path) {
         Some(content) => {
             let mime = mime_guess::from_path(path).first_or_octet_stream();

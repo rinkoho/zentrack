@@ -3,6 +3,9 @@ config.json
 server.log
 backup_trackpad/
 target/
+**/target/
+dist/
+scratch/
 *.log
 tools/*.log
 

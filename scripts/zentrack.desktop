@@ -1,0 +1,25 @@
+[Desktop Entry]
+Name=ZenTrack
+GenericName=Ultra-Low Latency Trackpad & Gamepad
+Comment=Control táctil, teclado 65% y gamepad de ultra-baja latencia (500Hz) para tu PC
+Exec=zentrack tray
+Icon=zentrack
+Terminal=false
+Type=Application
+Categories=Utility;HardwareSettings;Game;
+StartupNotify=false
+Keywords=mouse;trackpad;touchpad;gamepad;controller;keyboard;remote;
+
+Actions=GUI;Status;Stop;
+
+[Desktop Action GUI]
+Name=Abrir Centro de Conexión (GUI)
+Exec=zentrack gui
+
+[Desktop Action Status]
+Name=Diagnóstico de Salud
+Exec=zentrack health
+
+[Desktop Action Stop]
+Name=Detener ZenTrack
+Exec=zentrack stop

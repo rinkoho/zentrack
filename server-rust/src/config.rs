@@ -8,6 +8,8 @@ pub struct AppConfig {
     pub token: String,
     #[serde(default = "default_port")]
     pub port: u16,
+    #[serde(default)]
+    pub first_run_completed: bool,
 }
 
 fn default_port() -> u16 {
@@ -15,6 +17,12 @@ fn default_port() -> u16 {
 }
 
 impl AppConfig {
+    pub fn save<P: AsRef<Path>>(&self, config_path: P) {
+        if let Ok(json_str) = serde_json::to_string_pretty(self) {
+            let _ = fs::write(config_path, json_str);
+        }
+    }
+
     pub fn load_or_create<P: AsRef<Path>>(config_path: P) -> Self {
         let path = config_path.as_ref();
         if path.exists() {
@@ -35,12 +43,10 @@ impl AppConfig {
         let cfg = AppConfig {
             token,
             port: default_port(),
+            first_run_completed: false,
         };
 
-        if let Ok(json_str) = serde_json::to_string_pretty(&cfg) {
-            let _ = fs::write(path, json_str);
-        }
-
+        cfg.save(path);
         cfg
     }
 }

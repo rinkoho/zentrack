@@ -310,7 +310,7 @@ fun SettingsDialog(
                                                     onTrackpadButtonsBottomHeightChanged(h)
                                                     com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight = h
                                                 },
-                                                valueRange = 34f..75f,
+                                                valueRange = 34f..100f,
                                                 colors = SliderDefaults.colors(thumbColor = TokyoCyan, activeTrackColor = TokyoCyan)
                                             )
                                         } else {
@@ -330,7 +330,7 @@ fun SettingsDialog(
                                                     onTrackpadButtonsSidebarWidthChanged(w)
                                                     com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth = w
                                                 },
-                                                valueRange = 55f..140f,
+                                                valueRange = 50f..160f,
                                                 colors = SliderDefaults.colors(thumbColor = TokyoCyan, activeTrackColor = TokyoCyan)
                                             )
                                         }
@@ -398,7 +398,7 @@ fun SettingsDialog(
                                             onTrackpadScrollWidthChanged(w)
                                             com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth = w
                                         },
-                                        valueRange = 16f..45f,
+                                        valueRange = 16f..75f,
                                         colors = SliderDefaults.colors(thumbColor = TokyoCyan, activeTrackColor = TokyoCyan)
                                     )
 
@@ -464,7 +464,7 @@ fun SettingsDialog(
                                             onHapticTrackpadIntensityChanged(it)
                                             com.carlos.zentrack.preferences.ZenPreferences.hapticTrackpadIntensity = it
                                         },
-                                        valueRange = 0f..1.5f,
+                                        valueRange = 0f..2.5f,
                                         colors = SliderDefaults.colors(thumbColor = TokyoCyan, activeTrackColor = TokyoCyan)
                                     )
 
@@ -483,7 +483,7 @@ fun SettingsDialog(
                                             onHapticKeyboardIntensityChanged(it)
                                             com.carlos.zentrack.preferences.ZenPreferences.hapticKeyboardIntensity = it
                                         },
-                                        valueRange = 0f..1.5f,
+                                        valueRange = 0f..2.5f,
                                         colors = SliderDefaults.colors(thumbColor = TokyoCyan, activeTrackColor = TokyoCyan)
                                     )
                                 }

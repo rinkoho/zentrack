@@ -18,7 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.carlos.zentrack.network.WebSocketManager
-import com.carlos.zentrack.theme.ClassicWhiteOrangeTheme
+import com.carlos.zentrack.theme.TokyoNightZenTheme
 import com.carlos.zentrack.theme.findZenThemeByName
 import com.carlos.zentrack.ui.screens.MainContainerScreen
 
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var socketManager: WebSocketManager
     private var isConnected by mutableStateOf(false)
     private var statusText by mutableStateOf("Conectando...")
-    private var activeTheme by mutableStateOf(ClassicWhiteOrangeTheme)
+    private var activeTheme by mutableStateOf(TokyoNightZenTheme)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,18 +43,26 @@ class MainActivity : ComponentActivity() {
         com.carlos.zentrack.bluetooth.ZenBluetoothHidManager.init(this)
         com.carlos.zentrack.bluetooth.ZenBleHidServer.init(this)
 
+        val requiredPermissions = mutableListOf<String>()
+
+        // Cámara para escanear QR sin interrupciones manuales
+        requiredPermissions.add(android.Manifest.permission.CAMERA)
+
+        // Permisos Bluetooth para Android 12+ (API 31+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val btPermissions = arrayOf(
-                android.Manifest.permission.BLUETOOTH_CONNECT,
-                android.Manifest.permission.BLUETOOTH_ADVERTISE,
-                android.Manifest.permission.BLUETOOTH_SCAN
-            )
-            val missing = btPermissions.filter {
-                checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED
-            }
-            if (missing.isNotEmpty()) {
-                requestPermissions(missing.toTypedArray(), 1001)
-            }
+            requiredPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
+            requiredPermissions.add(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+            requiredPermissions.add(android.Manifest.permission.BLUETOOTH_SCAN)
+        } else {
+            // Para versiones anteriores puede requerirse ubicación para escaneos
+            requiredPermissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        val missing = requiredPermissions.filter {
+            checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isNotEmpty()) {
+            requestPermissions(missing.toTypedArray(), 1001)
         }
 
         // Load saved preferences

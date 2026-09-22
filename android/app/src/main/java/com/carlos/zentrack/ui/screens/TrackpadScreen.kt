@@ -544,6 +544,7 @@ fun TrackpadScreen(
             val isBtMode = activeMode == com.carlos.zentrack.bluetooth.ConnectionMode.BLUETOOTH
             val isBtConnected = com.carlos.zentrack.bluetooth.ZenInputRouter.isBluetoothConnected
             val activeConnected = if (isBtMode) isBtConnected else isConnected
+            val isUsbMode = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
 
             Surface(
                 modifier = Modifier
@@ -576,21 +577,31 @@ fun TrackpadScreen(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
-                        imageVector = if (isBtMode) Icons.Default.Bluetooth else Icons.Default.Wifi,
+                        imageVector = when {
+                            isBtMode -> Icons.Default.Bluetooth
+                            isUsbMode && isConnected -> Icons.Default.Usb
+                            else -> Icons.Default.Wifi
+                        },
                         contentDescription = null,
                         tint = if (activeConnected) currentTheme.primaryAccent else currentTheme.textMuted,
                         modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (isBtMode) {
-                            if (isBtConnected) {
-                                (com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName ?: "BT HID")
-                            } else {
-                                "BT Offline"
+                        text = when {
+                            isBtMode -> {
+                                if (isBtConnected) {
+                                    (com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName ?: "BT HID")
+                                } else {
+                                    "BT Offline"
+                                }
                             }
-                        } else {
-                            if (isConnected) "RED 500Hz" else "Red Offline"
+                            isUsbMode -> {
+                                if (isConnected) "USB ADB (500Hz)" else if (statusText == "Conectando...") "USB Conectando..." else "USB Desconectado"
+                            }
+                            else -> {
+                                if (isConnected) "Wi-Fi (500Hz)" else if (statusText == "Conectando...") "Wi-Fi Conectando..." else "Red Offline"
+                            }
                         },
                         color = currentTheme.textPrimary,
                         fontSize = 10.sp,
@@ -607,7 +618,11 @@ fun TrackpadScreen(
                         }
                     ) {
                         Text(
-                            text = if (isBtMode) "BT" else "RED",
+                            text = when {
+                                isBtMode -> "BT"
+                                isUsbMode -> "USB"
+                                else -> "WIFI"
+                            },
                             color = currentTheme.primaryAccent,
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Black,

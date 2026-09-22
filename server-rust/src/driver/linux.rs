@@ -334,8 +334,8 @@ impl InputDriver for LinuxDriver {
             let key = match name.to_uppercase().as_str() {
                 "A" => Key::BTN_SOUTH,
                 "B" => Key::BTN_EAST,
-                "X" => Key::BTN_NORTH,
-                "Y" => Key::BTN_WEST,
+                "X" => Key::BTN_WEST,
+                "Y" => Key::BTN_NORTH,
                 "L" => Key::BTN_TL,
                 "R" => Key::BTN_TR,
                 "SELECT" => Key::BTN_SELECT,

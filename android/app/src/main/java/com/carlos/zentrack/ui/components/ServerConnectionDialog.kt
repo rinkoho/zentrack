@@ -62,9 +62,16 @@ fun ServerConnectionDialog(
             show = true,
             currentTheme = currentTheme,
             onQrDecoded = { ip, port, token ->
+                // Immediate haptic feedback
+                com.carlos.zentrack.haptics.ZenHapticsEngine.vibrateRaw(50L, isKeyboard = false)
+
+                // CRITICAL: Reset USB mode because QR connection is Wi-Fi
+                ZenPreferences.usbAdbModeEnabled = false
                 ZenPreferences.serverIp = ip
                 ZenPreferences.serverPort = port
                 ZenPreferences.serverToken = token
+
+                android.util.Log.i("ZenTrack", "QR Decodificado con éxito. Conectando a $ip:$port...")
                 onConnect(ip, port, token)
                 showQrScanner = false
                 onDismiss()
@@ -351,6 +358,7 @@ fun ServerConnectionDialog(
                                     ZenPreferences.serverIp = manualIp
                                     ZenPreferences.serverPort = portInt
                                     ZenPreferences.serverToken = manualToken
+                                    ZenPreferences.usbAdbModeEnabled = (manualIp == "127.0.0.1")
                                     onConnect(manualIp, portInt, manualToken)
                                     onDismiss()
                                 },

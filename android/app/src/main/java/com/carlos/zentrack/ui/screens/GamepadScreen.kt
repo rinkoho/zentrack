@@ -47,14 +47,14 @@ data class GamepadProfile(
     val id: String,
     val name: String,
     val abxyMode: String = "grouped", // "grouped" or "freeform"
-    val selectX: Float = -40f, val selectY: Float = 42f, val selectScale: Float = 1.0f,
-    val startX: Float = 40f, val startY: Float = 42f, val startScale: Float = 1.0f,
-    val ltX: Float = 14f, val ltY: Float = 42f, val ltScale: Float = 1.0f,
-    val lbX: Float = 70f, val lbY: Float = 42f, val lbScale: Float = 1.0f,
-    val rbX: Float = 70f, val rbY: Float = 42f, val rbScale: Float = 1.0f,
-    val rtX: Float = 14f, val rtY: Float = 42f, val rtScale: Float = 1.0f,
-    val abxyX: Float = 32f, val abxyY: Float = 32f, val abxyScale: Float = 1.0f, val abxyInnerScale: Float = 1.05f,
-    val dpadX: Float = 32f, val dpadY: Float = 32f, val dpadScale: Float = 1.0f,
+    val selectX: Float = -60.362427f, val selectY: Float = 21.22223f, val selectScale: Float = 2.0f,
+    val startX: Float = 59.637535f, val startY: Float = 21.22223f, val startScale: Float = 2.0f,
+    val ltX: Float = 21.642065f, val ltY: Float = 54.963966f, val ltScale: Float = 2.0f,
+    val lbX: Float = 140.76747f, val lbY: Float = 55.286266f, val lbScale: Float = 2.0f,
+    val rbX: Float = 127.01098f, val rbY: Float = 62.627647f, val rbScale: Float = 2.0f,
+    val rtX: Float = 8.1541815f, val rtY: Float = 62.592983f, val rtScale: Float = 2.0f,
+    val abxyX: Float = 33.99899f, val abxyY: Float = 45.070637f, val abxyScale: Float = 1.3919744f, val abxyInnerScale: Float = 1.2156146f,
+    val dpadX: Float = 230.04437f, val dpadY: Float = 40.47721f, val dpadScale: Float = 1.2847857f,
     val aX: Float = 32f, val aY: Float = 32f, val aScale: Float = 1.0f,
     val bX: Float = 78f, val bY: Float = 78f, val bScale: Float = 1.0f,
     val xX: Float = 14f, val xY: Float = 78f, val xScale: Float = 1.0f,
@@ -800,31 +800,31 @@ fun XboxGamepadOverlay(
                             id = obj.optString("id", "profile_$i"),
                             name = obj.optString("name", "Perfil ${i + 1}"),
                             abxyMode = obj.optString("abxyMode", "grouped"),
-                            selectX = obj.optDouble("selectX", -40.0).toFloat(),
-                            selectY = obj.optDouble("selectY", 42.0).toFloat(),
-                            selectScale = obj.optDouble("selectScale", 1.0).toFloat(),
-                            startX = obj.optDouble("startX", 40.0).toFloat(),
-                            startY = obj.optDouble("startY", 42.0).toFloat(),
-                            startScale = obj.optDouble("startScale", 1.0).toFloat(),
-                            ltX = obj.optDouble("ltX", 14.0).toFloat(),
-                            ltY = obj.optDouble("ltY", 42.0).toFloat(),
-                            ltScale = obj.optDouble("ltScale", 1.0).toFloat(),
-                            lbX = obj.optDouble("lbX", 70.0).toFloat(),
-                            lbY = obj.optDouble("lbY", 42.0).toFloat(),
-                            lbScale = obj.optDouble("lbScale", 1.0).toFloat(),
-                            rbX = obj.optDouble("rbX", 70.0).toFloat(),
-                            rbY = obj.optDouble("rbY", 42.0).toFloat(),
-                            rbScale = obj.optDouble("rbScale", 1.0).toFloat(),
-                            rtX = obj.optDouble("rtX", 14.0).toFloat(),
-                            rtY = obj.optDouble("rtY", 42.0).toFloat(),
-                            rtScale = obj.optDouble("rtScale", 1.0).toFloat(),
-                            abxyX = obj.optDouble("abxyX", 32.0).toFloat(),
-                            abxyY = obj.optDouble("abxyY", 32.0).toFloat(),
-                            abxyScale = obj.optDouble("abxyScale", 1.0).toFloat(),
-                            abxyInnerScale = obj.optDouble("abxyInnerScale", 1.05).toFloat(),
-                            dpadX = obj.optDouble("dpadX", 32.0).toFloat(),
-                            dpadY = obj.optDouble("dpadY", 32.0).toFloat(),
-                            dpadScale = obj.optDouble("dpadScale", 1.0).toFloat(),
+                            selectX = obj.optDouble("selectX", -60.362427).toFloat(),
+                            selectY = obj.optDouble("selectY", 21.22223).toFloat(),
+                            selectScale = obj.optDouble("selectScale", 2.0).toFloat(),
+                            startX = obj.optDouble("startX", 59.637535).toFloat(),
+                            startY = obj.optDouble("startY", 21.22223).toFloat(),
+                            startScale = obj.optDouble("startScale", 2.0).toFloat(),
+                            ltX = obj.optDouble("ltX", 21.642065).toFloat(),
+                            ltY = obj.optDouble("ltY", 54.963966).toFloat(),
+                            ltScale = obj.optDouble("ltScale", 2.0).toFloat(),
+                            lbX = obj.optDouble("lbX", 140.76747).toFloat(),
+                            lbY = obj.optDouble("lbY", 55.286266).toFloat(),
+                            lbScale = obj.optDouble("lbScale", 2.0).toFloat(),
+                            rbX = obj.optDouble("rbX", 127.01098).toFloat(),
+                            rbY = obj.optDouble("rbY", 62.627647).toFloat(),
+                            rbScale = obj.optDouble("rbScale", 2.0).toFloat(),
+                            rtX = obj.optDouble("rtX", 8.1541815).toFloat(),
+                            rtY = obj.optDouble("rtY", 62.592983).toFloat(),
+                            rtScale = obj.optDouble("rtScale", 2.0).toFloat(),
+                            abxyX = obj.optDouble("abxyX", 33.99899).toFloat(),
+                            abxyY = obj.optDouble("abxyY", 45.070637).toFloat(),
+                            abxyScale = obj.optDouble("abxyScale", 1.3919744).toFloat(),
+                            abxyInnerScale = obj.optDouble("abxyInnerScale", 1.2156146).toFloat(),
+                            dpadX = obj.optDouble("dpadX", 230.04437).toFloat(),
+                            dpadY = obj.optDouble("dpadY", 40.47721).toFloat(),
+                            dpadScale = obj.optDouble("dpadScale", 1.2847857).toFloat(),
                             aX = obj.optDouble("aX", 32.0).toFloat(),
                             aY = obj.optDouble("aY", 32.0).toFloat(),
                             aScale = obj.optDouble("aScale", 1.0).toFloat(),
@@ -1028,18 +1028,18 @@ fun XboxGamepadOverlay(
 
         for (id in linkedSet) {
             when (id) {
-                "SELECT" -> { selectScale = (selectScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnSelectScale = selectScale }
-                "START" -> { startScale = (startScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnStartScale = startScale }
-                "LT" -> { ltScale = (ltScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnLTScale = ltScale }
-                "LB" -> { lbScale = (lbScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnLBScale = lbScale }
-                "RB" -> { rbScale = (rbScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnRBScale = rbScale }
-                "RT" -> { rtScale = (rtScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnRTScale = rtScale }
-                "ABXY" -> { abxyScale = (abxyScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxAbxyScale = abxyScale }
-                "DPAD" -> { dpadScale = (dpadScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxDpadScale = dpadScale }
-                "A" -> { aScale = (aScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnAScale = aScale }
-                "B" -> { bScale = (bScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnBScale = bScale }
-                "X" -> { xScale = (xScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnXScale = xScale }
-                "Y" -> { yScale = (yScale + delta).coerceIn(0.5f, 2.0f); ZenPreferences.xboxBtnYScale = yScale }
+                "SELECT" -> { selectScale = (selectScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnSelectScale = selectScale }
+                "START" -> { startScale = (startScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnStartScale = startScale }
+                "LT" -> { ltScale = (ltScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnLTScale = ltScale }
+                "LB" -> { lbScale = (lbScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnLBScale = lbScale }
+                "RB" -> { rbScale = (rbScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnRBScale = rbScale }
+                "RT" -> { rtScale = (rtScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnRTScale = rtScale }
+                "ABXY" -> { abxyScale = (abxyScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxAbxyScale = abxyScale }
+                "DPAD" -> { dpadScale = (dpadScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxDpadScale = dpadScale }
+                "A" -> { aScale = (aScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnAScale = aScale }
+                "B" -> { bScale = (bScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnBScale = bScale }
+                "X" -> { xScale = (xScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnXScale = xScale }
+                "Y" -> { yScale = (yScale + delta).coerceIn(0.4f, 3.5f); ZenPreferences.xboxBtnYScale = yScale }
             }
         }
     }

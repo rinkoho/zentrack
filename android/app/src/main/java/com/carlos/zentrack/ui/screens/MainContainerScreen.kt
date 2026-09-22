@@ -302,7 +302,8 @@ fun MainContainerScreen(
                                 .padding(2.dp),
                             horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            // Tab 1: Red (500Hz)
+                            // Tab 1: Red / USB (500Hz)
+                            val isUsbActive = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
                             Surface(
                                 color = if (!isBtActive) animatedTheme.primaryAccent else Color.Transparent,
                                 shape = RoundedCornerShape(6.dp),
@@ -319,14 +320,14 @@ fun MainContainerScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
-                                        Icons.Default.Wifi,
+                                        if (isUsbActive) Icons.Default.Usb else Icons.Default.Wifi,
                                         contentDescription = null,
                                         tint = if (!isBtActive) Color.Black else animatedTheme.textMuted,
                                         modifier = Modifier.size(11.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        "Red 500Hz",
+                                        if (isUsbActive) "USB 500Hz" else "Red 500Hz",
                                         color = if (!isBtActive) Color.Black else animatedTheme.textMuted,
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -401,12 +402,15 @@ fun MainContainerScreen(
                                         )
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
+                                val isUsbMode = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
                                 Column {
                                     Text(
                                         text = if (isBtActive) {
                                             if (isBtConn) (com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName ?: "Dispositivo Bluetooth") else "Bluetooth Desconectado"
+                                        } else if (isUsbMode) {
+                                            if (isConnected) "Conexión Cable USB" else "Cable USB Desconectado"
                                         } else {
-                                            if (isConnected) "Servidor Conectado" else statusText
+                                            if (isConnected) "Conexión Wi-Fi" else "Wi-Fi Desconectado"
                                         },
                                         color = animatedTheme.textPrimary,
                                         fontSize = 11.sp,
@@ -416,8 +420,10 @@ fun MainContainerScreen(
                                     Text(
                                         text = if (isBtActive) {
                                             if (isBtConn) com.carlos.zentrack.bluetooth.ZenInputRouter.activeBluetoothSubModeName else "Toca para emparejar o conectar"
+                                        } else if (isUsbMode) {
+                                            if (isConnected) "Túnel ADB Activo 127.0.0.1 (500Hz)" else "Revisa conexión USB o comando adb reverse"
                                         } else {
-                                            if (isConnected) "Wi-Fi UDP / USB ADB (500Hz)" else "Toca para reintentar"
+                                            if (isConnected) "IP: ${com.carlos.zentrack.preferences.ZenPreferences.serverIp} (500Hz)" else "Toca para reintentar o configurar"
                                         },
                                         color = if (isCurrentConnected) animatedTheme.primaryAccent else animatedTheme.textMuted,
                                         fontSize = 8.5.sp
@@ -453,6 +459,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Trackpad"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -485,6 +492,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Keyboard"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -517,6 +525,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Hybrid"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -549,6 +558,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Gaming"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -581,6 +591,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Vision"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {

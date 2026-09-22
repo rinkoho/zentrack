@@ -493,7 +493,7 @@ fun SettingsScreen(
                                         onTrackpadButtonsBottomHeightChanged(h)
                                         com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight = h
                                     },
-                                    valueRange = 34f..75f,
+                                    valueRange = 34f..100f,
                                     colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                                 )
                             } else {
@@ -513,7 +513,7 @@ fun SettingsScreen(
                                         onTrackpadButtonsSidebarWidthChanged(w)
                                         com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth = w
                                     },
-                                    valueRange = 55f..140f,
+                                    valueRange = 50f..160f,
                                     colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                                 )
                             }
@@ -581,7 +581,7 @@ fun SettingsScreen(
                                 onTrackpadScrollWidthChanged(w)
                                 com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth = w
                             },
-                            valueRange = 16f..45f,
+                            valueRange = 16f..75f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                         )
                     }
@@ -700,7 +700,7 @@ fun SettingsScreen(
                                 onHapticTrackpadIntensityChanged(it)
                                 com.carlos.zentrack.preferences.ZenPreferences.hapticTrackpadIntensity = it
                             },
-                            valueRange = 0f..1.5f,
+                            valueRange = 0f..2.5f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
 
@@ -719,7 +719,7 @@ fun SettingsScreen(
                                 onHapticKeyboardIntensityChanged(it)
                                 com.carlos.zentrack.preferences.ZenPreferences.hapticKeyboardIntensity = it
                             },
-                            valueRange = 0f..1.5f,
+                            valueRange = 0f..2.5f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
                     }
@@ -836,11 +836,11 @@ fun SettingsScreen(
                         Slider(
                             value = themeAnimSpeedMs.toFloat(),
                             onValueChange = {
-                                val speed = it.toInt()
-                                onThemeAnimSpeedChanged(speed)
-                                com.carlos.zentrack.preferences.ZenPreferences.themeAnimSpeedMs = speed
+                                 val speed = it.toInt()
+                                 onThemeAnimSpeedChanged(speed)
+                                 com.carlos.zentrack.preferences.ZenPreferences.themeAnimSpeedMs = speed
                             },
-                            valueRange = 100f..1000f,
+                            valueRange = 100f..2000f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
 

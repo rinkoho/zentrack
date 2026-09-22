@@ -27,6 +27,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import com.carlos.zentrack.theme.ZenThemeConfig
 import com.google.zxing.*
+import com.google.zxing.common.GlobalHistogramBinarizer
 import com.google.zxing.common.HybridBinarizer
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
@@ -49,6 +50,18 @@ fun QrScannerDialog(
                 android.Manifest.permission.CAMERA
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         )
+    }
+
+    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
     }
 
     Dialog(
@@ -133,7 +146,7 @@ fun QrScannerDialog(
                                             .build()
 
                                         imageAnalysis.setAnalyzer(cameraExecutor, QrCodeAnalyzer { rawText ->
-                                            Log.d("ZenQr", "Scanned raw QR: $rawText")
+                                            Log.i("ZenQr", "Scanned raw QR: $rawText")
                                             val (ip, port, token) = parseQrPayload(rawText)
                                             if (ip.isNotEmpty() && token.isNotEmpty()) {
                                                 previewView.post {
@@ -185,6 +198,13 @@ fun QrScannerDialog(
                                     color = currentTheme.textMuted,
                                     fontSize = 10.sp
                                 )
+                                Spacer(modifier = Modifier.height(14.dp))
+                                Button(
+                                    onClick = { permissionLauncher.launch(android.Manifest.permission.CAMERA) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = currentTheme.primaryAccent)
+                                ) {
+                                    Text("Conceder Permiso de Cámara", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                }
                             }
                         }
                     }
@@ -207,8 +227,12 @@ class QrCodeAnalyzer(
     private val onQrCodeScanned: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
     private val reader = MultiFormatReader().apply {
-        val map = mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE))
-        setHints(map)
+        val hints = mapOf(
+            DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE),
+            DecodeHintType.TRY_HARDER to java.lang.Boolean.TRUE,
+            DecodeHintType.CHARACTER_SET to "UTF-8"
+        )
+        setHints(hints)
     }
     private var isScanned = false
 
@@ -228,20 +252,27 @@ class QrCodeAnalyzer(
         val source = PlanarYUVLuminanceSource(
             data, width, height, 0, 0, width, height, false
         )
-        val bitmap = BinaryBitmap(HybridBinarizer(source))
 
-        try {
-            val result = reader.decodeWithState(bitmap)
-            if (result != null && !isScanned) {
-                isScanned = true
-                onQrCodeScanned(result.text)
-            }
-        } catch (_: Exception) {
-            // Keep scanning frame
-        } finally {
-            reader.reset()
-            imageProxy.close()
+        // Attempt 1: HybridBinarizer (standard)
+        var bitmap = BinaryBitmap(HybridBinarizer(source))
+        var result = try { reader.decodeWithState(bitmap) } catch (_: Exception) { null }
+
+        // Attempt 2: GlobalHistogramBinarizer (fallback for screens with glare / moiré)
+        if (result == null) {
+            try {
+                reader.reset()
+                bitmap = BinaryBitmap(GlobalHistogramBinarizer(source))
+                result = reader.decodeWithState(bitmap)
+            } catch (_: Exception) { }
         }
+
+        if (result != null && !isScanned) {
+            isScanned = true
+            onQrCodeScanned(result.text)
+        }
+
+        reader.reset()
+        imageProxy.close()
     }
 }
 

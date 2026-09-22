@@ -28,10 +28,13 @@ Cable USB ADB / Wi-Fi         BLE / Bluetooth Clásico HID
 (Puerto 3000, 500 Hz)         (Sin servidor, conecta a Smart TVs,
     │                         Macs, PCs o iPads como ratón real)
     ▼
-🐧 PC LINUX (server.js)
-    ├──> xdotool (Comandos en X11)
-    ├──> uinput_device.py (Teclado/Ratón en Kernel)
-    └──> virtual_gamepad.py (Mando Xbox 360 en Kernel)
+🦀 SERVIDOR RUST NATIVO (server-rust)
+    ├──> 🐧 Linux: /dev/uinput (Kernel Input Subsystem)
+    │        ├── Teclado & Ratón de alta resolución
+    │        └── Mando Xbox 360 Virtual
+    └──> 🪟 Windows 10/11: Win32 API + ViGEmBus
+             ├── SendInput con Scan Codes & Auto-repetición
+             └── Mando Xbox 360 Virtual (XInput nativo)
 ```
 
 ---
@@ -45,7 +48,7 @@ Antes de leer el código, repasemos los conceptos que encontrarás a menudo:
 * **Protocolo Binario:** Si envías un texto diciendo `{"x": 12, "y": -5}`, la computadora debe leer letra por letra, procesar comillas y convertir texto en números (lo cual tarda tiempo). Un paquete binario envía solo los números puros en bytes de memoria (ej. `[01 00 0C 00 FB FF]`). Tarda menos de 0.05 milisegundos.
 * **Bluetooth HID (Human Interface Device):** Es el estándar universal que usan los ratones y teclados de fábrica. ZenTrack engaña a cualquier Smart TV, PC o tablet para que crea que tu teléfono es un dispositivo físico USB enchufado por Bluetooth, sin necesidad de instalar nada en la TV.
 * **Cifrado AES-256-GCM:** Es una "caja fuerte digital". Cuando escribes tu contraseña en el teclado del teléfono, ZenTrack la cifra matemáticamente en el chip antes de enviarla por el aire o el cable, para que nadie en la red pueda espiarla.
-* **/dev/uinput en Linux:** Es una puerta secreta del Kernel de Linux que permite a un programa crear periféricos virtuales (teclados, ratones o mandos de Xbox 360) indistinguibles del hardware físico.
+* **/dev/uinput en Linux & SendInput/ViGEmBus en Windows:** Son las puertas de entrada al sistema operativo que permiten a ZenTrack crear periféricos virtuales (teclados con scan codes reales, ratones de alta resolución o mandos de Xbox 360 oficiales) que los juegos y aplicaciones ven exactamente como si fueran cables físicos conectados a la placa base.
 
 ---
 

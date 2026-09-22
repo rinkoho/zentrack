@@ -46,7 +46,7 @@ object ZenPreferences {
     }
 
     var gamepadMode: String
-        get() = prefs.getString(KEY_GAMEPAD_MODE, "pc") ?: "pc"
+        get() = prefs.getString(KEY_GAMEPAD_MODE, "xbox") ?: "xbox"
         set(value) = prefs.edit().putString(KEY_GAMEPAD_MODE, value).apply()
 
     var gamepadPcSensitivity: Float
@@ -62,7 +62,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putFloat(KEY_GAMEPAD_XBOX_SENSITIVITY, value).apply()
 
     var gamepadXboxRightStickMode: String
-        get() = prefs.getString(KEY_GAMEPAD_XBOX_RIGHT_STICK_MODE, "autocenter") ?: "autocenter"
+        get() = prefs.getString(KEY_GAMEPAD_XBOX_RIGHT_STICK_MODE, "native_stick") ?: "native_stick"
         set(value) = prefs.edit().putString(KEY_GAMEPAD_XBOX_RIGHT_STICK_MODE, value).apply()
 
     var stickyKeysEnabled: Boolean
@@ -92,7 +92,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putString(KEY_MOUSE_ACCEL_PROFILE, value).apply()
 
     var naturalScroll: Boolean
-        get() = prefs.getBoolean(KEY_NATURAL_SCROLL, false)
+        get() = prefs.getBoolean(KEY_NATURAL_SCROLL, true)
         set(value) = prefs.edit().putBoolean(KEY_NATURAL_SCROLL, value).apply()
 
     var keySoundEnabled: Boolean
@@ -108,7 +108,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putFloat(KEY_SOUND_VOLUME, value).apply()
 
     var themeAnimSpeedMs: Int
-        get() = prefs.getInt(KEY_THEME_ANIM_SPEED, 450)
+        get() = prefs.getInt(KEY_THEME_ANIM_SPEED, 1000)
         set(value) = prefs.edit().putInt(KEY_THEME_ANIM_SPEED, value).apply()
 
     var syncTheme: Boolean
@@ -116,7 +116,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putBoolean(KEY_SYNC_THEME, value).apply()
 
     var activeThemeName: String
-        get() = prefs.getString(KEY_ACTIVE_THEME, "Carbon Orange") ?: "Carbon Orange"
+        get() = prefs.getString(KEY_ACTIVE_THEME, "Tokyo Night") ?: "Tokyo Night"
         set(value) = prefs.edit().putString(KEY_ACTIVE_THEME, value).apply()
 
     var hybridKeyboardHeightRatio: Float
@@ -140,7 +140,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putBoolean(KEY_TRACKPAD_PHYSICAL_BUTTONS_ENABLED, value).apply()
 
     var trackpadButtonsPosition: String
-        get() = prefs.getString(KEY_TRACKPAD_BUTTONS_POSITION, "right") ?: "right" // "right", "left", "bottom"
+        get() = prefs.getString(KEY_TRACKPAD_BUTTONS_POSITION, "bottom") ?: "bottom" // "right", "left", "bottom"
         set(value) = prefs.edit().putString(KEY_TRACKPAD_BUTTONS_POSITION, value).apply()
 
     var trackpadScrollPosition: String
@@ -148,7 +148,7 @@ object ZenPreferences {
         set(value) = prefs.edit().putString(KEY_TRACKPAD_SCROLL_POSITION, value).apply()
 
     var trackpadScrollWidth: Int
-        get() = prefs.getInt(KEY_TRACKPAD_SCROLL_WIDTH, 24)
+        get() = prefs.getInt(KEY_TRACKPAD_SCROLL_WIDTH, 45)
         set(value) = prefs.edit().putInt(KEY_TRACKPAD_SCROLL_WIDTH, value).apply()
 
     var trackpadButtonsSidebarWidth: Int
@@ -156,15 +156,15 @@ object ZenPreferences {
         set(value) = prefs.edit().putInt(KEY_TRACKPAD_BUTTONS_SIDEBAR_WIDTH, value).apply()
 
     var trackpadButtonsBottomHeight: Int
-        get() = prefs.getInt(KEY_TRACKPAD_BUTTONS_BOTTOM_HEIGHT, 48)
+        get() = prefs.getInt(KEY_TRACKPAD_BUTTONS_BOTTOM_HEIGHT, 65)
         set(value) = prefs.edit().putInt(KEY_TRACKPAD_BUTTONS_BOTTOM_HEIGHT, value).apply()
 
     var hapticTrackpadIntensity: Float
-        get() = prefs.getFloat(KEY_HAPTIC_TRACKPAD_INTENSITY, 1.0f)
+        get() = prefs.getFloat(KEY_HAPTIC_TRACKPAD_INTENSITY, 1.5f)
         set(value) = prefs.edit().putFloat(KEY_HAPTIC_TRACKPAD_INTENSITY, value).apply()
 
     var hapticKeyboardIntensity: Float
-        get() = prefs.getFloat(KEY_HAPTIC_KEYBOARD_INTENSITY, 1.0f)
+        get() = prefs.getFloat(KEY_HAPTIC_KEYBOARD_INTENSITY, 1.5f)
         set(value) = prefs.edit().putFloat(KEY_HAPTIC_KEYBOARD_INTENSITY, value).apply()
 
     var keycapBordersEnabled: Boolean
@@ -177,19 +177,19 @@ object ZenPreferences {
         set(value) = prefs.edit().putFloat("xbox_btn_scale", value).apply()
 
     var xboxAbxyOffsetX: Float
-        get() = prefs.getFloat("xbox_abxy_offset_x", 32f)
+        get() = prefs.getFloat("xbox_abxy_offset_x", 33.99899f)
         set(value) = prefs.edit().putFloat("xbox_abxy_offset_x", value).apply()
 
     var xboxAbxyOffsetY: Float
-        get() = prefs.getFloat("xbox_abxy_offset_y", 32f)
+        get() = prefs.getFloat("xbox_abxy_offset_y", 45.070637f)
         set(value) = prefs.edit().putFloat("xbox_abxy_offset_y", value).apply()
 
     var xboxDpadOffsetX: Float
-        get() = prefs.getFloat("xbox_dpad_offset_x", 32f)
+        get() = prefs.getFloat("xbox_dpad_offset_x", 230.04437f)
         set(value) = prefs.edit().putFloat("xbox_dpad_offset_x", value).apply()
 
     var xboxDpadOffsetY: Float
-        get() = prefs.getFloat("xbox_dpad_offset_y", 32f)
+        get() = prefs.getFloat("xbox_dpad_offset_y", 40.47721f)
         set(value) = prefs.edit().putFloat("xbox_dpad_offset_y", value).apply()
 
     var xboxBumperLOffsetX: Float
@@ -213,15 +213,15 @@ object ZenPreferences {
         set(value) = prefs.edit().putFloat("xbox_center_menu_offset_y", value).apply()
 
     var xboxDpadScale: Float
-        get() = prefs.getFloat("xbox_dpad_scale", 1.0f)
+        get() = prefs.getFloat("xbox_dpad_scale", 1.2847857f)
         set(value) = prefs.edit().putFloat("xbox_dpad_scale", value).apply()
 
     var xboxAbxyScale: Float
-        get() = prefs.getFloat("xbox_abxy_scale", 1.0f)
+        get() = prefs.getFloat("xbox_abxy_scale", 1.3919744f)
         set(value) = prefs.edit().putFloat("xbox_abxy_scale", value).apply()
 
     var xboxAbxyInnerScale: Float
-        get() = prefs.getFloat("xbox_abxy_inner_scale", 1.05f)
+        get() = prefs.getFloat("xbox_abxy_inner_scale", 1.2156146f)
         set(value) = prefs.edit().putFloat("xbox_abxy_inner_scale", value).apply()
 
     var xboxBumperLScale: Float
@@ -238,13 +238,13 @@ object ZenPreferences {
 
     // Individual Button Offsets & Scales
     var xboxBtnSelectOffsetX: Float
-        get() = prefs.getFloat("xbox_btn_select_offset_x", -60f)
+        get() = prefs.getFloat("xbox_btn_select_offset_x", -60.362427f)
         set(value) = prefs.edit().putFloat("xbox_btn_select_offset_x", value).apply()
     var xboxBtnSelectOffsetY: Float
-        get() = prefs.getFloat("xbox_btn_select_offset_y", 42f)
+        get() = prefs.getFloat("xbox_btn_select_offset_y", 21.22223f)
         set(value) = prefs.edit().putFloat("xbox_btn_select_offset_y", value).apply()
     var xboxBtnSelectScale: Float
-        get() = prefs.getFloat("xbox_btn_select_scale", 1.0f)
+        get() = prefs.getFloat("xbox_btn_select_scale", 2.0f)
         set(value) = prefs.edit().putFloat("xbox_btn_select_scale", value).apply()
 
     var xboxBtnL3OffsetX: Float
@@ -268,53 +268,53 @@ object ZenPreferences {
         set(value) = prefs.edit().putFloat("xbox_btn_r3_scale", value).apply()
 
     var xboxBtnStartOffsetX: Float
-        get() = prefs.getFloat("xbox_btn_start_offset_x", 60f)
+        get() = prefs.getFloat("xbox_btn_start_offset_x", 59.637535f)
         set(value) = prefs.edit().putFloat("xbox_btn_start_offset_x", value).apply()
     var xboxBtnStartOffsetY: Float
-        get() = prefs.getFloat("xbox_btn_start_offset_y", 42f)
+        get() = prefs.getFloat("xbox_btn_start_offset_y", 21.22223f)
         set(value) = prefs.edit().putFloat("xbox_btn_start_offset_y", value).apply()
     var xboxBtnStartScale: Float
-        get() = prefs.getFloat("xbox_btn_start_scale", 1.0f)
+        get() = prefs.getFloat("xbox_btn_start_scale", 2.0f)
         set(value) = prefs.edit().putFloat("xbox_btn_start_scale", value).apply()
 
     var xboxBtnLTOffsetX: Float
-        get() = prefs.getFloat("xbox_btn_lt_offset_x", 14f)
+        get() = prefs.getFloat("xbox_btn_lt_offset_x", 21.642065f)
         set(value) = prefs.edit().putFloat("xbox_btn_lt_offset_x", value).apply()
     var xboxBtnLTOffsetY: Float
-        get() = prefs.getFloat("xbox_btn_lt_offset_y", 42f)
+        get() = prefs.getFloat("xbox_btn_lt_offset_y", 54.963966f)
         set(value) = prefs.edit().putFloat("xbox_btn_lt_offset_y", value).apply()
     var xboxBtnLTScale: Float
-        get() = prefs.getFloat("xbox_btn_lt_scale", 1.0f)
+        get() = prefs.getFloat("xbox_btn_lt_scale", 2.0f)
         set(value) = prefs.edit().putFloat("xbox_btn_lt_scale", value).apply()
 
     var xboxBtnLBOffsetX: Float
-        get() = prefs.getFloat("xbox_btn_lb_offset_x", 70f)
+        get() = prefs.getFloat("xbox_btn_lb_offset_x", 140.76747f)
         set(value) = prefs.edit().putFloat("xbox_btn_lb_offset_x", value).apply()
     var xboxBtnLBOffsetY: Float
-        get() = prefs.getFloat("xbox_btn_lb_offset_y", 42f)
+        get() = prefs.getFloat("xbox_btn_lb_offset_y", 55.286266f)
         set(value) = prefs.edit().putFloat("xbox_btn_lb_offset_y", value).apply()
     var xboxBtnLBScale: Float
-        get() = prefs.getFloat("xbox_btn_lb_scale", 1.0f)
+        get() = prefs.getFloat("xbox_btn_lb_scale", 2.0f)
         set(value) = prefs.edit().putFloat("xbox_btn_lb_scale", value).apply()
 
     var xboxBtnRBOffsetX: Float
-        get() = prefs.getFloat("xbox_btn_rb_offset_x", 70f)
+        get() = prefs.getFloat("xbox_btn_rb_offset_x", 127.01098f)
         set(value) = prefs.edit().putFloat("xbox_btn_rb_offset_x", value).apply()
     var xboxBtnRBOffsetY: Float
-        get() = prefs.getFloat("xbox_btn_rb_offset_y", 42f)
+        get() = prefs.getFloat("xbox_btn_rb_offset_y", 62.627647f)
         set(value) = prefs.edit().putFloat("xbox_btn_rb_offset_y", value).apply()
     var xboxBtnRBScale: Float
-        get() = prefs.getFloat("xbox_btn_rb_scale", 1.0f)
+        get() = prefs.getFloat("xbox_btn_rb_scale", 2.0f)
         set(value) = prefs.edit().putFloat("xbox_btn_rb_scale", value).apply()
 
     var xboxBtnRTOffsetX: Float
-        get() = prefs.getFloat("xbox_btn_rt_offset_x", 14f)
+        get() = prefs.getFloat("xbox_btn_rt_offset_x", 8.1541815f)
         set(value) = prefs.edit().putFloat("xbox_btn_rt_offset_x", value).apply()
     var xboxBtnRTOffsetY: Float
-        get() = prefs.getFloat("xbox_btn_rt_offset_y", 42f)
+        get() = prefs.getFloat("xbox_btn_rt_offset_y", 62.592983f)
         set(value) = prefs.edit().putFloat("xbox_btn_rt_offset_y", value).apply()
     var xboxBtnRTScale: Float
-        get() = prefs.getFloat("xbox_btn_rt_scale", 1.0f)
+        get() = prefs.getFloat("xbox_btn_rt_scale", 2.0f)
         set(value) = prefs.edit().putFloat("xbox_btn_rt_scale", value).apply()
 
     var xboxGroupLinks: String
