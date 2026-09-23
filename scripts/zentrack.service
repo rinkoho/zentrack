@@ -1,0 +1,13 @@
+[Unit]
+Description=ZenTrack Ultra-Low Latency Input Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/zentrack-server
+Restart=on-failure
+RestartSec=3
+Environment="RUST_LOG=info"
+
+[Install]
+WantedBy=default.target

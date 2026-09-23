@@ -1,0 +1,44 @@
+# Maintainer: Carlos <rrin08455@github.com>
+pkgname=zentrack-git
+pkgver=r1.0.0
+pkgrel=1
+pkgdesc="Ultra-Low Latency trackpad and keyboard server for mobile devices (Commercial Version)"
+arch=('x86_64')
+url="https://github.com/rrin08455/zentrack"
+license=('custom')
+depends=('gcc-libs')
+optdepends=('android-tools: For USB ADB ultra-low latency connection')
+makedepends=('git' 'cargo')
+provides=('zentrack')
+conflicts=('zentrack')
+source=("git+https://github.com/rrin08455/zentrack.git#branch=commercial-v1")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd zentrack
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd zentrack/server-rust
+  cargo build --release --locked
+}
+
+package() {
+  cd zentrack
+
+  # Binarios
+  install -Dm755 server-rust/target/release/zentrack-server "$pkgdir/usr/bin/zentrack-server"
+  install -Dm755 scripts/zentrack-wrapper.sh "$pkgdir/usr/bin/zentrack"
+
+  # Systemd user service
+  install -Dm644 scripts/zentrack.service "$pkgdir/usr/lib/systemd/user/zentrack.service"
+
+  # Udev rules (Permisos para inyectar inputs de mouse/teclado)
+  install -Dm644 scripts/99-zentrack.rules "$pkgdir/usr/lib/udev/rules.d/99-zentrack.rules"
+
+  # Acceso directo de escritorio (.desktop) e iconos
+  install -Dm644 scripts/zentrack.desktop "$pkgdir/usr/share/applications/zentrack.desktop"
+  install -Dm644 public/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zentrack.svg"
+  install -Dm644 public/icon.png "$pkgdir/usr/share/icons/hicolor/48x48/apps/zentrack.png"
+}
