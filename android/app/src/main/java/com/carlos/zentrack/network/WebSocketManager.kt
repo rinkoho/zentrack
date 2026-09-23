@@ -66,29 +66,25 @@ class WebSocketManager(
     }
 
     fun sendBinary(cmd: Short, x: Int, y: Int) {
-        socketExecutor.execute {
-            if (webSocketClient?.isOpen == true) {
-                try {
-                    val buffer = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
-                    buffer.putShort(cmd)
-                    buffer.putShort(x.toShort())
-                    buffer.putShort(y.toShort())
-                    webSocketClient?.send(buffer.array())
-                } catch (e: Exception) {
-                    Log.e("ZenTrack", "Error sending binary packet", e)
-                }
+        if (webSocketClient?.isOpen == true) {
+            try {
+                val buffer = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
+                buffer.putShort(cmd)
+                buffer.putShort(x.toShort())
+                buffer.putShort(y.toShort())
+                webSocketClient?.send(buffer.array())
+            } catch (e: Exception) {
+                Log.e("ZenTrack", "Error sending binary packet", e)
             }
         }
     }
 
     fun sendJson(jsonStr: String) {
-        socketExecutor.execute {
-            if (webSocketClient?.isOpen == true) {
-                try {
-                    webSocketClient?.send(jsonStr)
-                } catch (e: Exception) {
-                    Log.e("ZenTrack", "Error sending JSON packet", e)
-                }
+        if (webSocketClient?.isOpen == true) {
+            try {
+                webSocketClient?.send(jsonStr)
+            } catch (e: Exception) {
+                Log.e("ZenTrack", "Error sending JSON packet", e)
             }
         }
     }
