@@ -10,37 +10,40 @@ import java.nio.ByteOrder
 import java.util.concurrent.Executors
 
 class WebSocketManager(
-    private val onStateChanged: (Boolean, String) -> Unit,
-    private val onThemeSyncReceived: ((String) -> Unit)? = null
+    private val onStateChanged: (Boolean, String) -> Unit
 ) {
     private var webSocketClient: WebSocketClient? = null
     private val socketExecutor = Executors.newSingleThreadExecutor()
 
-    fun connect(ip: String = "192.168.18.226", port: Int = 3000, token: String = "b8c5838d40a8746d2e79a7212e9f5f02") {
+    fun connect(
+        ip: String = com.carlos.zentrack.preferences.ZenPreferences.serverIp,
+        port: Int = com.carlos.zentrack.preferences.ZenPreferences.serverPort,
+        token: String = com.carlos.zentrack.preferences.ZenPreferences.serverToken
+    ) {
+        val isUsbAdb = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
+        val targetIp = if (isUsbAdb) "127.0.0.1" else ip
+
+        if (token.isBlank() || targetIp.isBlank()) {
+            Log.w("ZenTrack", "Cannot connect: Server token or IP is not configured")
+            onStateChanged(false, "Desconectado")
+            return
+        }
+
+        com.carlos.zentrack.security.ZenCrypto.init(token)
         socketExecutor.execute {
             try {
-                val isUsbAdb = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
-                val targetIp = if (isUsbAdb) "127.0.0.1" else ip
                 val serverUri = URI("ws://$targetIp:$port/?token=$token")
                 webSocketClient?.close()
 
                 webSocketClient = object : WebSocketClient(serverUri) {
                     override fun onOpen(handshakedata: ServerHandshake?) {
-                        Log.d("ZenTrack", "WebSocket Connected Successfully! Mode: ${if (isUsbAdb) "USB ADB" else "Wi-Fi"}")
+                        Log.i("ZenTrack", "WebSocket Connected Successfully! Mode: ${if (isUsbAdb) "USB ADB" else "Wi-Fi"}")
                         onStateChanged(true, if (isUsbAdb) "USB (Estable)" else "Wi-Fi (500Hz)")
                     }
 
+
                     override fun onMessage(message: String?) {
-                        if (message.isNullOrEmpty()) return
-                        try {
-                            val json = JSONObject(message)
-                            if (json.has("rice")) {
-                                val riceName = json.getString("rice")
-                                onThemeSyncReceived?.invoke(riceName)
-                            }
-                        } catch (e: Exception) {
-                            // Non-JSON message, ignore
-                        }
+                        // Incoming server messages handler
                     }
 
                     override fun onClose(code: Int, reason: String?, remote: Boolean) {

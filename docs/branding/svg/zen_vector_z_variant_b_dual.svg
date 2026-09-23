@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="tokyo-bg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#1f2335" />
+      <stop offset="100%" stop-color="#16161e" />
+    </radialGradient>
+
+    <!-- Gradiente Riel X (Cyan a Azul) -->
+    <linearGradient id="rail-x-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dcfff" />
+      <stop offset="100%" stop-color="#7aa2f7" />
+    </linearGradient>
+
+    <!-- Gradiente Riel Y (Púrpura a Magenta) -->
+    <linearGradient id="rail-y-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bb9af7" />
+      <stop offset="100%" stop-color="#f7768e" />
+    </linearGradient>
+
+    <filter id="dual-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#tokyo-bg)" />
+  <rect x="12" y="12" width="488" height="488" rx="106" fill="none" stroke="rgba(122, 162, 247, 0.12)" stroke-width="2" />
+
+  <!-- Retícula de Coordenadas Sub-Píxel tenue -->
+  <line x1="256" y1="80" x2="256" y2="432" stroke="rgba(125, 207, 255, 0.08)" stroke-width="1.5" stroke-dasharray="6,6" />
+  <line x1="80" y1="256" x2="432" y2="256" stroke="rgba(125, 207, 255, 0.08)" stroke-width="1.5" stroke-dasharray="6,6" />
+
+  <!-- Riel 1 (Exterior: Trazo Primario X - Cyan/Azul) -->
+  <path d="M 160 185 
+           L 325 185 
+           C 355 185, 365 205, 345 228
+           L 205 328
+           C 185 350, 195 365, 225 365
+           L 352 365" 
+        fill="none" 
+        stroke="url(#rail-x-grad)" 
+        stroke-width="18" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        filter="url(#dual-glow)" />
+
+  <!-- Riel 2 (Interior: Trazo Secundario Y - Púrpura/Rosa) -->
+  <path d="M 195 218 
+           L 310 218 
+           C 328 218, 335 228, 320 242
+           L 218 318
+           C 205 328, 212 338, 230 338
+           L 320 338" 
+        fill="none" 
+        stroke="url(#rail-y-grad)" 
+        stroke-width="10" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        filter="url(#dual-glow)" />
+
+  <!-- Nodos de Entrada Táctil (Sampling 500Hz) -->
+  <!-- Nodo Origen -->
+  <circle cx="160" cy="185" r="7" fill="#ffffff" filter="url(#dual-glow)" />
+  <!-- Nodo Inflexión Superior -->
+  <circle cx="340" cy="225" r="5" fill="#7aa2f7" />
+  <!-- Nodo Inflexión Inferior -->
+  <circle cx="208" cy="330" r="5" fill="#bb9af7" />
+  <!-- Nodo Destino -->
+  <circle cx="352" cy="365" r="7" fill="#f7768e" filter="url(#dual-glow)" />
+</svg>

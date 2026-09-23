@@ -1,78 +1,107 @@
-# 📱 ZenTrack Native (Remote Trackpad & Mechanical Keyboard v1.0.0)
+# ZenTrack: Ultra-Low Latency Trackpad, Mechanical Keyboard & Virtual Gamepad
 
-**ZenTrack** es un controlador táctil de ultra-baja latencia y teclado mecánico 65% nativo para **Android (100% Kotlin + Jetpack Compose)** diseñado para controlar tu PC con Linux (BSPWM, Hyprland, X11, Wayland), Smart TVs y consolas directamente desde tu celular.
+ZenTrack es una suite de periféricos virtuales de ultra-baja latencia que transforma tu teléfono móvil en un **Trackpad háptico de precisión**, un **Teclado mecánico 65%** y un **Mando virtual gaming oficial de Xbox 360**.
 
----
-
-## ✨ Características Principales
-
-* ⚡ **Protocolo Binario de 6 Bytes (Sub-Milisegundo):** Transmisión directa de deltas de movimiento y scroll sub-píxel sin la sobrecarga de parseo JSON.
-* 🔌 **Conexión por Cable USB ADB (`127.0.0.1:3000`):** Conexión física a latencia ultra-baja de **<0.2ms** sin interferencias o jitter de red Wi-Fi.
-* 🚀 **Ajuste KernelSU Root (`zentrack boost` / `zentrack unboost`):** Desbloqueo y fijación de la frecuencia del digitalizador a **`498 Hz – 501 Hz` estables** continuos sin caídas de energía.
-* 📳 **Motor Háptico `ZenHapticsEngine` (LRA / RichTap):** Retroalimentación háptica HD de alta fidelidad con efectos predefinidos (CLICK, HEAVY_CLICK, TICK) y sliders independientes de intensidad para trackpad y teclado.
-* 👁️ **Control Espacial `ZenVision` (MediaPipe Tasks Vision):** Control de puntero touchless en el aire con cámara frontal a 30 FPS, filtro adaptativo OneEuro, predictor cinemático y clics por pellizco (pinch-to-click).
-* 🎮 **Gamepad Virtual Nativo Estilo Steam (`virtual_gamepad.py`):** Mando gaming con joystick WASD analógico, apuntado táctil de cámara, emulación física en el kernel de Linux (`/dev/uinput`) y editor de diseño visual en vivo.
-* 🔤 **Keycaster OLED Dashboard & Motor osu!lazer:** Visualizador de teclas estilo teclado mecánico custom con animaciones spring de rebote y estabilidad de IDs inmutables `TypedChar`.
-* ⌨️ **Mapeo Internacional `AltGr` (Level-3 ISO):** Soporte nativo para `ñ`, `Ñ`, vocales acentuadas (`á`, `é`, `í`, `ó`, `ú`) y símbolos `Shift`.
-* 🎯 **Hitboxes sin Zonas Muertas (100% Target Area):** Rediseño del acolchado táctil en `KeyCap.kt` para tipeo ultra-rápido sin fallos.
-* 🖐️ **Gesto de 3 Dedos Bidireccional & Inversión de Dirección:** Cambios de escritorio suaves en BSPWM/Hyprland con opción de inversión en Ajustes.
-* 🔐 **Cifrado E2EE en Hardware (AES-256-GCM):** Pulsaciones de teclado y contraseñas cifradas en hardware mediante `javax.crypto.Cipher` y `crypto.createDecipheriv`.
-* 🐧 **Emulación de Teclado Físico USB en Kernel (`/dev/uinput`):** Scancodes nativos de kernel Linux.
-* 📶 **Periférico Físico Bluetooth Clásico HID (API 28+):** Control universal sin software receptor para PCs, Macs, móviles y consolas (SDP Combo Mouse/Keyboard `0xC0`).
-* 📺 **Servidor Bluetooth Low Energy HOGP (`0x1812`):** Compatibilidad con Smart TVs modernas (TCL, Google TV, Android TV, webOS, Tizen).
-* 📡 **Escáner Bluetooth Inverso Integrado:** Detección de televisores y dispositivos cercanos directamente desde la APK.
-* ⚡ **Desacoplamiento Productor-Consumidor (Pacer Anti-Bloqueo):** Hilo en tiempo real a 125Hz/100Hz que aísla la pantalla táctil de bloqueos Binder IPC.
-* 🔴 **Soporte Físico Infrarrojo (Consumer IR Blaster):** Control óptico (NEC 38kHz) para encender y apagar la TV incluso en modo Standby.
-* 🎨 **23 Temas de gh0stzk rices:** Sincronización cromática en tiempo real entre la PC y la APK móvil.
+Construido con una arquitectura de grado comercial:
+- **Cliente Móvil:** 100% Kotlin + Jetpack Compose con aceleración háptica HD (LRA / RichTap) y cifrado criptográfico por hardware. **Importante:** La aplicación funciona al 100% sin acceso Root (500Hz garantizados). Root/KernelSU es estrictamente opcional solo para usuarios entusiastas que deseen fijar forzosamente la prioridad del digitalizador.
+- **Servidor PC Nativo:** 100% Rust asíncrono (`tokio` + `axum`), portable y autónomo para **Linux (Wayland / X11)** y **Windows 10 / 11**.
+- **Instalador Oficial para Windows:** `ZenTrack-Setup.exe` todo-en-uno con dependencias integradas (ADB + ViGEmBus), sin scripts manuales ni configuración de terminal.
 
 ---
 
-## 🛠️ Comandos CLI del Servidor (`zentrack`)
+## Arquitectura y Estado de Módulos
 
-El ejecutable CLI del sistema reside en `/home/carlos/.config/bspwm/bin/zentrack`:
-
-| Comando | Descripción |
-| :--- | :--- |
-| `zentrack start` | Inicia el servidor Node.js y activa el túnel USB ADB (`adb reverse tcp:3000 tcp:3000`) |
-| `zentrack status` | Muestra el estado del servidor, puerto e IPs conectadas |
-| `zentrack boost` | **Activa el modo táctil 500Hz estables sin caídas vía KernelSU Root** |
-| `zentrack unboost` | **Restaura el modo de ahorro de batería de fábrica de Xiaomi** |
-| `zentrack log` | Muestra los registros del servidor en tiempo real |
-| `zentrack stop` | Detiene el servidor y limpia subprocesos asociados |
+| Módulo | Estado | Plataformas | Descripción Técnica |
+| :--- | :---: | :---: | :--- |
+| **Trackpad Hi-Res & Gestos** | **COMERCIAL CORE** | Linux & Windows | Protocolo binario 6-bytes a 500Hz, scroll de alta resolución (`REL_WHEEL_HI_RES` / `WHEEL_DELTA`), gestos multitáctiles fluidos. |
+| **Teclado Mecánico 65%** | **COMERCIAL CORE** | Linux & Windows | Scan codes reales por hardware (`MapVirtualKeyW`), bucle typematic de auto-repetición continua, cifrado E2EE (AES-256-GCM), soporte AltGr Level-3 ISO (`ñ`, acentos). |
+| **Gamepad Virtual Xbox 360** | **COMERCIAL CORE** | Linux (`uinput`) & Windows (`ViGEmBus`) | Emulación nativa de mando Microsoft Xbox 360 (`0x045E:0x028E`). Reconocido al 100% por Steam, emuladores y navegadores (`hardwaretester.com/gamepad`). |
+| **Servidor Nativo Rust** | **COMERCIAL CORE** | Linux & Windows | Binario standalone (<2 MB), latencia sub-milisegundo, zero-dependency. Sin Node.js, Python ni herramientas lentas como xdotool. |
+| **Instalador Oficial Windows** | **COMERCIAL CORE** | Windows 10 / 11 | Instalador GUI nativo (`ZenTrack-Setup.exe`, 8.9 MB) con ADB de Google y driver ViGEmBus integrados, accesos directos automáticos. |
+| **Centro Web de Emparejamiento** | **COMERCIAL CORE** | Web / Localhost | Dashboard reactivo Material Design 3 con barra de salud diagnóstica en vivo (5 indicadores en verde), escaneo QR y API de instalación en 1 clic. |
+| **ZenVision (Touchless Pointer)** | **LABS / EXPERIMENTAL** | Android / PC | Puntero espacial en el aire con cámara frontal (MediaPipe Tasks Vision), filtro OneEuro y pinch-to-click. |
+| **Bluetooth Clásico / BLE HOGP** | **LABS / EXPERIMENTAL** | Multiplataforma | Conexión directa de hardware HOGP/HID para Smart TVs y dispositivos sin servidor. |
 
 ---
 
-## 🔬 Diagnóstico Forense Bluetooth (`zen_bt_diagnostic.py`)
+## Características Principales
 
-Para auditar la calidad del enlace de radio Bluetooth, detectar tirones (>30ms), analizar dwell time de teclas y verificar transiciones de energía (Sniff Mode) directamente desde el chip Bluetooth del teléfono con ADB Root:
+* **Servidor Standalone Nativo en Rust:** Binario único para Linux (`/dev/uinput`) y Windows (`SendInput` + `vigem-client`).
+* **Mando Xbox 360 Nativo en Windows:** Integración directa con el bus de emulación virtual **ViGEmBus**. Compatible con todos los juegos de PC con soporte XInput.
+* **Teclado Fiel al Hardware:** Inyección de **Scan Codes** físicos con `KEYEVENTF_EXTENDEDKEY` y motor de auto-repetición (*typematic repeat*) a 30 Hz tras 300 ms de presión, eliminando discrepancias en navegadores y juegos.
+* **Protección contra Bloqueos en Windows:** Desactivación automática del modo `ENABLE_QUICK_EDIT_MODE` de la consola de Windows para evitar que clicks accidentales congelen la conexión WebSocket.
+* **Protocolo Binario de 6 Bytes (Sub-Milisegundo):** Empaquetado binario directo `[cmd: i16, x: i16, y: i16]` sobre WebSockets sin sobrecarga de parseo JSON.
+* **Conexión por Cable USB ADB (`127.0.0.1:3000`):** Latencia física ultra-baja de **<0.2 ms** inmune a congestión o pérdidas de paquetes Wi-Fi.
+* **Motor Háptico `ZenHapticsEngine` (LRA / RichTap):** Retroalimentación háptica HD de alta fidelidad con efectos predefinidos (CLICK, HEAVY_CLICK, TICK) y sliders independientes para trackpad y teclado.
+* **Cifrado E2EE en Hardware (AES-256-GCM):** Teclas y contraseñas cifradas en hardware móvil (`javax.crypto.Cipher`) y descifradas a nivel de procesador en Rust.
+* **Scroll Suave de Alta Resolución:** Eventos `REL_WHEEL_HI_RES` en Linux y `WHEEL_DELTA` en Windows para emulación fluida idéntica a los mejores trackpads físicos.
+* **23 Temas Universales:** Dracula, Nord, Gruvbox, Tokyo Night, Catppuccin, Monokai Pro, One Dark, Sunset Peach, etc.
+* **Centro Diagnóstico en Vivo (`pair.html`):** Monitoreo en tiempo real del estado de los 5 pilares de conexión.
 
+---
+
+## Descarga e Instalación para Windows 10 / 11
+
+### Opción A: Instalador Automático Oficial (Recomendado)
+Descarga y ejecuta **`ZenTrack-Setup.exe`**:
+* Instala ZenTrack en `%LOCALAPPDATA%\Programs\ZenTrack` sin requerir permisos de administrador para la app base.
+* Comprueba si el driver de mando Xbox (ViGEmBus) está presente; si no lo está, lanza el instalador oficial solicitando elevación de Administrador una sola vez.
+* Incluye las herramientas oficiales de conexión USB de Google (`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`).
+* Crea accesos directos en el **Escritorio** y en el **Menú Inicio**.
+* Inicia el servidor y abre el Centro de Emparejamiento en tu navegador.
+
+**Nota sobre Windows SmartScreen:** Al ser un ejecutable de código abierto sin firma de pago (Certificado EV), es normal que Windows Defender muestre la advertencia azul de **SmartScreen**. Para continuar, simplemente haz clic en **"Más información"** y luego en **"Ejecutar de todas formas"**.
+
+### Opción B: Paquete Portable (.zip)
+Descarga **`ZenTrack-Windows-x64-Portable.zip`**, descomprímelo en cualquier carpeta y ejecuta `ZenTrack.exe`.
+
+---
+
+## Compilación desde Código Fuente
+
+### 1. Servidor Rust en Linux
 ```bash
-# Analizar los últimos 60 segundos de transmisión en vivo:
-python3 tools/zen_bt_diagnostic.py --window 60
+# Compilar binario optimizado para Linux:
+cd server-rust
+cargo build --release
+
+# Ejecutar:
+./target/release/zentrack-server
 ```
 
----
-
-## 🚀 Compilación e Instalación (Debug / Release)
-
+### 2. Compilación Cruzada para Windows desde Linux (MinGW)
 ```bash
-cd ~/Projects/zentrack/android
+# Instalar toolchain MinGW y target de Rust:
+rustup target add x86_64-pc-windows-gnu
+
+# Compilar el servidor de Windows:
+cd server-rust
+cargo build --target x86_64-pc-windows-gnu --release
+
+# Compilar el instalador oficial:
+cd ../tools/installer-windows
+cargo build --target x86_64-pc-windows-gnu --release
+```
+
+### 3. Aplicación Móvil Android
+```bash
+cd android
 ./gradlew assembleDebug
+
+# Instalar en el teléfono conectado por USB:
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.carlos.zentrack/.MainActivity
 ```
 
 ---
 
-## 📄 Documentación Técnica Completa & Handover
+## Diagnóstico y Pruebas de Funcionamiento
 
-* **`docs/HANDOVER_TECHNICAL_SPEC.md`**: **Documento maestro de transferencia técnica** para desarrolladores y modelos de IA sucesores (análisis de aliasing, diagnósticos matemáticos del tirón, especificación BLE y Consumer IR).
-* **`docs/PROPUESTA_ELIMINACION_STUTTER.md`**: **Propuesta técnica de regularización de reloj** para erradicar el tirón Bluetooth mediante temporizador monotónico compensado (`System.nanoTime()`), acumulación fraccional e instrumentación empírica.
-* **`docs/GUIA_ESTUDIO_ZENTRACK.md`**: **Guía de estudio integral** con desglose didáctico módulo por módulo (de principiante a experto).
-* **Bóveda de Obsidian (`Documents/ObsidianVault/Project Memory/remote-trackpad/`)**:
-  * **`Remote Trackpad Home.md`**: Hub central MOC, ficha técnica y lista de hitos completados y pendientes.
-  * **`Architecture.md`**: Diagramas de flujo, motor sub-píxel, E2EE, arquitectura Bluetooth HID y Consumer IR.
-  * **`Decisions.md`**: Registro cronológico completo de todas las decisiones de ingeniería (ADRs).
-  * **`Handover Spec.md`**: Versión interconectada del documento maestro de transferencia.
-  * **`Propuesta Eliminación Stutter.md`**: Versión interconectada de la propuesta técnica anti-jitter.
-  * **`Guía de Estudio.md`**: Versión interconectada de la guía didáctica de arquitectura.
+* **Prueba de Mando Xbox en Windows:** Abre el comando de Windows `joy.cpl` (debe figurar *"Controlador para Microsoft Xbox 360"*) o visita [hardwaretester.com/gamepad](https://hardwaretester.com/gamepad).
+* **Prueba de Teclado y Auto-repetición:** Visita [hardwaretester.com/keyboard](https://hardwaretester.com/keyboard) para verificar que las teclas reportan sus valores físicos y se auto-repiten.
+
+---
+
+## Licencia
+
+Este proyecto está bajo licencias de código abierto compatibles (MIT / Apache 2.0 / SIL OFL para fuentes tipográficas).

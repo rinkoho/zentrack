@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZenTrack — Variantes SVG de "The Zen Vector Z"</title>
+  <style>
+    :root {
+      --bg: #1a1b26;
+      --card-bg: #16161e;
+      --border: #24283b;
+      --text: #c0caf5;
+      --muted: #565f89;
+      --blue: #7aa2f7;
+      --cyan: #7dcfff;
+      --purple: #bb9af7;
+      --pink: #f7768e;
+      --teal: #73daca;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--cyan), var(--blue), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 1.15rem;
+    }
+    .badge-hero {
+      display: inline-block;
+      background: rgba(122, 162, 247, 0.15);
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title span {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--cyan);
+    }
+
+    .svg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 50px;
+    }
+    .svg-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .svg-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--blue);
+      box-shadow: 0 16px 40px rgba(122, 162, 247, 0.18);
+    }
+    .svg-preview-wrapper {
+      background: #111218;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .svg-preview-wrapper img, .svg-preview-wrapper svg {
+      width: 100%;
+      max-width: 220px;
+      height: auto;
+      border-radius: 24px;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+    }
+    .svg-body {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .svg-body h3 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .svg-body p {
+      font-size: 0.9rem;
+      color: #a9b1d6;
+      margin-bottom: 14px;
+      flex: 1;
+    }
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .tag {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-family: monospace;
+    }
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #1a1b26;
+    }
+    .btn-primary:hover {
+      background: #8fb2ff;
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .original-comparison {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      margin-top: 40px;
+    }
+    .comparison-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: center;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .comparison-cols { grid-template-columns: 1fr; }
+    }
+    .comparison-item {
+      text-align: center;
+    }
+    .comparison-item img {
+      max-width: 260px;
+      width: 100%;
+      border-radius: 28px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-hero">Concepto Elegido: The Zen Vector "Z"</div>
+      <h1>⚡ Variantes en SVG Puro (Tokyo Night)</h1>
+      <p>Diseño vectorial matemático: peso ultra ligero (&lt;2KB), nitidez infinita 4K/8K y listo para Android y Web.</p>
+    </header>
+
+    <h2 class="section-title">✨ Cuatro Variantes Vectoriales en SVG Puro <span>Directo en el Navegador</span></h2>
+
+    <div class="svg-grid">
+      <!-- Variante A -->
+      <div class="svg-card">
+        <div class="svg-preview-wrapper">
+          <img src="./svg/zen_vector_z_variant_a_ribbon.svg" alt="Variante A: Ribbon Flow">
+        </div>
+        <div class="svg-body">
+          <h3>1. Ribbon Flow (Cinta Neón)</h3>
+          <p>Fiel al concepto original: una cinta continua de luz con curvatura aerodinámica, gradiente de 4 tonos y núcleo blanco de alta luminiscencia.</p>
+          <div class="tech-tags">
+            <span class="tag">OneEuroFilter</span>
+            <span class="tag">Bloom Glow</span>
+            <span class="tag">2.1 KB</span>
+          </div>
+          <div class="card-actions">
+            <a href="./svg/zen_vector_z_variant_a_ribbon.svg" target="_blank" class="btn btn-outline">Ver SVG</a>
+            <a href="./svg/zen_vector_z_variant_a_ribbon.svg" download class="btn btn-primary">Descargar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variante B -->
+      <div class="svg-card">
+        <div class="svg-preview-wrapper">
+          <img src="./svg/zen_vector_z_variant_b_dual.svg" alt="Variante B: Kinetic Dual-Track">
+        </div>
+        <div class="svg-body">
+          <h3>2. Kinetic Dual-Track</h3>
+          <p>Doble riel paralelo con coordenadas cartesianas (X en Cyan, Y en Púrpura) y nodos de muestreo táctil a 500 Hz en los extremos.</p>
+          <div class="tech-tags">
+            <span class="tag">Dual X-Y</span>
+            <span class="tag">500Hz Nodes</span>
+            <span class="tag">1.9 KB</span>
+          </div>
+          <div class="card-actions">
+            <a href="./svg/zen_vector_z_variant_b_dual.svg" target="_blank" class="btn btn-outline">Ver SVG</a>
+            <a href="./svg/zen_vector_z_variant_b_dual.svg" download class="btn btn-primary">Descargar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variante C -->
+      <div class="svg-card">
+        <div class="svg-preview-wrapper">
+          <img src="./svg/zen_vector_z_variant_c_geometric.svg" alt="Variante C: Sharp Monogram">
+        </div>
+        <div class="svg-body">
+          <h3>3. Sharp Precision Monogram</h3>
+          <p>Estética de ingeniería de software con cortes angulares a 45º y facetado de precisión. Extraordinaria legibilidad en favicons de 16px/32px.</p>
+          <div class="tech-tags">
+            <span class="tag">45º Angles</span>
+            <span class="tag">Favicon Ready</span>
+            <span class="tag">1.8 KB</span>
+          </div>
+          <div class="card-actions">
+            <a href="./svg/zen_vector_z_variant_c_geometric.svg" target="_blank" class="btn btn-outline">Ver SVG</a>
+            <a href="./svg/zen_vector_z_variant_c_geometric.svg" download class="btn btn-primary">Descargar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variante D -->
+      <div class="svg-card">
+        <div class="svg-preview-wrapper">
+          <img src="./svg/zen_vector_z_variant_d_haptic.svg" alt="Variante D: Haptic Pulse Z">
+        </div>
+        <div class="svg-body">
+          <h3>4. Haptic Pulse Z</h3>
+          <p>La cinta Z integrada directamente con ondas concéntricas de pulso háptico (RichTap) en el punto donde el dedo toca el digitalizador.</p>
+          <div class="tech-tags">
+            <span class="tag">RichTap Haptic</span>
+            <span class="tag">Touch Ripple</span>
+            <span class="tag">2.2 KB</span>
+          </div>
+          <div class="card-actions">
+            <a href="./svg/zen_vector_z_variant_d_haptic.svg" target="_blank" class="btn btn-outline">Ver SVG</a>
+            <a href="./svg/zen_vector_z_variant_d_haptic.svg" download class="btn btn-primary">Descargar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparativa de Referencia con el Concepto IA Inicial -->
+    <div class="original-comparison">
+      <h3>Comparativa: Arte Generado vs Vector SVG Matemático</h3>
+      <p style="color: var(--muted); margin-bottom: 20px;">Los SVGs vectoriales reproducen la estética pero eliminan artefactos de compresión JPEG y pesan 200 veces menos.</p>
+      
+      <div class="comparison-cols">
+        <div class="comparison-item">
+          <img src="./images/tokyo_night_vector_z_1789745981634.jpg" alt="Arte inicial IA">
+          <h4>Arte Generado por IA (Raster JPEG, 364 KB)</h4>
+          <p style="font-size: 0.85rem; color: var(--muted);">Resolución fija, bordes sujetos a compresión.</p>
+        </div>
+        <div class="comparison-item">
+          <img src="./svg/zen_vector_z_variant_a_ribbon.svg" alt="SVG Puro">
+          <h4>Variante A: Ribbon Flow (SVG Puro, 2.1 KB)</h4>
+          <p style="font-size: 0.85rem; color: var(--muted);">Escalabilidad infinita, editable con código, nativo en Android.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

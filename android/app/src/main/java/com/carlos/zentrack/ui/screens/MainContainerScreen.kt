@@ -34,9 +34,8 @@ fun MainContainerScreen(
     statusText: String,
     activeTheme: ZenThemeConfig,
     onThemeChanged: (ZenThemeConfig) -> Unit,
-    syncTheme: Boolean,
-    onSyncThemeChanged: (Boolean) -> Unit,
     onReconnect: () -> Unit,
+    onConfigureConnection: (String, Int, String) -> Unit = { _, _, _ -> },
     onSendBinary: (Short, Int, Int) -> Unit,
     onSendJson: (String) -> Unit,
     onVibrate: (Long) -> Unit,
@@ -47,6 +46,7 @@ fun MainContainerScreen(
     var isSidebarExpanded by remember { mutableStateOf(false) }
     var showThemeSelectionDialog by remember { mutableStateOf(false) }
     var showBluetoothDialog by remember { mutableStateOf(false) }
+    var showServerConnectionDialog by remember { mutableStateOf(!com.carlos.zentrack.preferences.ZenPreferences.isConfigured) }
     var sensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.sensitivity) }
     var scrollSensitivity by remember { mutableFloatStateOf(com.carlos.zentrack.preferences.ZenPreferences.scrollSensitivity) }
     var mouseAccelProfile by remember { mutableStateOf(com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile) }
@@ -100,6 +100,7 @@ fun MainContainerScreen(
                         onOpenDrawer = { isSidebarExpanded = true },
                         onReconnect = onReconnect,
                         onOpenBluetoothDialog = { showBluetoothDialog = true },
+                        onOpenServerConnectionDialog = { showServerConnectionDialog = true },
                         onSendBinary = onSendBinary,
                         onSendJson = onSendJson,
                         onVibrate = onVibrate
@@ -129,7 +130,6 @@ fun MainContainerScreen(
                         mouseAccelProfile = mouseAccelProfile,
                         naturalScroll = naturalScroll,
                         stickyKeysEnabled = stickyKeysEnabled,
-                        syncTheme = syncTheme,
                         themeAnimSpeedMs = themeAnimSpeedMs,
                         hybridKeyboardHeightRatio = hybridKeyboardHeightRatio,
                         keyCasterEnabled = keyCasterEnabled,
@@ -152,7 +152,6 @@ fun MainContainerScreen(
                         },
                         onNaturalScrollChanged = { naturalScroll = it },
                         onStickyKeysChanged = { stickyKeysEnabled = it },
-                        onSyncThemeChanged = onSyncThemeChanged,
                         onThemeAnimSpeedChanged = { themeAnimSpeedMs = it },
                         onHybridKeyboardHeightRatioChanged = { hybridKeyboardHeightRatio = it },
                         onKeyCasterEnabledChanged = { keyCasterEnabled = it },
@@ -303,7 +302,8 @@ fun MainContainerScreen(
                                 .padding(2.dp),
                             horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            // Tab 1: Red (500Hz)
+                            // Tab 1: Red / USB (500Hz)
+                            val isUsbActive = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
                             Surface(
                                 color = if (!isBtActive) animatedTheme.primaryAccent else Color.Transparent,
                                 shape = RoundedCornerShape(6.dp),
@@ -320,14 +320,14 @@ fun MainContainerScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
-                                        Icons.Default.Wifi,
+                                        if (isUsbActive) Icons.Default.Usb else Icons.Default.Wifi,
                                         contentDescription = null,
                                         tint = if (!isBtActive) Color.Black else animatedTheme.textMuted,
                                         modifier = Modifier.size(11.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        "Red 500Hz",
+                                        if (isUsbActive) "USB 500Hz" else "Red 500Hz",
                                         color = if (!isBtActive) Color.Black else animatedTheme.textMuted,
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -383,9 +383,11 @@ fun MainContainerScreen(
                                         showBluetoothDialog = true
                                         isSidebarExpanded = false
                                     } else {
-                                        onReconnect()
+                                        showServerConnectionDialog = true
+                                        isSidebarExpanded = false
                                     }
                                 }
+
                         ) {
                             Row(
                                 modifier = Modifier.padding(8.dp),
@@ -400,12 +402,15 @@ fun MainContainerScreen(
                                         )
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
+                                val isUsbMode = com.carlos.zentrack.preferences.ZenPreferences.usbAdbModeEnabled
                                 Column {
                                     Text(
                                         text = if (isBtActive) {
                                             if (isBtConn) (com.carlos.zentrack.bluetooth.ZenInputRouter.connectedBluetoothDeviceName ?: "Dispositivo Bluetooth") else "Bluetooth Desconectado"
+                                        } else if (isUsbMode) {
+                                            if (isConnected) "Conexión Cable USB" else "Cable USB Desconectado"
                                         } else {
-                                            if (isConnected) "Servidor Conectado" else statusText
+                                            if (isConnected) "Conexión Wi-Fi" else "Wi-Fi Desconectado"
                                         },
                                         color = animatedTheme.textPrimary,
                                         fontSize = 11.sp,
@@ -415,8 +420,10 @@ fun MainContainerScreen(
                                     Text(
                                         text = if (isBtActive) {
                                             if (isBtConn) com.carlos.zentrack.bluetooth.ZenInputRouter.activeBluetoothSubModeName else "Toca para emparejar o conectar"
+                                        } else if (isUsbMode) {
+                                            if (isConnected) "Túnel ADB Activo 127.0.0.1 (500Hz)" else "Revisa conexión USB o comando adb reverse"
                                         } else {
-                                            if (isConnected) "Wi-Fi UDP / USB ADB (500Hz)" else "Toca para reintentar"
+                                            if (isConnected) "IP: ${com.carlos.zentrack.preferences.ZenPreferences.serverIp} (500Hz)" else "Toca para reintentar o configurar"
                                         },
                                         color = if (isCurrentConnected) animatedTheme.primaryAccent else animatedTheme.textMuted,
                                         fontSize = 8.5.sp
@@ -452,6 +459,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Trackpad"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -484,6 +492,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Keyboard"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -516,6 +525,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Hybrid"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -548,6 +558,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Gaming"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -580,6 +591,7 @@ fun MainContainerScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         activeAppMode = "Vision"
+                                        isSidebarExpanded = false
                                         onVibrate(15L)
                                     }
                             ) {
@@ -594,12 +606,30 @@ fun MainContainerScreen(
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        "ZenVisión (Spatial)",
-                                        color = if (isVision) Color.Black else animatedTheme.textPrimary,
-                                        fontSize = 11.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            "ZenVisión (Spatial)",
+                                            color = if (isVision) Color.Black else animatedTheme.textPrimary,
+                                            fontSize = 11.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Surface(
+                                            color = animatedTheme.primaryAccent.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(4.dp)
+                                        ) {
+                                            Text(
+                                                text = "BETA",
+                                                color = animatedTheme.primaryAccent,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Black,
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -608,7 +638,7 @@ fun MainContainerScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Bluetooth HID Card
+                        // Bluetooth HID Card (LABS / Experimental)
                         Text(
                             text = "CONECTIVIDAD BLUETOOTH",
                             color = animatedTheme.textMuted,
@@ -646,17 +676,32 @@ fun MainContainerScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
-                                        Text(
-                                            text = "Bluetooth Universal",
-                                            color = animatedTheme.textPrimary,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "Bluetooth Universal",
+                                                color = animatedTheme.textPrimary,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Surface(
+                                                color = Color(0xFFF59E0B).copy(alpha = 0.2f),
+                                                shape = RoundedCornerShape(4.dp)
+                                            ) {
+                                                Text(
+                                                    text = "LABS",
+                                                    color = Color(0xFFF59E0B),
+                                                    fontSize = 7.5.sp,
+                                                    fontWeight = FontWeight.Black,
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                )
+                                            }
+                                        }
                                         Text(
                                             text = if (isBtConnected) {
                                                 "Conectado: ${btDeviceName ?: "Dispositivo"}"
                                             } else {
-                                                "Smart TV, PC & Mac (0 Servidor)"
+                                                "Experimental • Smart TV & PC"
                                             },
                                             color = if (isBtConnected) animatedTheme.primaryAccent else animatedTheme.textMuted,
                                             fontSize = 9.sp
@@ -709,7 +754,7 @@ fun MainContainerScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
                                     Text(
-                                        text = "Temas & PC Rices",
+                                        text = "Paleta de Temas",
                                         color = animatedTheme.textPrimary,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold
@@ -765,5 +810,16 @@ fun MainContainerScreen(
             theme = animatedTheme,
             onDismiss = { showBluetoothDialog = false }
         )
+
+        // Server Connection & Auto-Discovery Dialog Modal
+        com.carlos.zentrack.ui.components.ServerConnectionDialog(
+            show = showServerConnectionDialog,
+            currentTheme = animatedTheme,
+            onConnect = { ip, port, token ->
+                onConfigureConnection(ip, port, token)
+            },
+            onDismiss = { showServerConnectionDialog = false }
+        )
     }
 }
+

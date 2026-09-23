@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Fondo Tokyo Night Squircle -->
+    <radialGradient id="tokyo-bg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#1f2335" />
+      <stop offset="100%" stop-color="#16161e" />
+    </radialGradient>
+
+    <!-- Gradiente de Neón Tokyo Night (Cyan -> Azure -> Purple -> Pink) -->
+    <linearGradient id="neon-z-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dcfff" />
+      <stop offset="35%" stop-color="#7aa2f7" />
+      <stop offset="70%" stop-color="#bb9af7" />
+      <stop offset="100%" stop-color="#f7768e" />
+    </linearGradient>
+
+    <!-- Filtro de Resplandor Neón Intenso -->
+    <filter id="bloom-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur1" />
+      <feGaussianBlur stdDeviation="6" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur1" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Chasis Squircle de Fondo -->
+  <rect width="512" height="512" rx="116" fill="url(#tokyo-bg)" />
+  <!-- Borde sutil del trackpad -->
+  <rect x="12" y="12" width="488" height="488" rx="106" fill="none" stroke="rgba(122, 162, 247, 0.12)" stroke-width="2" />
+
+  <!-- Micro-partículas sutiles de la estela 500Hz -->
+  <g opacity="0.35">
+    <circle cx="335" cy="205" r="2" fill="#f7768e" />
+    <circle cx="345" cy="220" r="1.5" fill="#f7768e" />
+    <circle cx="320" cy="235" r="1.8" fill="#bb9af7" />
+    <circle cx="330" cy="250" r="1.2" fill="#bb9af7" />
+    <circle cx="190" cy="285" r="1.5" fill="#7aa2f7" />
+    <circle cx="180" cy="300" r="2" fill="#7dcfff" />
+    <circle cx="170" cy="320" r="1.5" fill="#7dcfff" />
+  </g>
+
+  <!-- Silueta Externa de la Cinta Z (Glow Layer) -->
+  <path d="M 175 190 
+           C 162 190, 155 200, 165 208
+           L 320 208
+           C 345 208, 355 220, 340 240
+           L 210 320
+           C 185 336, 175 350, 205 350
+           L 355 350
+           C 365 350, 370 338, 355 332
+           L 205 332
+           C 180 332, 170 320, 185 300
+           L 315 220
+           C 340 204, 350 190, 320 190
+           Z"
+        fill="url(#neon-z-grad)" 
+        opacity="0.25" 
+        filter="url(#bloom-glow)" />
+
+  <!-- Cinta Z Principal Tubular -->
+  <!-- Barra Superior -->
+  <path d="M 170 198 
+           C 170 182, 185 175, 205 175
+           L 315 175
+           C 345 175, 360 195, 345 220
+           L 215 315
+           C 200 325, 185 340, 165 340
+           C 150 340, 145 325, 155 310
+           L 285 215
+           C 300 205, 315 198, 305 198
+           L 185 198
+           C 175 198, 170 202, 170 198 Z"
+        fill="none" />
+
+  <!-- Trazo Z Estilizado de Neón (Path continuo principal) -->
+  <g filter="url(#bloom-glow)">
+    <!-- Barra superior con ala dinámica -->
+    <path d="M 170 202 
+             C 165 190, 180 178, 205 178 
+             L 315 178 
+             C 345 178, 360 198, 342 222 
+             L 218 312 
+             C 202 324, 185 338, 168 338
+             L 330 338
+             C 350 338, 360 348, 345 356
+             C 335 362, 315 362, 195 362
+             C 165 362, 150 342, 168 318
+             L 292 228
+             C 308 216, 325 202, 342 202
+             L 182 202
+             C 165 202, 158 192, 170 202 Z"
+          fill="none" stroke="url(#neon-z-grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Curva Continua Fluida Principal (Cinta tubular viva) -->
+  <path d="M 175 200 
+           L 320 200 
+           C 345 200, 355 218, 335 238
+           L 205 318
+           C 185 338, 195 352, 220 352
+           L 345 352" 
+        fill="none" 
+        stroke="url(#neon-z-grad)" 
+        stroke-width="26" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        filter="url(#soft-glow)" />
+
+  <!-- Núcleo de Alta Luminosidad Interior (Brillo blanco-cyan central) -->
+  <path d="M 180 200 
+           L 318 200 
+           C 336 200, 344 214, 330 228
+           L 210 326
+           C 196 340, 204 352, 222 352
+           L 342 352" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        opacity="0.85" />
+</svg>

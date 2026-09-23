@@ -74,7 +74,7 @@ def set_btn(btn, val):
 
 # Map string button names to ecodes
 BTN_MAP = {
-    'A': e.BTN_A, 'B': e.BTN_B, 'X': e.BTN_X, 'Y': e.BTN_Y,
+    'A': e.BTN_SOUTH, 'B': e.BTN_EAST, 'X': e.BTN_WEST, 'Y': e.BTN_NORTH,
     'L': e.BTN_TL, 'R': e.BTN_TR, 'select': e.BTN_SELECT, 'start': e.BTN_START,
     'mode': e.BTN_MODE, 'thumbl': e.BTN_THUMBL, 'thumbr': e.BTN_THUMBR
 }

@@ -39,7 +39,6 @@ fun SettingsScreen(
     mouseAccelProfile: String = com.carlos.zentrack.preferences.ZenPreferences.mouseAccelProfile,
     naturalScroll: Boolean,
     stickyKeysEnabled: Boolean,
-    syncTheme: Boolean,
     themeAnimSpeedMs: Int,
     hybridKeyboardHeightRatio: Float = com.carlos.zentrack.preferences.ZenPreferences.hybridKeyboardHeightRatio,
     keyCasterEnabled: Boolean = com.carlos.zentrack.preferences.ZenPreferences.keyCasterEnabled,
@@ -59,7 +58,6 @@ fun SettingsScreen(
     onMouseAccelProfileChanged: (String) -> Unit = {},
     onNaturalScrollChanged: (Boolean) -> Unit,
     onStickyKeysChanged: (Boolean) -> Unit,
-    onSyncThemeChanged: (Boolean) -> Unit,
     onThemeAnimSpeedChanged: (Int) -> Unit,
     onHybridKeyboardHeightRatioChanged: (Float) -> Unit = {},
     onKeyCasterEnabledChanged: (Boolean) -> Unit = {},
@@ -318,6 +316,66 @@ fun SettingsScreen(
                         )
                     }
                 }
+
+                // Polling Rate (Hz)
+                Surface(
+                    color = currentTheme.card.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, currentTheme.primaryAccent.copy(alpha = 0.2f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Speed, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Polling Rate (Hz)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                        }
+
+                        val hzOptions = listOf(
+                            500 to "500 Hz (Gaming/USB)",
+                            250 to "250 Hz (Equilibrado)",
+                            125 to "125 Hz (Red Inestable)",
+                            60 to "60 Hz (Ahorro Batería)"
+                        )
+
+                        var currentHz by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.networkHz) }
+
+                        hzOptions.forEach { (hzValue, label) ->
+                            val isSelected = currentHz == hzValue
+                            Surface(
+                                onClick = {
+                                    currentHz = hzValue
+                                    com.carlos.zentrack.preferences.ZenPreferences.networkHz = hzValue
+                                },
+                                color = if (isSelected) currentTheme.primaryAccent.copy(alpha = 0.18f) else currentTheme.surface.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(5.dp),
+                                border = BorderStroke(1.dp, if (isSelected) currentTheme.primaryAccent else Color.Transparent),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = label,
+                                        color = if (isSelected) currentTheme.primaryAccent else currentTheme.textPrimary,
+                                        fontSize = 9.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = currentTheme.primaryAccent,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // COLUMN 2: DESPLAZAMIENTO, BOTONES & SCROLL
@@ -495,7 +553,7 @@ fun SettingsScreen(
                                         onTrackpadButtonsBottomHeightChanged(h)
                                         com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsBottomHeight = h
                                     },
-                                    valueRange = 34f..75f,
+                                    valueRange = 34f..100f,
                                     colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                                 )
                             } else {
@@ -515,7 +573,7 @@ fun SettingsScreen(
                                         onTrackpadButtonsSidebarWidthChanged(w)
                                         com.carlos.zentrack.preferences.ZenPreferences.trackpadButtonsSidebarWidth = w
                                     },
-                                    valueRange = 55f..140f,
+                                    valueRange = 50f..160f,
                                     colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                                 )
                             }
@@ -583,7 +641,7 @@ fun SettingsScreen(
                                 onTrackpadScrollWidthChanged(w)
                                 com.carlos.zentrack.preferences.ZenPreferences.trackpadScrollWidth = w
                             },
-                            valueRange = 16f..45f,
+                            valueRange = 16f..75f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.secondaryAccent, activeTrackColor = currentTheme.secondaryAccent)
                         )
                     }
@@ -702,7 +760,7 @@ fun SettingsScreen(
                                 onHapticTrackpadIntensityChanged(it)
                                 com.carlos.zentrack.preferences.ZenPreferences.hapticTrackpadIntensity = it
                             },
-                            valueRange = 0f..1.5f,
+                            valueRange = 0f..2.5f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
 
@@ -721,7 +779,7 @@ fun SettingsScreen(
                                 onHapticKeyboardIntensityChanged(it)
                                 com.carlos.zentrack.preferences.ZenPreferences.hapticKeyboardIntensity = it
                             },
-                            valueRange = 0f..1.5f,
+                            valueRange = 0f..2.5f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
                     }
@@ -838,35 +896,13 @@ fun SettingsScreen(
                         Slider(
                             value = themeAnimSpeedMs.toFloat(),
                             onValueChange = {
-                                val speed = it.toInt()
-                                onThemeAnimSpeedChanged(speed)
-                                com.carlos.zentrack.preferences.ZenPreferences.themeAnimSpeedMs = speed
+                                 val speed = it.toInt()
+                                 onThemeAnimSpeedChanged(speed)
+                                 com.carlos.zentrack.preferences.ZenPreferences.themeAnimSpeedMs = speed
                             },
-                            valueRange = 100f..1000f,
+                            valueRange = 100f..2000f,
                             colors = SliderDefaults.colors(thumbColor = currentTheme.primaryAccent, activeTrackColor = currentTheme.primaryAccent)
                         )
-
-                        HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Sync, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Sincronizar Tema PC", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                                Text("Auto-sync con gh0stzk dotfiles rices", color = currentTheme.textMuted, fontSize = 7.5.sp)
-                            }
-                            Switch(
-                                checked = syncTheme,
-                                onCheckedChange = onSyncThemeChanged,
-                                colors = SwitchDefaults.colors(checkedThumbColor = currentTheme.primaryAccent, checkedTrackColor = currentTheme.primaryAccent.copy(alpha = 0.4f))
-                            )
-                        }
 
                         HorizontalDivider(color = currentTheme.primaryAccent.copy(alpha = 0.15f), thickness = 1.dp)
 

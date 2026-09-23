@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="tokyo-bg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#1f2335" />
+      <stop offset="100%" stop-color="#16161e" />
+    </radialGradient>
+
+    <linearGradient id="sharp-z-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dcfff" />
+      <stop offset="40%" stop-color="#7aa2f7" />
+      <stop offset="75%" stop-color="#bb9af7" />
+      <stop offset="100%" stop-color="#f7768e" />
+    </linearGradient>
+
+    <linearGradient id="accent-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7dcfff" />
+      <stop offset="100%" stop-color="#7aa2f7" />
+    </linearGradient>
+
+    <filter id="sharp-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="116" fill="url(#tokyo-bg)" />
+  <rect x="12" y="12" width="488" height="488" rx="106" fill="none" stroke="rgba(122, 162, 247, 0.15)" stroke-width="2" />
+
+  <!-- Geometría Sólida Z con Cortes Angulares a 45º -->
+  <!-- Parte Superior -->
+  <path d="M 160 170 
+           L 352 170 
+           L 352 215 
+           L 245 305 
+           L 352 305 
+           L 352 342 
+           L 160 342 
+           L 160 297 
+           L 267 207 
+           L 160 207 Z" 
+        fill="url(#sharp-z-grad)" 
+        filter="url(#sharp-glow)" />
+
+  <!-- Bisel Técnico Interior (Corte de precisión de ingeniería) -->
+  <path d="M 160 170 L 352 170 L 320 207 L 160 207 Z" fill="url(#accent-cyan)" opacity="0.9" />
+  
+  <!-- Acento de velocidad diagonal cortado -->
+  <polygon points="267,207 352,215 285,270" fill="#bb9af7" opacity="0.75" />
+
+  <!-- Micro-indicador de estado LED en la esquina del trackpad -->
+  <circle cx="410" cy="102" r="6" fill="#73daca" />
+  <circle cx="410" cy="102" r="14" fill="none" stroke="#73daca" stroke-width="2" opacity="0.4" />
+</svg>

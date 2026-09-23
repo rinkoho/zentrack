@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZenTrack - Centro de Conexión & Onboarding</title>
+  
+  <!-- FUENTES ABIERTAS & LEGALMENTE SEGURAS (SIL Open Font License & Apache 2.0) -->
+  <!-- Plus Jakarta Sans: alternativa moderna y abierta a Google Sans (SIL OFL 1.1) -->
+  <!-- Roboto & Roboto Mono: fuente nativa abierta de Android y código (Apache 2.0) -->
+  <!-- Material Symbols Rounded: iconos oficiales abiertos de Google (Apache 2.0) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0" />
+
+  <style>
+    /* ==========================================================================
+       MATERIAL YOU (MATERIAL DESIGN 3 / M3) DESIGN SYSTEM
+       Paleta Tonal Dinámica (Base Dark Baseline con extracción tonal de Google)
+       ========================================================================== */
+    :root {
+      /* Dynamic Theme: Blue (Google Pixel Default) */
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #062e6f;
+      --md-sys-color-primary-container: #234275;
+      --md-sys-color-on-primary-container: #d3e3fd;
+
+      --md-sys-color-secondary: #c2e7ff;
+      --md-sys-color-on-secondary: #003355;
+      --md-sys-color-secondary-container: #004a77;
+      --md-sys-color-on-secondary-container: #c2e7ff;
+
+      --md-sys-color-tertiary: #d0bcff;
+      --md-sys-color-on-tertiary: #381e72;
+      --md-sys-color-tertiary-container: #4f378b;
+      --md-sys-color-on-tertiary-container: #e8def8;
+
+      --md-sys-color-surface: #111318;
+      --md-sys-color-surface-dim: #0e1014;
+      --md-sys-color-surface-bright: #37393e;
+      --md-sys-color-surface-container-lowest: #0c0e12;
+      --md-sys-color-surface-container-low: #191c20;
+      --md-sys-color-surface-container: #1d2024;
+      --md-sys-color-surface-container-high: #282a2f;
+      --md-sys-color-surface-container-highest: #33353a;
+
+      --md-sys-color-on-surface: #e2e2e9;
+      --md-sys-color-on-surface-variant: #c4c6d0;
+      --md-sys-color-outline: #8e9099;
+      --md-sys-color-outline-variant: #44474f;
+
+      --md-sys-color-success: #a8dab5;
+      --md-sys-color-success-container: #1a4329;
+      --md-sys-color-on-success-container: #c5eed0;
+
+      --md-sys-color-warning: #f9bc57;
+      --md-sys-color-warning-container: #4f3600;
+      --md-sys-color-on-warning-container: #ffdf9e;
+
+      --md-sys-color-error: #f2b8b5;
+      --md-sys-color-error-container: #601410;
+      --md-sys-color-on-error-container: #f9dedc;
+
+      /* Material Shapes & Elevation */
+      --md-shape-corner-small: 8px;
+      --md-shape-corner-medium: 16px;
+      --md-shape-corner-large: 24px;
+      --md-shape-corner-extra-large: 28px;
+      --md-shape-corner-full: 9999px;
+
+      /* Typography Stacks (100% Free & Open Source) */
+      --font-brand: 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Roboto', 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-code: 'Roboto Mono', monospace;
+    }
+
+    /* THEME VARIANT: MINT (ANDROID BOT GREEN) */
+    [data-theme="mint"] {
+      --md-sys-color-primary: #7adbb2;
+      --md-sys-color-on-primary: #003824;
+      --md-sys-color-primary-container: #005236;
+      --md-sys-color-on-primary-container: #97f8cd;
+
+      --md-sys-color-secondary: #b3ccbe;
+      --md-sys-color-on-secondary: #1f352b;
+      --md-sys-color-secondary-container: #354b41;
+      --md-sys-color-on-secondary-container: #cfe9da;
+
+      --md-sys-color-tertiary: #a5cde3;
+      --md-sys-color-on-tertiary: #073547;
+      --md-sys-color-tertiary-container: #234c5f;
+      --md-sys-color-on-tertiary-container: #c1e8ff;
+    }
+
+    /* THEME VARIANT: LAVENDER (EXPRESSIVE MATERIAL PURPLE) */
+    [data-theme="lavender"] {
+      --md-sys-color-primary: #d0bcff;
+      --md-sys-color-on-primary: #381e72;
+      --md-sys-color-primary-container: #4f378b;
+      --md-sys-color-on-primary-container: #e8def8;
+
+      --md-sys-color-secondary: #ccc2dc;
+      --md-sys-color-on-secondary: #332d41;
+      --md-sys-color-secondary-container: #4a4458;
+      --md-sys-color-on-secondary-container: #e8def8;
+
+      --md-sys-color-tertiary: #efb8c8;
+      --md-sys-color-on-tertiary: #492532;
+      --md-sys-color-tertiary-container: #633b48;
+      --md-sys-color-on-tertiary-container: #ffd8e4;
+    }
+
+    /* THEME VARIANT: SUNSET PEACH (WARM MATERIAL CORAL) */
+    [data-theme="sunset"] {
+      --md-sys-color-primary: #ffb59d;
+      --md-sys-color-on-primary: #5c1900;
+      --md-sys-color-primary-container: #7f2b03;
+      --md-sys-color-on-primary-container: #ffdbd0;
+
+      --md-sys-color-secondary: #e7bdb1;
+      --md-sys-color-on-secondary: #442a22;
+      --md-sys-color-secondary-container: #5d4037;
+      --md-sys-color-on-secondary-container: #ffdbd0;
+
+      --md-sys-color-tertiary: #d8c58d;
+      --md-sys-color-on-tertiary: #3b2f05;
+      --md-sys-color-tertiary-container: #53451a;
+      --md-sys-color-on-tertiary-container: #f5e1a7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* MATERIAL 3 ICONS */
+    .icon {
+      font-family: 'Material Symbols Rounded', sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      vertical-align: middle;
+    }
+
+    /* TOP APP BAR & HEADER */
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Dynamic Theme Selector Pills */
+    .theme-picker-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--md-sys-color-surface-container);
+      padding: 4px 8px;
+      border-radius: var(--md-shape-corner-full);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      margin-bottom: 14px;
+    }
+    .theme-picker-label {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 600;
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .theme-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .theme-dot:hover { transform: scale(1.15); }
+    .theme-dot.active { border-color: #fff; transform: scale(1.1); }
+    .theme-dot.blue { background: #a8c7fa; }
+    .theme-dot.mint { background: #7adbb2; }
+    .theme-dot.lavender { background: #d0bcff; }
+    .theme-dot.sunset { background: #ffb59d; }
+
+    /* M3 ASSISTED BADGE */
+    .badge-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-radius: var(--md-shape-corner-full);
+      padding: 6px 18px;
+      font-size: 12px;
+      font-family: var(--font-brand);
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 14px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--md-sys-color-success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--md-sys-color-success);
+      animation: pulse 1.8s infinite;
+    }
+    .pulse-dot.yellow { background: var(--md-sys-color-warning); box-shadow: 0 0 8px var(--md-sys-color-warning); }
+    .pulse-dot.red { background: var(--md-sys-color-error); box-shadow: 0 0 8px var(--md-sys-color-error); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.25); }
+    }
+
+    h1 {
+      font-family: var(--font-brand);
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      margin-bottom: 8px;
+      color: var(--md-sys-color-on-surface);
+    }
+    h1 span {
+      color: var(--md-sys-color-primary);
+    }
+    p.subtitle {
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 600px;
+    }
+
+    /* M3 SEGMENTED BUTTON (Google Style) */
+    .segmented-button {
+      display: inline-flex;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-full);
+      padding: 4px;
+      margin-top: 18px;
+      gap: 2px;
+    }
+    .segmented-item {
+      background: transparent;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      padding: 10px 22px;
+      border-radius: var(--md-shape-corner-full);
+      font-family: var(--font-brand);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .segmented-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--md-sys-color-on-surface);
+    }
+    .segmented-item.active {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      font-weight: 700;
+    }
+    .segmented-item.active .icon {
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .main-wrap {
+      width: 100%;
+      max-width: 980px;
+    }
+
+    /* M3 TRANSPORT SELECTION CARDS */
+    .transport-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 640px) {
+      .transport-grid { grid-template-columns: 1fr; }
+    }
+    .transport-card {
+      background: var(--md-sys-color-surface-container-low);
+      border: 2px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-large);
+      padding: 22px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+    .transport-card:hover {
+      border-color: var(--md-sys-color-outline);
+      background: var(--md-sys-color-surface-container);
+      transform: translateY(-2px);
+    }
+    .transport-card.selected {
+      border-color: var(--md-sys-color-primary);
+      background: var(--md-sys-color-surface-container-high);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    .transport-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .transport-title {
+      font-family: var(--font-brand);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .transport-card.selected .transport-title {
+      color: var(--md-sys-color-primary);
+    }
+    .transport-tag {
+      font-size: 10.5px;
+      font-family: var(--font-brand);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--md-shape-corner-full);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .tag-pro {
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+    }
+    .tag-wireless {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+    .transport-desc {
+      font-size: 12.5px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+    }
+
+    /* DETAIL CONTAINER (M3 Elevated Card) */
+    .detail-card {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-extra-large);
+      padding: 28px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+    }
+    .section-heading {
+      font-family: var(--font-brand);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* M3 HEALTH STATUS WIDGET */
+    .health-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-large);
+      padding: 18px;
+    }
+    .health-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .health-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--md-sys-color-on-surface);
+      font-weight: 500;
+    }
+    .health-badge {
+      font-family: var(--font-brand);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: var(--md-shape-corner-full);
+      letter-spacing: 0.3px;
+    }
+    .badge-ok {
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+    }
+    .badge-warn {
+      background: var(--md-sys-color-warning-container);
+      color: var(--md-sys-color-on-warning-container);
+    }
+    .badge-err {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+
+    /* M3 ALERT CARDS */
+    .alert-box {
+      border-radius: var(--md-shape-corner-large);
+      padding: 16px 20px;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .alert-warning {
+      background: var(--md-sys-color-warning-container);
+      color: var(--md-sys-color-on-warning-container);
+      border: 1px solid rgba(249, 188, 87, 0.3);
+    }
+    .alert-success {
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+      border: 1px solid rgba(168, 218, 181, 0.3);
+    }
+
+    .cmd-box {
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: var(--md-sys-color-primary);
+    }
+    .btn-copy {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border: none;
+      border-radius: var(--md-shape-corner-full);
+      padding: 6px 14px;
+      font-family: var(--font-brand);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-copy:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    /* M3 STEPPER CHIPS */
+    .stepper-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .step-btn {
+      flex: 1;
+      min-width: 140px;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 12px 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-btn:hover {
+      border-color: var(--md-sys-color-outline);
+    }
+    .step-btn.active {
+      border-color: var(--md-sys-color-primary);
+      background: var(--md-sys-color-primary-container);
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 11.5px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .step-btn.active .step-num {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+    .step-text {
+      font-family: var(--font-brand);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      white-space: nowrap;
+    }
+    .step-btn.active .step-text {
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    /* ASSISTED TWO COLUMN LAYOUT */
+    .assisted-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .assisted-layout { grid-template-columns: 1fr; }
+    }
+
+    /* M3 FILTER CHIPS (Brand Tabs) */
+    .brand-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-tab-btn {
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface-variant);
+      border-radius: var(--md-shape-corner-small);
+      padding: 8px 16px;
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .brand-tab-btn:hover {
+      background: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface);
+    }
+    .brand-tab-btn.active {
+      border-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary-container);
+      background: var(--md-sys-color-primary-container);
+      font-weight: 700;
+    }
+    .brand-steps {
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-large);
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--md-sys-color-on-surface);
+    }
+    .brand-steps ol {
+      padding-left: 20px;
+    }
+    .brand-steps li {
+      margin-bottom: 8px;
+    }
+    .brand-steps strong {
+      color: var(--md-sys-color-on-surface);
+      font-weight: 700;
+    }
+    .highlight-pill {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      padding: 2px 8px;
+      border-radius: var(--md-shape-corner-full);
+      font-weight: 700;
+      font-size: 11.5px;
+    }
+
+    /* MATERIAL YOU SMARTPHONE SIMULATOR (Pixel 8 / 9 Pro Styling) */
+    .simulator-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-large);
+      padding: 20px 14px 24px;
+      position: relative;
+    }
+    .sim-title {
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .phone-body {
+      width: 270px;
+      height: 500px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 6px solid #2d3036;
+      border-radius: 40px;
+      box-shadow: 0 20px 48px rgba(0,0,0,0.6), 0 0 20px rgba(168, 199, 250, 0.12);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .phone-body.shake {
+      animation: phone-shake 0.5s ease;
+    }
+    @keyframes phone-shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .phone-speaker {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 4px;
+      background: #44474f;
+      border-radius: 3px;
+      z-index: 10;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 12px;
+      background: #000;
+      border-radius: 50%;
+      z-index: 10;
+      box-shadow: inset 0 0 2px #333;
+    }
+    .phone-screen {
+      flex: 1;
+      padding: 38px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      font-size: 11.5px;
+      overflow: hidden;
+      background: var(--md-sys-color-surface-container-lowest);
+    }
+    .sim-header {
+      font-family: var(--font-brand);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sim-card {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .sim-tap-target {
+      border: 2px dashed var(--md-sys-color-primary);
+      background: var(--md-sys-color-primary-container);
+      position: relative;
+      cursor: pointer;
+    }
+    .sim-hand-tap {
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      font-size: 22px;
+      animation: hand-bounce 1s infinite alternate ease-in-out;
+    }
+    @keyframes hand-bounce {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-4px) scale(0.9); }
+    }
+    .sim-tap-count {
+      position: absolute;
+      right: 40px;
+      top: 10px;
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-family: var(--font-brand);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: var(--md-shape-corner-full);
+      animation: pulse 1s infinite;
+    }
+    .sim-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    /* M3 SWITCH IN SIMULATOR */
+    .sim-switch {
+      width: 40px;
+      height: 24px;
+      background: var(--md-sys-color-surface-container-highest);
+      border: 2px solid var(--md-sys-color-outline);
+      border-radius: var(--md-shape-corner-full);
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .sim-switch.on {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+    .sim-switch-thumb {
+      width: 16px;
+      height: 16px;
+      background: var(--md-sys-color-outline);
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .sim-switch.on .sim-switch-thumb {
+      transform: translateX(16px);
+      background: var(--md-sys-color-on-primary);
+    }
+
+    /* ANDROID MATERIAL 3 DIALOG MOCKUP */
+    .sim-dialog {
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-primary);
+      border-radius: var(--md-shape-corner-large);
+      padding: 16px;
+      margin-top: 10px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.8);
+      animation: modal-pop 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+    @keyframes modal-pop {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .sim-dialog-title {
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 6px;
+    }
+    .sim-dialog-desc {
+      font-size: 10px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .sim-dialog-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9.5px;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .sim-dialog-btn {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border: none;
+      padding: 6px 14px;
+      font-family: var(--font-brand);
+      font-size: 10.5px;
+      font-weight: 700;
+      border-radius: var(--md-shape-corner-full);
+      float: right;
+      cursor: pointer;
+    }
+
+    /* SIMULATED USB-C CABLE */
+    .sim-cable-wrap {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sim-cable-head {
+      width: 24px;
+      height: 14px;
+      background: var(--md-sys-color-surface-container-highest);
+      border-radius: 3px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      transition: all 0.3s;
+    }
+    .sim-cable-wire {
+      width: 8px;
+      height: 26px;
+      background: linear-gradient(180deg, var(--md-sys-color-surface-container-highest) 0%, var(--md-sys-color-surface-container-lowest) 100%);
+      border-radius: 0 0 4px 4px;
+    }
+    .sim-cable-wrap.connected .sim-cable-head {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+      box-shadow: 0 0 14px var(--md-sys-color-primary);
+    }
+
+    /* CONTROLS BELOW SIMULATOR */
+    .sim-nav-controls {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 16px;
+      gap: 10px;
+    }
+    .sim-btn-nav {
+      flex: 1;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      border-radius: var(--md-shape-corner-full);
+      padding: 8px 14px;
+      font-family: var(--font-brand);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .sim-btn-nav:hover {
+      background: var(--md-sys-color-surface-container-highest);
+      border-color: var(--md-sys-color-outline);
+    }
+
+    /* QR BOX */
+    .qr-box {
+      background: #ffffff;
+      border: 3px solid var(--md-sys-color-primary);
+      border-radius: var(--md-shape-corner-large);
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      margin: 0 auto 18px;
+      width: fit-content;
+    }
+    .qr-box img {
+      width: 240px;
+      height: 240px;
+      display: block;
+      border-radius: 6px;
+    }
+
+    /* ADVANCED GRID */
+    .adv-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .adv-container { grid-template-columns: 1fr; }
+    }
+    .prop-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 12px 16px;
+      margin-bottom: 12px;
+    }
+    .prop-label {
+      font-family: var(--font-brand);
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .prop-value {
+      font-family: var(--font-brand);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* RADAR */
+    .radar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 100px;
+    }
+    .device-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 12px 16px;
+    }
+    .device-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .device-name {
+      font-family: var(--font-brand);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+    }
+    .device-ip {
+      font-size: 11.5px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .device-status {
+      font-family: var(--font-brand);
+      font-size: 11px;
+      color: var(--md-sys-color-success);
+      font-weight: 700;
+    }
+    .radar-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 0;
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 12.5px;
+      text-align: center;
+      gap: 10px;
+    }
+    .radar-anim {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--md-sys-color-primary);
+      border-radius: 50%;
+      animation: ripple 2s infinite ease-out;
+      margin-bottom: 4px;
+    }
+    @keyframes ripple {
+      0% { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Dynamic Material You Palette Picker -->
+    <div class="theme-picker-row">
+      <span class="theme-picker-label"><span class="icon">palette</span> Material You:</span>
+      <div class="theme-dot blue active" title="Pixel Blue" onclick="setTheme('blue')"></div>
+      <div class="theme-dot mint" title="Mint Android" onclick="setTheme('mint')"></div>
+      <div class="theme-dot lavender" title="Lavender Expressive" onclick="setTheme('lavender')"></div>
+      <div class="theme-dot sunset" title="Sunset Peach" onclick="setTheme('sunset')"></div>
+    </div>
+
+    <div class="badge-bar">
+      <div class="pulse-dot"></div>
+      <span id="header-status">Servidor Activo (500Hz)</span>
+    </div>
+    <h1>Centro de Conexión <span>ZenTrack</span></h1>
+    <p class="subtitle">Trackpad háptico de latencia ultra-baja, teclado mecánico 65% y gamepad para tu PC</p>
+
+    <!-- M3 SEGMENTED BUTTON (Google Style) -->
+    <div class="segmented-button">
+      <button id="btn-mode-wizard" class="segmented-item active" onclick="switchView('wizard')">
+        <span class="icon">rocket_launch</span>
+        Asistente Paso a Paso
+      </button>
+      <button id="btn-mode-advanced" class="segmented-item" onclick="switchView('advanced')">
+        <span class="icon">tune</span>
+        Panel Avanzado
+      </button>
+    </div>
+  </header>
+
+  <div class="main-wrap">
+    
+    <!-- SMARTSCREEN EXPLAINER GRAPHIC FOR WINDOWS -->
+    <div class="alert-box alert-warning" id="smartscreen-explainer" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; border-radius: var(--md-shape-corner-extra-large); background: var(--md-sys-color-surface-container-high); border: 2px solid var(--md-sys-color-warning); overflow: hidden; position: relative;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--md-sys-color-warning); animation: shimmer 2s infinite linear;"></div>
+      <div style="font-family: var(--font-brand); font-size: 16px; font-weight: 800; color: var(--md-sys-color-on-surface); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <span class="icon" style="color: var(--md-sys-color-warning); font-size: 24px;">security</span>
+        Aviso de Windows SmartScreen
+      </div>
+      <p style="font-size: 13.5px; color: var(--md-sys-color-on-surface-variant); max-width: 600px; margin-bottom: 16px;">
+        ZenTrack no tiene una firma digital corporativa costosa todavía. Si Windows muestra una pantalla azul bloqueando la aplicación, sigue estos 2 pasos para permitir la conexión ultra-baja latencia en tu propia red local:
+      </p>
+      
+      <!-- Explainer Graphic UI -->
+      <div style="display: flex; gap: 16px; align-items: stretch; justify-content: center; flex-wrap: wrap; width: 100%;">
+        <div style="flex: 1; min-width: 200px; max-width: 280px; background: #005A9E; border-radius: 8px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Windows protegió su PC</div>
+          <div style="font-size: 11px; margin-bottom: 16px; opacity: 0.8;">Microsoft Defender SmartScreen impidió que se iniciara una aplicación no reconocida.</div>
+          <div style="display: flex; justify-content: flex-end;">
+             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 4px;">No ejecutar</span>
+          </div>
+          <!-- The 'More Info' click animation -->
+          <div style="position: absolute; top: 38px; left: 16px; font-size: 11px; text-decoration: underline; font-weight: bold; cursor: pointer; color: #fff;">
+            Más información
+            <div style="position: absolute; top: 6px; left: 40px; width: 14px; height: 14px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
+            <span class="icon" style="position: absolute; top: 12px; left: 48px; font-size: 18px; color: white; animation: hand-click 2s infinite;">touch_app</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center;">
+          <span class="icon" style="font-size: 32px; color: var(--md-sys-color-outline-variant);">arrow_forward</span>
+        </div>
+
+        <div style="flex: 1; min-width: 200px; max-width: 280px; background: #005A9E; border-radius: 8px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Windows protegió su PC</div>
+          <div style="font-size: 11px; margin-bottom: 12px; opacity: 0.8;">
+            Aplicación: zentrack-server.exe<br>
+            Editor: Desconocido
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-weight: bold;">Ejecutar de todas formas</span>
+             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 4px;">No ejecutar</span>
+          </div>
+          <div style="position: absolute; bottom: 8px; right: 110px; width: 14px; height: 14px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
+          <span class="icon" style="position: absolute; bottom: -2px; right: 100px; font-size: 18px; color: white; animation: hand-click 2s infinite;">touch_app</span>
+        </div>
+      </div>
+      <style>
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes hand-click { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+        @keyframes ripple-click { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      </style>
+    </div>
+
+    <!-- ==================== VISTA 1: ASISTENTE INTERACTIVO ==================== -->
+    <div id="view-wizard">
+      <!-- Selector de Transporte -->
+      <div class="transport-grid">
+        <!-- Tarjeta Cable USB -->
+        <div id="card-opt-usb" class="transport-card selected" onclick="selectTransport('usb')">
+          <div class="transport-header">
+            <div class="transport-title">
+              <span class="icon">cable</span>
+              Por Cable USB
+            </div>
+            <span class="transport-tag tag-pro">0.1ms Latencia</span>
+          </div>
+          <div class="transport-desc">
+            Recomendado para gaming, shooters o máxima precisión sin lag ni interferencias. Conecta y juega a 500Hz estables.
+          </div>
+        </div>
+
+        <!-- Tarjeta Wi-Fi -->
+        <div id="card-opt-wifi" class="transport-card" onclick="selectTransport('wifi')">
+          <div class="transport-header">
+            <div class="transport-title">
+              <span class="icon">wifi</span>
+              Por Red Wi-Fi
+            </div>
+            <span class="transport-tag tag-wireless">Sin Cables</span>
+          </div>
+          <div class="transport-desc">
+            Conexión instantánea escaneando el código QR con la cámara de la app. Ideal para navegación en el sofá o presentaciones.
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DETALLE: CABLE USB -->
+      <div id="wizard-usb-section" class="detail-card">
+        <div class="section-heading">
+          <span class="icon">usb</span>
+          Guía Asistida de Conexión por Cable USB
+        </div>
+
+        <!-- HEALTH BAR EN VIVO -->
+        <div class="health-bar">
+          <div class="health-item">
+            <div class="health-label">
+              <span id="health-driver-dot" class="pulse-dot"></span>
+              <span>Driver de Ratón / Teclado (SendInput / uinput)</span>
+            </div>
+            <span id="health-driver-badge" class="health-badge badge-ok">Operativo</span>
+          </div>
+          <div class="health-item">
+            <div class="health-label">
+              <span id="health-gamepad-dot" class="pulse-dot yellow"></span>
+              <span>Driver de Mando Xbox 360 (ViGEmBus)</span>
+            </div>
+            <span id="health-gamepad-badge" class="health-badge badge-warn">Comprobando...</span>
+          </div>
+          <div class="health-item">
+            <div class="health-label">
+              <span id="health-adb-dot" class="pulse-dot yellow"></span>
+              <span>Herramienta de Conexión en PC (ADB)</span>
+            </div>
+            <span id="health-adb-badge" class="health-badge badge-warn">Comprobando...</span>
+          </div>
+          <div class="health-item">
+            <div class="health-label">
+              <span id="health-phone-dot" class="pulse-dot red"></span>
+              <span>Dispositivo Móvil USB</span>
+            </div>
+            <span id="health-phone-badge" class="health-badge badge-err">Sin Detectar</span>
+          </div>
+          <div class="health-item">
+            <div class="health-label">
+              <span id="health-tunnel-dot" class="pulse-dot red"></span>
+              <span>Túnel Inverso (adb reverse tcp:3000)</span>
+            </div>
+            <span id="health-tunnel-badge" class="health-badge badge-err">Inactivo</span>
+          </div>
+        </div>
+
+        <!-- CONTENEDOR DINÁMICO DE ESTADO USB -->
+        <div id="usb-dynamic-feedback"></div>
+
+        <!-- STEPPER NAV -->
+        <div class="stepper-nav">
+          <div id="step-nav-1" class="step-btn active" onclick="setStep(1)">
+            <div class="step-num">1</div>
+            <div class="step-text">Modo Desarrollador</div>
+          </div>
+          <div id="step-nav-2" class="step-btn" onclick="setStep(2)">
+            <div class="step-num">2</div>
+            <div class="step-text">Depuración USB</div>
+          </div>
+          <div id="step-nav-3" class="step-btn" onclick="setStep(3)">
+            <div class="step-num">3</div>
+            <div class="step-text">Cable y Huella RSA</div>
+          </div>
+          <div id="step-nav-4" class="step-btn" onclick="setStep(4)">
+            <div class="step-num">4</div>
+            <div class="step-text">¡Listo a 500Hz!</div>
+          </div>
+        </div>
+
+        <!-- TWO COLUMN ASSISTED LAYOUT: INSTRUCTIONS + SMARTPHONE SIMULATOR -->
+        <div class="assisted-layout">
+          <!-- LEFT: BRAND TABS & STEP INSTRUCTIONS -->
+          <div>
+            <div class="brand-tabs">
+              <button class="brand-tab-btn active" onclick="switchBrandTab('xiaomi')">Xiaomi / HyperOS / MIUI</button>
+              <button class="brand-tab-btn" onclick="switchBrandTab('samsung')">Samsung / One UI</button>
+              <button class="brand-tab-btn" onclick="switchBrandTab('motorola')">Motorola / Pixel</button>
+              <button class="brand-tab-btn" onclick="switchBrandTab('generic')">Otras Marcas</button>
+            </div>
+
+            <div id="brand-tab-xiaomi" class="brand-steps">
+              <div id="step-desc-1" class="step-body">
+                <strong>Paso 1: Activar Opciones de Desarrollador</strong>
+                <ol style="margin-top: 8px;">
+                  <li>En tu teléfono Xiaomi, abre la app de <strong>Ajustes</strong>.</li>
+                  <li>Toca en <strong>Sobre el teléfono</strong>.</li>
+                  <li>Toca <span class="highlight-pill">7 veces seguidas</span> sobre <strong>Versión de OS</strong> (o Versión MIUI).</li>
+                  <li>Aparecerá un mensaje flotante en la pantalla diciendo <em>"¡Ya eres desarrollador!"</em>.</li>
+                </ol>
+              </div>
+              <div id="step-desc-2" class="step-body" style="display: none;">
+                <strong>Paso 2: Activar Depuración por USB</strong>
+                <ol style="margin-top: 8px;">
+                  <li>Regresa al menú principal de <strong>Ajustes</strong>.</li>
+                  <li>Entra a <strong>Ajustes adicionales</strong> ➔ <strong>Opciones de desarrollador</strong>.</li>
+                  <li>Activa estas dos casillas fundamentales:
+                    <br>• ☑️ <strong>Depuración por USB</strong>
+                    <br>• ☑️ <strong>Depuración USB (Ajustes de seguridad)</strong> <em>(permite enviar pulsaciones de control)</em>.
+                  </li>
+                </ol>
+              </div>
+              <div id="step-desc-3" class="step-body" style="display: none;">
+                <strong>Paso 3: Conectar el Cable y Autorizar tu Computadora</strong>
+                <ol style="margin-top: 8px;">
+                  <li>Enchufa el cable USB entre el celular y tu PC.</li>
+                  <li>Mira la pantalla de tu teléfono: saldrá la ventana <strong>"¿Permitir depuración por USB?"</strong>.</li>
+                  <li>Marca la casilla ☑️ <strong>"Permitir siempre desde esta computadora"</strong> y pulsa <strong>Aceptar</strong>.</li>
+                </ol>
+              </div>
+              <div id="step-desc-4" class="step-body" style="display: none;">
+                <strong>Paso 4: ¡Todo listo para jugar!</strong>
+                <p style="margin-top: 8px;">
+                  Abre la aplicación <strong>ZenTrack</strong> en tu teléfono y pulsa la píldora superior o el botón <strong>"Cable USB"</strong>. 
+                  ¡Tu conexión funcionará inmediatamente con 0.1ms de latencia a 500Hz!
+                </p>
+              </div>
+            </div>
+
+            <div id="brand-tab-samsung" class="brand-steps" style="display: none;">
+              <ol>
+                <li>Abre <strong>Ajustes</strong> ➔ <strong>Acerca del teléfono</strong> ➔ <strong>Información de software</strong>.</li>
+                <li>Pulsa <span class="highlight-pill">7 veces seguidas</span> en <strong>Número de compilación</strong>.</li>
+                <li>Regresa a Ajustes y entra a <strong>Opciones de desarrollador</strong> abajo del todo.</li>
+                <li>Activa el interruptor ☑️ <strong>Depuración por USB</strong>.</li>
+                <li>Enchufa el cable y marca <strong>"Permitir siempre"</strong> ➔ <strong>Aceptar</strong>.</li>
+              </ol>
+            </div>
+
+            <div id="brand-tab-motorola" class="brand-steps" style="display: none;">
+              <ol>
+                <li>Abre <strong>Configuración</strong> ➔ <strong>Acerca del teléfono</strong>.</li>
+                <li>Toca <span class="highlight-pill">7 veces</span> sobre <strong>Número de compilación</strong>.</li>
+                <li>Ve a <strong>Sistema</strong> ➔ <strong>Opciones para desarrolladores</strong>.</li>
+                <li>Activa ☑️ <strong>Depuración USB</strong>.</li>
+                <li>Conecta el cable USB y pulsa <strong>Permitir</strong> en la pantalla.</li>
+              </ol>
+            </div>
+
+            <div id="brand-tab-generic" class="brand-steps" style="display: none;">
+              <ol>
+                <li>Entra a <strong>Ajustes</strong> ➔ <strong>Acerca del dispositivo</strong>.</li>
+                <li>Toca 7 veces el <strong>Número de compilación</strong>.</li>
+                <li>Busca <strong>Opciones de desarrollador</strong> y activa <strong>Depuración USB</strong>.</li>
+                <li>Conecta el cable USB al PC y confirma la huella RSA en pantalla.</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- RIGHT: INTERACTIVE SMARTPHONE SIMULATOR (Pixel Material 3 Style) -->
+          <div class="simulator-container">
+            <div class="sim-title">
+              <span class="icon">smartphone</span>
+              Simulador en Vivo
+            </div>
+
+            <div id="sim-phone" class="phone-body">
+              <div class="phone-speaker"></div>
+              <div class="phone-notch"></div>
+              <div id="sim-screen" class="phone-screen">
+                <!-- Dynamically filled by renderSimulator() -->
+              </div>
+            </div>
+
+            <!-- Virtual USB Cable -->
+            <div id="sim-cable" class="sim-cable-wrap">
+              <div class="sim-cable-head"></div>
+              <div class="sim-cable-wire"></div>
+            </div>
+
+            <!-- Simulator Navigation -->
+            <div class="sim-nav-controls">
+              <button class="sim-btn-nav" onclick="prevStep()">
+                <span class="icon">arrow_back</span> Anterior
+              </button>
+              <button class="sim-btn-nav" onclick="nextStep()">
+                Siguiente <span class="icon">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DETALLE: WI-FI -->
+      <div id="wizard-wifi-section" class="detail-card" style="display: none;">
+        <div class="section-heading">
+          <span class="icon">qr_code_scanner</span>
+          Conexión Inalámbrica por Red Local (Wi-Fi)
+        </div>
+        <p style="color: var(--md-sys-color-on-surface-variant); font-size: 13.5px; margin-bottom: 22px; line-height: 1.6;">
+          Asegúrate de que tu PC y tu celular estén conectados a la <strong>misma red Wi-Fi</strong>. Abre la aplicación <strong>ZenTrack</strong> en tu teléfono y pulsa <strong>Escanear QR</strong>.
+        </p>
+
+        <div class="qr-box">
+          <img id="qr-image-wizard" src="/qr.svg" alt="Código QR ZenTrack">
+        </div>
+
+        <div style="text-align: center; color: var(--md-sys-color-on-surface-variant); font-size: 12px;">
+          Código de alta polaridad optimizado para escaneo instantáneo con la cámara.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== VISTA 2: PANEL AVANZADO ==================== -->
+    <div id="view-advanced" style="display: none;">
+      <div class="adv-container">
+        <!-- QR CARD -->
+        <div class="detail-card">
+          <div class="section-heading">
+            <span class="icon">qr_code</span>
+            Escaneo Directo QR
+          </div>
+          <div class="qr-box">
+            <img src="/qr.svg" alt="Código QR ZenTrack">
+          </div>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 12px; text-align: center; line-height: 1.5;">
+            Apunta la cámara de la app ZenTrack a este código para vincularte a 500Hz.
+          </p>
+        </div>
+
+        <!-- RADAR & CREDENTIALS -->
+        <div class="detail-card">
+          <div class="section-heading">
+            <span class="icon">radar</span>
+            Radar LAN (UDP Discovery :37020)
+          </div>
+          <div id="radar-container" class="radar-list">
+            <div class="radar-empty">
+              <div class="radar-anim"></div>
+              <div>Escaneando red local por balizas UDP...</div>
+            </div>
+          </div>
+
+          <div class="section-heading" style="margin-top: 24px;">
+            <span class="icon">key</span>
+            Credenciales Directas
+          </div>
+          <div class="prop-row">
+            <div>
+              <div class="prop-label">IP Local (Wi-Fi)</div>
+              <div class="prop-value" id="val-ip">Cargando...</div>
+            </div>
+            <button class="btn-copy" onclick="copyText('val-ip')">
+              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
+            </button>
+          </div>
+          <div class="prop-row">
+            <div>
+              <div class="prop-label">Puerto WebSocket</div>
+              <div class="prop-value" id="val-port">3000</div>
+            </div>
+            <button class="btn-copy" onclick="copyText('val-port')">
+              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
+            </button>
+          </div>
+          <div class="prop-row">
+            <div>
+              <div class="prop-label">Token de Seguridad</div>
+              <div class="prop-value" id="val-token" style="font-size: 12px;">Cargando...</div>
+            </div>
+            <button class="btn-copy" onclick="copyText('val-token')">
+              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
+            </button>
+          </div>
+
+          <div class="section-heading" style="margin-top: 18px;">
+            <span class="icon">terminal</span>
+            Túnel Manual ADB
+          </div>
+          <div class="prop-row">
+            <div>
+              <div class="prop-label">Comando ADB Reverse</div>
+              <div class="prop-value" style="font-size: 12px; font-family: var(--font-code);">adb reverse tcp:3000 tcp:3000</div>
+            </div>
+            <button class="btn-copy" onclick="copyRaw('adb reverse tcp:3000 tcp:3000')">
+              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTransport = 'usb';
+    let currentStep = 1;
+    let currentBrand = 'xiaomi';
+    let devTaps = 0;
+    let autoAdvanced = false;
+
+    // Material You Dynamic Theme Switching
+    function setTheme(theme) {
+      document.body.removeAttribute('data-theme');
+      if (theme !== 'blue') {
+        document.body.setAttribute('data-theme', theme);
+      }
+      document.querySelectorAll('.theme-dot').forEach(d => {
+        d.classList.toggle('active', d.classList.contains(theme));
+      });
+      localStorage.setItem('zentrack_material_theme', theme);
+    }
+
+    function switchView(mode) {
+      const wizardView = document.getElementById('view-wizard');
+      const advView = document.getElementById('view-advanced');
+      const btnWiz = document.getElementById('btn-mode-wizard');
+      const btnAdv = document.getElementById('btn-mode-advanced');
+
+      if (mode === 'wizard') {
+        wizardView.style.display = 'block';
+        advView.style.display = 'none';
+        btnWiz.classList.add('active');
+        btnAdv.classList.remove('active');
+      } else {
+        wizardView.style.display = 'none';
+        advView.style.display = 'block';
+        btnWiz.classList.remove('active');
+        btnAdv.classList.add('active');
+      }
+      localStorage.setItem('zentrack_mode', mode);
+    }
+
+    function selectTransport(type) {
+      currentTransport = type;
+      const cardUsb = document.getElementById('card-opt-usb');
+      const cardWifi = document.getElementById('card-opt-wifi');
+      const secUsb = document.getElementById('wizard-usb-section');
+      const secWifi = document.getElementById('wizard-wifi-section');
+
+      if (type === 'usb') {
+        cardUsb.classList.add('selected');
+        cardWifi.classList.remove('selected');
+        secUsb.style.display = 'block';
+        secWifi.style.display = 'none';
+      } else {
+        cardUsb.classList.remove('selected');
+        cardWifi.classList.add('selected');
+        secUsb.style.display = 'none';
+        secWifi.style.display = 'block';
+      }
+    }
+
+    function switchBrandTab(brand) {
+      currentBrand = brand;
+      const brands = ['xiaomi', 'samsung', 'motorola', 'generic'];
+      brands.forEach(b => {
+        document.getElementById(`brand-tab-${b}`).style.display = (b === brand) ? 'block' : 'none';
+      });
+      document.querySelectorAll('.brand-tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', brands[idx] === brand);
+      });
+      renderSimulator();
+    }
+
+    function setStep(step) {
+      currentStep = step;
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`step-nav-${i}`);
+        if (btn) btn.classList.toggle('active', i === step);
+        const desc = document.getElementById(`step-desc-${i}`);
+        if (desc) desc.style.display = (i === step) ? 'block' : 'none';
+      }
+      renderSimulator();
+    }
+
+    function nextStep() {
+      if (currentStep < 4) setStep(currentStep + 1);
+    }
+
+    function prevStep() {
+      if (currentStep > 1) setStep(currentStep - 1);
+    }
+
+    function simTapVersion() {
+      devTaps++;
+      const counter = document.getElementById('sim-tap-counter');
+      if (devTaps >= 7) {
+        if (counter) counter.textContent = '¡Ya eres desarrollador!';
+        setTimeout(() => setStep(2), 700);
+      } else {
+        if (counter) counter.textContent = `¡Toca ${7 - devTaps} más!`;
+      }
+    }
+
+    function renderSimulator() {
+      const screen = document.getElementById('sim-screen');
+      const cable = document.getElementById('sim-cable');
+
+      cable.classList.toggle('connected', currentStep >= 3);
+
+      let brandOsLabel = "Versión de OS (HyperOS)";
+      if (currentBrand === 'samsung') brandOsLabel = "Número de compilación (One UI)";
+      else if (currentBrand === 'motorola') brandOsLabel = "Número de compilación (Pixel)";
+      else if (currentBrand === 'generic') brandOsLabel = "Número de compilación";
+
+      if (currentStep === 1) {
+        screen.innerHTML = `
+          <div class="sim-header"><span class="icon" style="font-size: 14px;">settings</span> Ajustes ➔ Sobre el teléfono</div>
+          <div class="sim-card">
+            <div style="font-weight: 700; color: var(--md-sys-color-on-surface);">Dispositivo Android</div>
+            <div style="color: var(--md-sys-color-on-surface-variant); font-size: 10px; margin-top: 2px;">Almacenamiento: 256 GB</div>
+          </div>
+          <div class="sim-card sim-tap-target" onclick="simTapVersion()">
+            <div style="font-weight: 700; color: var(--md-sys-color-primary);">${brandOsLabel}</div>
+            <div style="color: var(--md-sys-color-on-surface); font-size: 9.5px; margin-top: 2px;">1.0.12.0.UNLMIXM</div>
+            <div id="sim-tap-counter" class="sim-tap-count">¡Toca 7 veces!</div>
+            <div class="sim-hand-tap">👆</div>
+          </div>
+          <div style="text-align: center; color: var(--md-sys-color-on-surface-variant); font-size: 9.5px; margin-top: 14px;">
+            Toca el recuadro para desbloquear Opciones de Desarrollador.
+          </div>
+        `;
+      } else if (currentStep === 2) {
+        screen.innerHTML = `
+          <div class="sim-header"><span class="icon" style="font-size: 14px;">terminal</span> Opciones de Desarrollador</div>
+          <div class="sim-card">
+            <div class="sim-toggle-row">
+              <div>
+                <div style="font-weight: 700; color: var(--md-sys-color-on-surface);">Depuración por USB</div>
+                <div style="color: var(--md-sys-color-on-surface-variant); font-size: 9px;">Permite conectar con la PC</div>
+              </div>
+              <div class="sim-switch on"><div class="sim-switch-thumb"></div></div>
+            </div>
+          </div>
+          <div class="sim-card">
+            <div class="sim-toggle-row">
+              <div>
+                <div style="font-weight: 700; color: var(--md-sys-color-on-surface);">Ajustes de seguridad</div>
+                <div style="color: var(--md-sys-color-on-surface-variant); font-size: 9px;">Permite clics e inputs</div>
+              </div>
+              <div class="sim-switch on"><div class="sim-switch-thumb"></div></div>
+            </div>
+          </div>
+          <div style="text-align: center; color: var(--md-sys-color-success); font-size: 10px; font-weight: 700; margin-top: 12px;">
+            ✓ Depuración activada correctamente
+          </div>
+        `;
+      } else if (currentStep === 3) {
+        screen.innerHTML = `
+          <div class="sim-header"><span class="icon" style="font-size: 14px;">cable</span> Cable USB Enchufado</div>
+          <div class="sim-dialog">
+            <div class="sim-dialog-title">¿Permitir depuración por USB?</div>
+            <div class="sim-dialog-desc">
+              La computadora con clave RSA 3F:A2:9B:... solicita autorización para conectar.
+            </div>
+            <div class="sim-dialog-check">
+              <span class="icon" style="font-size: 14px;">check_box</span>
+              <span>Permitir siempre desde este equipo</span>
+            </div>
+            <button class="sim-dialog-btn" onclick="setStep(4)">Aceptar</button>
+            <div style="clear: both;"></div>
+          </div>
+          <div style="text-align: center; color: var(--md-sys-color-warning); font-size: 9.5px; margin-top: 14px; font-weight: 700;">
+            ⚠️ Confirma la autorización en tu celular
+          </div>
+        `;
+      } else if (currentStep === 4) {
+        screen.innerHTML = `
+          <div style="background: var(--md-sys-color-surface-container); border-radius: 8px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-weight: 800; color: var(--md-sys-color-primary); font-size: 10.5px;">ZEN-TRACK</span>
+            <span style="background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 8.5px;">USB 500Hz</span>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); display: flex; align-items: center; justify-content: center; font-size: 26px;">
+              ✓
+            </div>
+            <div style="font-weight: 700; color: var(--md-sys-color-on-surface); font-size: 13px;">¡Conexión Activa!</div>
+            <div style="color: var(--md-sys-color-on-surface-variant); font-size: 10px; line-height: 1.4;">
+              Latencia: &lt;0.2ms<br>Tasa de refresco: 500Hz
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // HEALTH CHECK POLLER
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/system-health');
+        if (!res.ok) return;
+        const h = await res.json();
+
+        // 1. Driver Mouse/Keyboard
+        const dotDriver = document.getElementById('health-driver-dot');
+        const badgeDriver = document.getElementById('health-driver-badge');
+        if (h.uinput_accessible) {
+          dotDriver.className = 'pulse-dot';
+          badgeDriver.className = 'health-badge badge-ok';
+          badgeDriver.textContent = 'Operativo';
+        } else {
+          dotDriver.className = 'pulse-dot red';
+          badgeDriver.className = 'health-badge badge-err';
+          badgeDriver.textContent = 'Sin Permiso';
+        }
+
+        // 1b. Driver Gamepad Xbox
+        const dotGamepad = document.getElementById('health-gamepad-dot');
+        const badgeGamepad = document.getElementById('health-gamepad-badge');
+        if (dotGamepad && badgeGamepad) {
+          if (h.gamepad_driver_installed) {
+            dotGamepad.className = 'pulse-dot';
+            badgeGamepad.className = 'health-badge badge-ok';
+            badgeGamepad.textContent = 'Operativo';
+          } else {
+            dotGamepad.className = 'pulse-dot red';
+            badgeGamepad.className = 'health-badge badge-err';
+            badgeGamepad.textContent = 'No Instalado';
+          }
+        }
+
+        // 2. ADB Tool
+        const dotAdb = document.getElementById('health-adb-dot');
+        const badgeAdb = document.getElementById('health-adb-badge');
+        if (h.adb_installed) {
+          dotAdb.className = 'pulse-dot';
+          badgeAdb.className = 'health-badge badge-ok';
+          badgeAdb.textContent = 'Instalado';
+        } else {
+          dotAdb.className = 'pulse-dot red';
+          badgeAdb.className = 'health-badge badge-err';
+          badgeAdb.textContent = 'No Encontrado';
+        }
+
+        // 3. Devices & Tunnel
+        const dotPhone = document.getElementById('health-phone-dot');
+        const badgePhone = document.getElementById('health-phone-badge');
+        const dotTunnel = document.getElementById('health-tunnel-dot');
+        const badgeTunnel = document.getElementById('health-tunnel-badge');
+        const feedback = document.getElementById('usb-dynamic-feedback');
+
+        const authorizedDev = h.devices.find(d => d.is_authorized);
+        const unauthorizedDev = h.devices.find(d => d.state === 'unauthorized');
+
+        if (!h.adb_installed) {
+          dotPhone.className = 'pulse-dot red';
+          badgePhone.className = 'health-badge badge-err';
+          badgePhone.textContent = 'Requiere ADB';
+
+          dotTunnel.className = 'pulse-dot red';
+          badgeTunnel.className = 'health-badge badge-err';
+          badgeTunnel.textContent = 'Inactivo';
+
+          const isWin = (h.distro_id || '').toLowerCase() === 'windows';
+          const instructionText = isWin 
+            ? 'Para conectar por cable a latencia cero (<0.2ms), abre PowerShell o CMD y ejecuta este comando:' 
+            : 'Para conectar por cable a latencia cero (<0.2ms), instala las herramientas con este comando:';
+
+          feedback.innerHTML = `
+            <div class="alert-box alert-warning">
+              <span class="icon" style="font-size: 26px;">warning</span>
+              <div style="flex: 1;">
+                <strong>Falta la herramienta ADB en tu PC (${h.distro_name || 'Sistema'}):</strong>
+                <p>${instructionText}</p>
+                <div class="cmd-box">
+                  <code>${h.install_command || 'winget install Google.PlatformTools'}</code>
+                  <button class="btn-copy" onclick="copyRaw('${h.install_command || 'winget install Google.PlatformTools'}')">
+                    <span class="icon" style="font-size: 15px;">content_copy</span> Copiar
+                  </button>
+                </div>
+                ${isWin ? '<p style="margin-top: 8px; font-size: 12px; opacity: 0.85;">O si prefieres, descarga el archivo oficial de Google: <a href="https://dl.google.com/android/repository/platform-tools-latest-windows.zip" target="_blank" style="color: var(--md-sys-color-primary); text-decoration: underline;">platform-tools-latest-windows.zip</a> y descomprime <code>adb.exe</code> en la misma carpeta de ZenTrack.</p>' : ''}
+              </div>
+            </div>
+          `;
+        } else if (authorizedDev) {
+          dotPhone.className = 'pulse-dot';
+          badgePhone.className = 'health-badge badge-ok';
+          badgePhone.textContent = authorizedDev.model;
+
+          dotTunnel.className = 'pulse-dot';
+          badgeTunnel.className = 'health-badge badge-ok';
+          badgeTunnel.textContent = 'Túnel 500Hz Activo';
+
+          feedback.innerHTML = `
+            <div class="alert-box alert-success">
+              <span class="icon" style="font-size: 26px;">check_circle</span>
+              <div>
+                <strong>¡Teléfono Conectado y Autorizado! (${authorizedDev.model})</strong>
+                <p>El túnel USB de 500Hz está activo en el puerto 3000. Abre <strong>ZenTrack</strong> en tu celular y pulsa el botón <strong>"Cable USB"</strong>.</p>
+              </div>
+            </div>
+          `;
+
+          if (!autoAdvanced) {
+            setStep(4);
+            autoAdvanced = true;
+          }
+        } else if (unauthorizedDev) {
+          dotPhone.className = 'pulse-dot yellow';
+          badgePhone.className = 'health-badge badge-warn';
+          badgePhone.textContent = 'No Autorizado';
+
+          dotTunnel.className = 'pulse-dot yellow';
+          badgeTunnel.className = 'health-badge badge-warn';
+          badgeTunnel.textContent = 'Esperando Permiso';
+
+          feedback.innerHTML = `
+            <div class="alert-box alert-warning">
+              <span class="icon" style="font-size: 26px;">screen_lock_portrait</span>
+              <div>
+                <strong>Teléfono detectado, pero requiere autorización en pantalla:</strong>
+                <p>Mira la pantalla de tu móvil. Aparecerá un cuadro: <em>"¿Permitir depuración por USB?"</em>. Marca la casilla <strong>"Permitir siempre"</strong> y pulsa <strong>Aceptar</strong>.</p>
+              </div>
+            </div>
+          `;
+
+          setStep(3);
+          const p = document.getElementById('sim-phone');
+          if (p) {
+            p.classList.remove('shake');
+            void p.offsetWidth;
+            p.classList.add('shake');
+          }
+        } else {
+          dotPhone.className = 'pulse-dot red';
+          badgePhone.className = 'health-badge badge-err';
+          badgePhone.textContent = 'Desconectado';
+
+          dotTunnel.className = 'pulse-dot red';
+          badgeTunnel.className = 'health-badge badge-err';
+          badgeTunnel.textContent = 'En Espera';
+
+          feedback.innerHTML = `
+            <div class="alert-box" style="background: var(--md-sys-color-surface-container-high); border: 1px dashed var(--md-sys-color-outline-variant);">
+              <span class="icon" style="font-size: 26px;">usb</span>
+              <div>
+                <strong>Esperando conexión por cable USB...</strong>
+                <p>Conecta el cable USB de tu celular a la PC y asegúrate de tener activada la <em>Depuración por USB</em> (sigue los pasos abajo).</p>
+              </div>
+            </div>
+          `;
+          autoAdvanced = false;
+        }
+
+        if (!h.gamepad_driver_installed && (h.os || '').toLowerCase() === 'windows') {
+          feedback.innerHTML += `
+            <div class="alert-box alert-warning" style="margin-top: 12px; border: 1px solid var(--md-sys-color-warning);">
+              <span class="icon" style="font-size: 26px; color: var(--md-sys-color-warning);">sports_esports</span>
+              <div style="flex: 1;">
+                <strong style="color: var(--md-sys-color-warning);">Falta el Driver de Mando Xbox 360 (ViGEmBus):</strong>
+                <p>Para usar tu celular como gamepad Xbox en juegos y emuladores, instala el driver oficial ViGEmBus:</p>
+                <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <button class="m3-btn" onclick="installVigemDriver()" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); padding: 8px 16px; border-radius: 9999px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="icon" style="font-size: 16px;">download</span> Instalar Driver ViGEmBus (1 Clic)
+                  </button>
+                  <span style="font-size: 11px; opacity: 0.85;">o en PowerShell: <code>winget install Nefarius.ViGEmBus</code></span>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } catch (e) {
+        console.error("Health check error", e);
+      }
+    }
+
+    async function updateStatus() {
+      try {
+        const res = await fetch('/status');
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('val-token').textContent = data.token || '';
+          document.getElementById('val-port').textContent = data.port || '3000';
+          if (data.connectedCount > 0) {
+            document.getElementById('header-status').textContent = `Servidor Activo • ${data.connectedCount} Cliente(s) Conectado(s)`;
+          } else {
+            document.getElementById('header-status').textContent = 'Servidor Activo • Esperando Conexión (500Hz+)';
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function updateDevices() {
+      try {
+        const res = await fetch('/api/devices');
+        if (res.ok) {
+          const devices = await res.json();
+          const container = document.getElementById('radar-container');
+          if (devices.length > 0) {
+            container.innerHTML = devices.map(d => `
+              <div class="device-item">
+                <div class="device-info">
+                  <div class="pulse-dot"></div>
+                  <div>
+                    <div class="device-name">${d.name}</div>
+                    <div class="device-ip">IP: ${d.ip} • Visto hace ${d.last_seen_secs_ago}s</div>
+                  </div>
+                </div>
+                <div class="device-status">LISTO</div>
+              </div>
+            `).join('');
+          } else {
+            container.innerHTML = `
+              <div class="radar-empty">
+                <div class="radar-anim"></div>
+                <div>Escaneando red local por balizas UDP (:37020)...</div>
+              </div>
+            `;
+          }
+        }
+      } catch (e) {}
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
+      alert("Copiado: " + text);
+    }
+
+    async function installVigemDriver() {
+      try {
+        const res = await fetch('/api/install_vigem', { method: 'POST' });
+        const data = await res.json();
+        alert(data.message || 'Instalador iniciado');
+      } catch (e) {
+        window.open('https://github.com/nefarius/ViGEmBus/releases/download/v1.22.0/ViGEmBus_1.22.0_x64_x86_arm64.exe', '_blank');
+      }
+    }
+
+    function copyRaw(text) {
+      navigator.clipboard.writeText(text);
+      alert("Comando copiado al portapapeles: " + text);
+    }
+
+    document.getElementById('val-ip').textContent = window.location.hostname;
+
+    // Load saved Material theme
+    const savedTheme = localStorage.getItem('zentrack_material_theme') || 'blue';
+    setTheme(savedTheme);
+
+    // Load saved view mode
+    const savedMode = localStorage.getItem('zentrack_mode');
+    if (savedMode) {
+      switchView(savedMode);
+    }
+
+    renderSimulator();
+    checkHealth();
+    updateStatus();
+    updateDevices();
+    setInterval(checkHealth, 1800);
+    setInterval(updateStatus, 2500);
+    setInterval(updateDevices, 2500);
+  </script>
+</body>
+</html>

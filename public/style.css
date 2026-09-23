@@ -1439,7 +1439,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(6, 182, 212, 0.15) 0%, rgba(16, 185, 129, 0.04) 75%, transparent 100%);
 }
 
-/* 7. Isabel (gh0stzk Rice) */
+/* 7. One Dark Pro */
 .keyboard-surface.theme-isabel {
   --key-white-bg: #1d212a;
   --key-white-color: #abb2bf;
@@ -1461,7 +1461,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(117, 96, 211, 0.15) 0%, rgba(72, 137, 190, 0.08) 75%, transparent 100%);
 }
 
-/* 8. Andrea (gh0stzk Rice Claro) */
+/* 8. Warm Sand */
 .keyboard-surface.theme-andrea {
   --key-white-bg: #ffffff;
   --key-white-color: #151515;
@@ -1483,7 +1483,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(197, 171, 255, 0.2) 0%, rgba(245, 238, 230, 0.05) 75%, transparent 100%);
 }
 
-/* 9. Aline (gh0stzk Rice - Rose Pine Dawn Light) */
+/* 9. Rosé Pine Dawn */
 .keyboard-surface.theme-aline {
   --key-white-bg: #ffffff;
   --key-white-color: #575279;
@@ -1505,7 +1505,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(144, 122, 169, 0.15) 0%, rgba(86, 148, 159, 0.05) 75%, transparent 100%);
 }
 
-/* 10. Brenda (gh0stzk Rice - Everforest Dark) */
+/* 10. Everforest */
 .keyboard-surface.theme-brenda {
   --key-white-bg: #343f44;
   --key-white-color: #d3c6aa;
@@ -1527,7 +1527,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(167, 192, 128, 0.15) 0%, rgba(127, 187, 179, 0.05) 75%, transparent 100%);
 }
 
-/* 11. Cristina (gh0stzk Rice - Rose Pine Dark) */
+/* 11. Rosé Pine */
 .keyboard-surface.theme-cristina {
   --key-white-bg: #2a283e;
   --key-white-color: #e0def4;
@@ -1549,7 +1549,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(195, 165, 230, 0.15) 0%, rgba(52, 115, 142, 0.05) 75%, transparent 100%);
 }
 
-/* 12. Cynthia (gh0stzk Rice - Gray Green Kanagawa) */
+/* 12. Kanagawa */
 .keyboard-surface.theme-cynthia {
   --key-white-bg: #222020;
   --key-white-color: #c5c9c5;
@@ -1571,7 +1571,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(147, 138, 169, 0.15) 0%, rgba(139, 164, 176, 0.05) 75%, transparent 100%);
 }
 
-/* 13. Daniela (gh0stzk Rice - Catppuccin Mocha) */
+/* 13. Catppuccin Mocha */
 .keyboard-surface.theme-daniela {
   --key-white-bg: #1e1e2e;
   --key-white-color: #CDD6F4;
@@ -1593,7 +1593,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(148, 226, 213, 0.15) 0%, rgba(137, 180, 250, 0.05) 75%, transparent 100%);
 }
 
-/* 14. Emilia (gh0stzk Rice - Tokyonight) */
+/* 14. Tokyo Night */
 .keyboard-surface.theme-emilia {
   --key-white-bg: #20212e;
   --key-white-color: #c0caf5;
@@ -1615,7 +1615,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(187, 154, 247, 0.15) 0%, rgba(122, 162, 247, 0.05) 75%, transparent 100%);
 }
 
-/* 15. H4ck3r (gh0stzk Rice - Matrix Green) */
+/* 15. Matrix Green */
 .keyboard-surface.theme-h4ck3r {
   --key-white-bg: #121824;
   --key-white-color: #00ff59;
@@ -1637,7 +1637,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(118, 234, 0, 0.15) 0%, rgba(25, 71, 224, 0.08) 75%, transparent 100%);
 }
 
-/* 16. Jan (gh0stzk Rice - Cyber Cyan) */
+/* 16. Cyberpunk Laser */
 .keyboard-surface.theme-jan {
   --key-white-bg: #0e062e;
   --key-white-color: #27fbfe;
@@ -1659,7 +1659,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(251, 0, 122, 0.18) 0%, rgba(39, 251, 254, 0.08) 75%, transparent 100%);
 }
 
-/* 17. Karla (gh0stzk Rice - Purple Crimson) */
+/* 17. Crimson Abyss */
 .keyboard-surface.theme-karla {
   --key-white-bg: #161b1f;
   --key-white-color: #afb1db;
@@ -1681,7 +1681,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(231, 3, 74, 0.15) 0%, rgba(88, 132, 212, 0.05) 75%, transparent 100%);
 }
 
-/* 18. Marisol (gh0stzk Rice - Dracula) */
+/* 18. Dracula */
 .keyboard-surface.theme-marisol {
   --key-white-bg: #343746;
   --key-white-color: #f8f8f2;
@@ -1703,7 +1703,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(189, 147, 249, 0.15) 0%, rgba(255, 121, 198, 0.05) 75%, transparent 100%);
 }
 
-/* 19. Melissa (gh0stzk Rice - Nord) */
+/* 19. Nord Frost */
 .keyboard-surface.theme-melissa {
   --key-white-bg: #3b4252;
   --key-white-color: #d8dee9;
@@ -1725,7 +1725,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(136, 192, 208, 0.15) 0%, rgba(129, 161, 193, 0.05) 75%, transparent 100%);
 }
 
-/* 20. Pamela (gh0stzk Rice - Dark Slate) */
+/* 20. Horizon Dark */
 .keyboard-surface.theme-pamela {
   --key-white-bg: #282a36;
   --key-white-color: #fdfdfd;
@@ -1747,7 +1747,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(136, 151, 244, 0.15) 0%, rgba(90, 222, 205, 0.05) 75%, transparent 100%);
 }
 
-/* 21. Silvia (gh0stzk Rice - Gruvbox) */
+/* 21. Gruvbox Dark */
 .keyboard-surface.theme-silvia {
   --key-white-bg: #3c3836;
   --key-white-color: #fbf1c7;
@@ -1769,7 +1769,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(250, 189, 47, 0.15) 0%, rgba(251, 241, 199, 0.05) 75%, transparent 100%);
 }
 
-/* 22. Varinka (gh0stzk Rice - Monochrome Dark) */
+/* 22. Monochrome Dark */
 .keyboard-surface.theme-varinka {
   --key-white-bg: #2c3136;
   --key-white-color: #f8f9fa;
@@ -1791,7 +1791,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(248, 249, 250, 0.15) 0%, rgba(206, 212, 218, 0.05) 75%, transparent 100%);
 }
 
-/* 23. Yael (gh0stzk Rice - Minimal Black & White) */
+/* 23. OLED Minimal */
 .keyboard-surface.theme-yael {
   --key-white-bg: #262626;
   --key-white-color: #ffffff;
@@ -1813,7 +1813,7 @@ body.profile-keyboard-65 .trackpad-wrapper {
   --kb-underglow: radial-gradient(circle at center, rgba(66, 190, 101, 0.15) 0%, rgba(255, 126, 182, 0.05) 75%, transparent 100%);
 }
 
-/* 24. Z0mbi3 (gh0stzk Rice - Red Cyberpunk) */
+/* 24. Cyberpunk Red */
 .keyboard-surface.theme-z0mbi3 {
   --key-white-bg: #171a29;
   --key-white-color: #a5b6cf;

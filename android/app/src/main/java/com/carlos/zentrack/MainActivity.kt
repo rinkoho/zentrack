@@ -18,7 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.carlos.zentrack.network.WebSocketManager
-import com.carlos.zentrack.theme.ClassicWhiteOrangeTheme
+import com.carlos.zentrack.theme.TokyoNightZenTheme
 import com.carlos.zentrack.theme.findZenThemeByName
 import com.carlos.zentrack.ui.screens.MainContainerScreen
 
@@ -26,8 +26,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var socketManager: WebSocketManager
     private var isConnected by mutableStateOf(false)
     private var statusText by mutableStateOf("Conectando...")
-    private var activeTheme by mutableStateOf(ClassicWhiteOrangeTheme)
-    private var syncTheme by mutableStateOf(true)
+    private var activeTheme by mutableStateOf(TokyoNightZenTheme)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,28 +36,37 @@ class MainActivity : ComponentActivity() {
         com.carlos.zentrack.preferences.ZenPreferences.init(applicationContext)
         com.carlos.zentrack.vision.data.ZenVisionPreferences.init(applicationContext)
         com.carlos.zentrack.audio.ZenSoundEngine.init(applicationContext)
-        com.carlos.zentrack.security.ZenCrypto.init("b8c5838d40a8746d2e79a7212e9f5f02")
+        if (com.carlos.zentrack.preferences.ZenPreferences.serverToken.isNotBlank()) {
+            com.carlos.zentrack.security.ZenCrypto.init(com.carlos.zentrack.preferences.ZenPreferences.serverToken)
+        }
         com.carlos.zentrack.haptics.ZenHapticsEngine.init(this, window.decorView)
         com.carlos.zentrack.bluetooth.ZenBluetoothHidManager.init(this)
         com.carlos.zentrack.bluetooth.ZenBleHidServer.init(this)
 
+        val requiredPermissions = mutableListOf<String>()
+
+        // Cámara para escanear QR sin interrupciones manuales
+        requiredPermissions.add(android.Manifest.permission.CAMERA)
+
+        // Permisos Bluetooth para Android 12+ (API 31+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val btPermissions = arrayOf(
-                android.Manifest.permission.BLUETOOTH_CONNECT,
-                android.Manifest.permission.BLUETOOTH_ADVERTISE,
-                android.Manifest.permission.BLUETOOTH_SCAN
-            )
-            val missing = btPermissions.filter {
-                checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED
-            }
-            if (missing.isNotEmpty()) {
-                requestPermissions(missing.toTypedArray(), 1001)
-            }
+            requiredPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
+            requiredPermissions.add(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+            requiredPermissions.add(android.Manifest.permission.BLUETOOTH_SCAN)
+        } else {
+            // Para versiones anteriores puede requerirse ubicación para escaneos
+            requiredPermissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        val missing = requiredPermissions.filter {
+            checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isNotEmpty()) {
+            requestPermissions(missing.toTypedArray(), 1001)
         }
 
         // Load saved preferences
         activeTheme = findZenThemeByName(com.carlos.zentrack.preferences.ZenPreferences.activeThemeName)
-        syncTheme = com.carlos.zentrack.preferences.ZenPreferences.syncTheme
         com.carlos.zentrack.audio.ZenSoundEngine.setEnabled(com.carlos.zentrack.preferences.ZenPreferences.keySoundEnabled)
         com.carlos.zentrack.audio.ZenSoundEngine.setProfile(com.carlos.zentrack.preferences.ZenPreferences.soundProfile)
         com.carlos.zentrack.audio.ZenSoundEngine.setVolume(com.carlos.zentrack.preferences.ZenPreferences.soundVolume)
@@ -69,18 +77,12 @@ class MainActivity : ComponentActivity() {
                     isConnected = connected
                     statusText = status
                 }
-            },
-            onThemeSyncReceived = { riceName ->
-                if (syncTheme) {
-                    runOnUiThread {
-                        val newTheme = findZenThemeByName(riceName)
-                        activeTheme = newTheme
-                        com.carlos.zentrack.preferences.ZenPreferences.activeThemeName = newTheme.name
-                    }
-                }
             }
         )
-        socketManager.connect()
+        if (com.carlos.zentrack.preferences.ZenPreferences.isConfigured) {
+            socketManager.connect()
+            com.carlos.zentrack.network.ZenDiscoveryManager.announceBroadcast(this)
+        }
 
         setContent {
             MaterialTheme {
@@ -92,12 +94,11 @@ class MainActivity : ComponentActivity() {
                         activeTheme = it
                         com.carlos.zentrack.preferences.ZenPreferences.activeThemeName = it.name
                     },
-                    syncTheme = syncTheme,
-                    onSyncThemeChanged = {
-                        syncTheme = it
-                        com.carlos.zentrack.preferences.ZenPreferences.syncTheme = it
-                    },
                     onReconnect = { socketManager.connect() },
+                    onConfigureConnection = { ip, port, token ->
+                        socketManager.connect(ip, port, token)
+                        com.carlos.zentrack.network.ZenDiscoveryManager.announceClientToServer(ip)
+                    },
                     onSendBinary = { cmd, x, y ->
                         if (cmd == 1.toShort()) {
                             com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseMove(x.toFloat(), y.toFloat(), socketManager::sendBinary)
