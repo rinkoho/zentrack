@@ -49,6 +49,7 @@ pub fn create_router(state: AppState) -> Router {
         .route("/api/system-health", get(health_handler))
         .route("/api/usb/reverse", post(usb_reverse_handler))
         .route("/api/install_vigem", post(install_vigem_handler))
+        .route("/api/system/restart", post(restart_system_handler))
         .route("/qr.svg", get(qr_svg_handler))
         .route("/pair", get(pair_handler))
         .fallback(static_handler)
@@ -108,6 +109,19 @@ async fn usb_reverse_handler(State(state): State<AppState>) -> impl IntoResponse
     (
         [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
         res.to_string(),
+    )
+}
+
+async fn restart_system_handler() -> impl IntoResponse {
+    std::thread::spawn(|| {
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        #[cfg(target_os = "linux")]
+        let _ = std::process::Command::new("systemctl").arg("--user").arg("restart").arg("zentrack").spawn();
+        std::process::exit(0);
+    });
+    (
+        [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
+        json!({"success": true, "message": "Reiniciando servidor..."}).to_string(),
     )
 }
 
@@ -230,6 +244,10 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
     });
     let _ = socket.send(Message::Text(init_settings.to_string())).await;
 
+    let mut last_packet = std::time::Instant::now();
+    let mut batch_count = 0;
+    use std::io::Write;
+
     while let Some(msg_result) = socket.recv().await {
         let msg = match msg_result {
             Ok(m) => m,
@@ -238,6 +256,20 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
 
         match msg {
             Message::Binary(bytes) => {
+                let now = std::time::Instant::now();
+                let dt = now.duration_since(last_packet).as_millis();
+                last_packet = now;
+                
+                // Only log if dt > 0 to avoid massive spam, or just log everything to a file
+                batch_count += 1;
+                if batch_count % 50 == 0 {
+                    let mut file = std::fs::OpenOptions::new().create(true).append(true).open("/tmp/zentrack_jitter.log").unwrap();
+                    writeln!(file, "Binary packet received. dt={}ms", dt).unwrap();
+                } else if dt > 12 {
+                    let mut file = std::fs::OpenOptions::new().create(true).append(true).open("/tmp/zentrack_jitter.log").unwrap();
+                    writeln!(file, "LARGE JITTER DETECTED: dt={}ms", dt).unwrap();
+                }
+
                 if let Some(cmd) = InputCommand::parse_binary(&bytes) {
                     execute_command(cmd, &state, &mut socket).await;
                 }

@@ -47,6 +47,7 @@ case "$1" in
             # 3. Mostrar el estado y el QR en la terminal, y devolver el prompt
             exec /usr/bin/zentrack-server --info
         else
+            # 4. Si se pasan argumentos como -h, pasarlos directo sin levantar servicio
             exec /usr/bin/zentrack-server "$@"
         fi
         ;;
