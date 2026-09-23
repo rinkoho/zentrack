@@ -1397,6 +1397,19 @@
               <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
             </button>
           </div>
+
+          <div class="section-heading" style="margin-top: 18px;">
+            <span class="icon">settings_power</span>
+            Acciones del Servidor
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn-primary" style="flex: 1;" onclick="restartServer()">
+              <span class="icon">restart_alt</span> Reiniciar Motor
+            </button>
+            <button class="btn-secondary" style="flex: 1;" onclick="forceAdbTunnel()">
+              <span class="icon">cable</span> Forzar ADB
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1840,6 +1853,29 @@
     function copyRaw(text) {
       navigator.clipboard.writeText(text);
       alert("Comando copiado al portapapeles: " + text);
+    }
+
+    async function restartServer() {
+      if(confirm("¿Estás seguro de reiniciar el servidor? Esto desconectará todos los dispositivos temporalmente.")) {
+        try {
+          const res = await fetch('/api/system/restart', { method: 'POST' });
+          const data = await res.json();
+          alert(data.message);
+          setTimeout(() => location.reload(), 2000);
+        } catch(e) {
+          alert("Error: " + e);
+        }
+      }
+    }
+
+    async function forceAdbTunnel() {
+      try {
+        const res = await fetch('/api/usb/reverse', { method: 'POST' });
+        const data = await res.json();
+        alert(data.message || data.error);
+      } catch(e) {
+        alert("Error: " + e);
+      }
     }
 
     document.getElementById('val-ip').textContent = window.location.hostname;

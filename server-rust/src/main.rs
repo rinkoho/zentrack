@@ -228,6 +228,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tray_mode = cfg!(target_os = "windows") || args.iter().any(|a| a == "--tray");
     let tui_mode = args.iter().any(|a| a == "--tui");
     let info_mode = args.iter().any(|a| a == "--info");
+    let help_mode = args.iter().any(|a| a == "-h" || a == "--help");
+
+    if help_mode {
+        println!("ZenTrack Native Server");
+        println!("Uso: zentrack [OPCIÓN]");
+        println!("Opciones:");
+        println!("  --info       Muestra el estado del servidor y el código QR de emparejamiento.");
+        println!("  --tray       Inicia el ícono en la bandeja del sistema (Dock/Tray).");
+        println!("  --tui        Abre el panel de diagnóstico en la terminal (Terminal UI).");
+        println!("  -h, --help   Muestra este mensaje de ayuda.");
+        std::process::exit(0);
+    }
 
     if info_mode {
         let config_path = if PathBuf::from("config.json").exists() {
