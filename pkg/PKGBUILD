@@ -4,14 +4,14 @@ pkgver=r1.0.0
 pkgrel=1
 pkgdesc="Ultra-Low Latency trackpad and keyboard server for mobile devices (Commercial Version)"
 arch=('x86_64')
-url="https://github.com/rrin08455/zentrack"
+url="https://github.com/rinkoho/zentrack"
 license=('custom')
 depends=('gcc-libs')
 optdepends=('android-tools: For USB ADB ultra-low latency connection')
 makedepends=('git' 'cargo')
 provides=('zentrack')
 conflicts=('zentrack')
-source=("git+https://github.com/rrin08455/zentrack.git#branch=commercial-v1")
+source=("git+https://github.com/rinkoho/zentrack.git#branch=main")
 sha256sums=('SKIP')
 
 pkgver() {
