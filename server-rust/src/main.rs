@@ -5,6 +5,7 @@ mod driver;
 mod health;
 mod protocol;
 mod web;
+mod tui;
 
 use config::AppConfig;
 use crypto::CryptoEngine;
@@ -19,8 +20,7 @@ use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(target_os = "windows")]
     unsafe {
         use windows_sys::Win32::System::Console::*;
@@ -86,11 +86,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let args: Vec<String> = std::env::args().collect();
-    let no_browser = args.iter().any(|a| a == "--no-browser" || a == "--headless" || a == "-d");
+    let no_browser = args.iter().any(|a| a == "--no-browser" || a == "--headless" || a == "-d" || a == "--tray");
 
     let pairing_url = format!("http://127.0.0.1:{}/pair", port);
 
-    // Automatic browser launch (unless --no-browser or --headless is passed)
+    // Automatic browser launch (unless --no-browser or --headless or --tray is passed)
     if !no_browser {
         let open_url = pairing_url.clone();
         tokio::spawn(async move {
@@ -154,5 +154,100 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .await?;
 
+    Ok(())
+}
+
+fn run_tray() {
+    use tao::event_loop::{ControlFlow, EventLoopBuilder};
+    use tray_icon::{
+        menu::{Menu, MenuItem, PredefinedMenuItem},
+        TrayIconBuilder, TrayIconEvent,
+    };
+
+    let event_loop = EventLoopBuilder::new().build();
+    let tray_menu = Menu::new();
+    let open_i = MenuItem::new("Abrir Web GUI", true, None);
+    let adb_i = MenuItem::new("Activar USB ADB", true, None);
+    let restart_i = MenuItem::new("Reiniciar", true, None);
+    let quit_i = MenuItem::new("Salir", true, None);
+    
+    tray_menu.append_items(&[
+        &open_i,
+        &adb_i,
+        &PredefinedMenuItem::separator(),
+        &restart_i,
+        &quit_i,
+    ]).unwrap();
+
+    let mut tray_icon = Some(
+        TrayIconBuilder::new()
+            .with_menu(Box::new(tray_menu))
+            .with_tooltip("ZenTrack Server")
+            .build()
+            .unwrap(),
+    );
+
+    let menu_channel = tray_icon::menu::MenuEvent::receiver();
+    let _tray_channel = TrayIconEvent::receiver();
+
+    event_loop.run(move |_event, _, control_flow| {
+        *control_flow = ControlFlow::WaitUntil(std::time::Instant::now() + std::time::Duration::from_millis(50));
+
+        if let Ok(event) = menu_channel.try_recv() {
+            if event.id == quit_i.id() {
+                tray_icon.take();
+                *control_flow = ControlFlow::Exit;
+                std::process::exit(0);
+            } else if event.id == open_i.id() {
+                let url = "http://127.0.0.1:3000/pair";
+                #[cfg(target_os = "windows")]
+                let _ = std::process::Command::new("explorer").arg(url).spawn();
+                #[cfg(target_os = "linux")]
+                let _ = std::process::Command::new("xdg-open").arg(url).spawn();
+            } else if event.id == restart_i.id() {
+                std::process::exit(0);
+            } else if event.id == adb_i.id() {
+                if let Some(adb) = health::find_adb_binary() {
+                    let _ = health::run_adb_reverse(&adb, 3000);
+                }
+            }
+        }
+    });
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<String> = std::env::args().collect();
+    let tray_mode = cfg!(target_os = "windows") || args.iter().any(|a| a == "--tray");
+    let tui_mode = args.iter().any(|a| a == "--tui");
+
+    // Start Tokio in a background thread
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()?;
+
+    std::thread::spawn(move || {
+        rt.block_on(async {
+            if let Err(e) = run_server().await {
+                eprintln!("Server error: {}", e);
+                std::process::exit(1);
+            }
+        });
+    });
+
+    if tui_mode {
+        // Run TUI
+        if let Err(e) = tui::run_tui() {
+            eprintln!("TUI Error: {}", e);
+        }
+        std::process::exit(0);
+    } else if tray_mode {
+        run_tray();
+    } else {
+        // Fallback wait
+        loop {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+        }
+    }
+    
     Ok(())
 }

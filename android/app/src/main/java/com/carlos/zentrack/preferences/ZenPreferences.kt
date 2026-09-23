@@ -21,6 +21,7 @@ object ZenPreferences {
     private const val KEY_STICKY_KEYS_ENABLED = "sticky_keys_enabled"
     private const val KEY_HYBRID_KEYBOARD_HEIGHT_RATIO = "hybrid_keyboard_height_ratio"
     private const val KEY_KEY_CASTER_ENABLED = "key_caster_enabled"
+    private const val KEY_NETWORK_HZ = "pref_network_hz"
     private const val KEY_USB_ADB_MODE_ENABLED = "usb_adb_mode_enabled"
     private const val KEY_INVERT_THREE_FINGER_SWIPE = "invert_three_finger_swipe"
     private const val KEY_TRACKPAD_PHYSICAL_BUTTONS_ENABLED = "trackpad_physical_buttons_enabled"
@@ -130,6 +131,10 @@ object ZenPreferences {
     var usbAdbModeEnabled: Boolean
         get() = prefs.getBoolean(KEY_USB_ADB_MODE_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_USB_ADB_MODE_ENABLED, value).apply()
+
+    var networkHz: Int
+        get() = prefs.getInt(KEY_NETWORK_HZ, 500)
+        set(value) = prefs.edit().putInt(KEY_NETWORK_HZ, value).apply()
 
     var invertThreeFingerSwipe: Boolean
         get() = prefs.getBoolean(KEY_INVERT_THREE_FINGER_SWIPE, false)

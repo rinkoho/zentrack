@@ -1033,6 +1033,60 @@
   </header>
 
   <div class="main-wrap">
+    
+    <!-- SMARTSCREEN EXPLAINER GRAPHIC FOR WINDOWS -->
+    <div class="alert-box alert-warning" id="smartscreen-explainer" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; border-radius: var(--md-shape-corner-extra-large); background: var(--md-sys-color-surface-container-high); border: 2px solid var(--md-sys-color-warning); overflow: hidden; position: relative;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--md-sys-color-warning); animation: shimmer 2s infinite linear;"></div>
+      <div style="font-family: var(--font-brand); font-size: 16px; font-weight: 800; color: var(--md-sys-color-on-surface); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <span class="icon" style="color: var(--md-sys-color-warning); font-size: 24px;">security</span>
+        Aviso de Windows SmartScreen
+      </div>
+      <p style="font-size: 13.5px; color: var(--md-sys-color-on-surface-variant); max-width: 600px; margin-bottom: 16px;">
+        ZenTrack no tiene una firma digital corporativa costosa todavía. Si Windows muestra una pantalla azul bloqueando la aplicación, sigue estos 2 pasos para permitir la conexión ultra-baja latencia en tu propia red local:
+      </p>
+      
+      <!-- Explainer Graphic UI -->
+      <div style="display: flex; gap: 16px; align-items: stretch; justify-content: center; flex-wrap: wrap; width: 100%;">
+        <div style="flex: 1; min-width: 200px; max-width: 280px; background: #005A9E; border-radius: 8px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Windows protegió su PC</div>
+          <div style="font-size: 11px; margin-bottom: 16px; opacity: 0.8;">Microsoft Defender SmartScreen impidió que se iniciara una aplicación no reconocida.</div>
+          <div style="display: flex; justify-content: flex-end;">
+             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 4px;">No ejecutar</span>
+          </div>
+          <!-- The 'More Info' click animation -->
+          <div style="position: absolute; top: 38px; left: 16px; font-size: 11px; text-decoration: underline; font-weight: bold; cursor: pointer; color: #fff;">
+            Más información
+            <div style="position: absolute; top: 6px; left: 40px; width: 14px; height: 14px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
+            <span class="icon" style="position: absolute; top: 12px; left: 48px; font-size: 18px; color: white; animation: hand-click 2s infinite;">touch_app</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center;">
+          <span class="icon" style="font-size: 32px; color: var(--md-sys-color-outline-variant);">arrow_forward</span>
+        </div>
+
+        <div style="flex: 1; min-width: 200px; max-width: 280px; background: #005A9E; border-radius: 8px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Windows protegió su PC</div>
+          <div style="font-size: 11px; margin-bottom: 12px; opacity: 0.8;">
+            Aplicación: zentrack-server.exe<br>
+            Editor: Desconocido
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-weight: bold;">Ejecutar de todas formas</span>
+             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 4px;">No ejecutar</span>
+          </div>
+          <div style="position: absolute; bottom: 8px; right: 110px; width: 14px; height: 14px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
+          <span class="icon" style="position: absolute; bottom: -2px; right: 100px; font-size: 18px; color: white; animation: hand-click 2s infinite;">touch_app</span>
+        </div>
+      </div>
+      <style>
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes hand-click { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+        @keyframes ripple-click { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      </style>
+    </div>
+
     <!-- ==================== VISTA 1: ASISTENTE INTERACTIVO ==================== -->
     <div id="view-wizard">
       <!-- Selector de Transporte -->

@@ -103,6 +103,8 @@ fun TrackpadScreen(
     var isThreeFingerSwipeCandidate by remember { mutableStateOf(false) }
 
     // Sub-pixel Floating Point Accumulators for High-Hz Touch Screens
+    class ThrottleState { var lastTime: Long = 0L }
+    val moveThrottleState = remember { ThrottleState() }
     var subPixelRemainderX by remember { mutableFloatStateOf(0f) }
     var subPixelRemainderY by remember { mutableFloatStateOf(0f) }
     var scrollRemainderX by remember { mutableFloatStateOf(0f) }
@@ -296,18 +298,25 @@ fun TrackpadScreen(
                                             // Pure continuous sub-pixel floating point feed (Zero staircase quantization)
                                             com.carlos.zentrack.bluetooth.ZenInputRouter.sendMouseMove(calcDx, calcDy, onSendBinary)
                                         } else {
-                                            // Network Mode: 500Hz integer binary protocol
+                                            // Network Mode: integer binary protocol with Hz pacing
                                             subPixelRemainderX += calcDx
                                             subPixelRemainderY += calcDy
 
-                                            val sendMx = subPixelRemainderX.toInt()
-                                            val sendMy = subPixelRemainderY.toInt()
+                                            val currentTime = System.nanoTime()
+                                            val hz = com.carlos.zentrack.preferences.ZenPreferences.networkHz
+                                            val nsDelay = 1_000_000_000L / hz
+                                            
+                                            // throttleState is initialized below, wait I'll define it at the top of the Composable
+                                            if (currentTime - moveThrottleState.lastTime >= nsDelay) {
+                                                val sendMx = subPixelRemainderX.toInt()
+                                                val sendMy = subPixelRemainderY.toInt()
 
-                                            subPixelRemainderX -= sendMx.toFloat()
-                                            subPixelRemainderY -= sendMy.toFloat()
-
-                                            if (sendMx != 0 || sendMy != 0) {
-                                                onSendBinary(1, sendMx, sendMy)
+                                                if (sendMx != 0 || sendMy != 0) {
+                                                    subPixelRemainderX -= sendMx.toFloat()
+                                                    subPixelRemainderY -= sendMy.toFloat()
+                                                    onSendBinary(1, sendMx, sendMy)
+                                                }
+                                                moveThrottleState.lastTime = currentTime
                                             }
                                         }
                                     }
@@ -430,6 +439,14 @@ fun TrackpadScreen(
                                 cancelDragTimer()
                                 cancelTwoFingerDragTimer()
                                 trackpadPointers.remove(actionPointerId)
+                                
+                                val sendMx = subPixelRemainderX.toInt()
+                                val sendMy = subPixelRemainderY.toInt()
+                                if (sendMx != 0 || sendMy != 0) {
+                                    subPixelRemainderX -= sendMx.toFloat()
+                                    subPixelRemainderY -= sendMy.toFloat()
+                                    onSendBinary(1, sendMx, sendMy)
+                                }
 
                                 if (isDraggingMode) {
                                     isDraggingMode = false

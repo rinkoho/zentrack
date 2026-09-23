@@ -316,6 +316,66 @@ fun SettingsScreen(
                         )
                     }
                 }
+
+                // Polling Rate (Hz)
+                Surface(
+                    color = currentTheme.card.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, currentTheme.primaryAccent.copy(alpha = 0.2f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Speed, contentDescription = null, tint = currentTheme.primaryAccent, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Polling Rate (Hz)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                        }
+
+                        val hzOptions = listOf(
+                            500 to "500 Hz (Gaming/USB)",
+                            250 to "250 Hz (Equilibrado)",
+                            125 to "125 Hz (Red Inestable)",
+                            60 to "60 Hz (Ahorro Batería)"
+                        )
+
+                        var currentHz by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.networkHz) }
+
+                        hzOptions.forEach { (hzValue, label) ->
+                            val isSelected = currentHz == hzValue
+                            Surface(
+                                onClick = {
+                                    currentHz = hzValue
+                                    com.carlos.zentrack.preferences.ZenPreferences.networkHz = hzValue
+                                },
+                                color = if (isSelected) currentTheme.primaryAccent.copy(alpha = 0.18f) else currentTheme.surface.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(5.dp),
+                                border = BorderStroke(1.dp, if (isSelected) currentTheme.primaryAccent else Color.Transparent),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = label,
+                                        color = if (isSelected) currentTheme.primaryAccent else currentTheme.textPrimary,
+                                        fontSize = 9.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = currentTheme.primaryAccent,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // COLUMN 2: DESPLAZAMIENTO, BOTONES & SCROLL
