@@ -199,6 +199,9 @@ fn run_tray() {
         if let Ok(event) = menu_channel.try_recv() {
             if event.id == quit_i.id() {
                 tray_icon.take();
+                #[cfg(target_os = "linux")]
+                let _ = std::process::Command::new("systemctl").arg("--user").arg("stop").arg("zentrack").spawn();
+                
                 *control_flow = ControlFlow::Exit;
                 std::process::exit(0);
             } else if event.id == open_i.id() {
@@ -208,6 +211,8 @@ fn run_tray() {
                 #[cfg(target_os = "linux")]
                 let _ = std::process::Command::new("xdg-open").arg(url).spawn();
             } else if event.id == restart_i.id() {
+                #[cfg(target_os = "linux")]
+                let _ = std::process::Command::new("systemctl").arg("--user").arg("restart").arg("zentrack").spawn();
                 std::process::exit(0);
             } else if event.id == adb_i.id() {
                 if let Some(adb) = health::find_adb_binary() {
