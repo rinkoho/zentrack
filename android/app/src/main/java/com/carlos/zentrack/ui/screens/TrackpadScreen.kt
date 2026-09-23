@@ -306,8 +306,7 @@ fun TrackpadScreen(
                                             val hz = com.carlos.zentrack.preferences.ZenPreferences.networkHz
                                             val nsDelay = 1_000_000_000L / hz
                                             
-                                            // throttleState is initialized below, wait I'll define it at the top of the Composable
-                                            if (currentTime - moveThrottleState.lastTime >= nsDelay) {
+                                            if (hz >= 500 || (currentTime - moveThrottleState.lastTime >= nsDelay)) {
                                                 val sendMx = subPixelRemainderX.toInt()
                                                 val sendMy = subPixelRemainderY.toInt()
 

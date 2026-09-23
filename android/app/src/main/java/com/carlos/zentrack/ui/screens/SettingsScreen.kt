@@ -330,14 +330,12 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Polling Rate (Hz)", color = currentTheme.textPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                         }
-
                         val hzOptions = listOf(
-                            500 to "500 Hz (Gaming/USB)",
-                            250 to "250 Hz (Equilibrado)",
-                            125 to "125 Hz (Red Inestable)",
-                            60 to "60 Hz (Ahorro Batería)"
+                            500 to "Ilimitado (Max HW)",
+                            250 to "Alto (Equilibrado)",
+                            125 to "Medio (Red Inestable)",
+                            60 to "Bajo (Ahorro Batería)"
                         )
-
                         var currentHz by remember { mutableIntStateOf(com.carlos.zentrack.preferences.ZenPreferences.networkHz) }
 
                         hzOptions.forEach { (hzValue, label) ->
@@ -374,6 +372,15 @@ fun SettingsScreen(
                                 }
                             }
                         }
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "* Los Hz reales están limitados por el hardware digitalizador de tu pantalla.",
+                            color = currentTheme.textMuted,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Light,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
                     }
                 }
             }
