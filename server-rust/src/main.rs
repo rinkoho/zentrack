@@ -225,17 +225,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .enable_all()
         .build()?;
 
+    // Handle server thread via channel
+    let (tx, rx) = std::sync::mpsc::channel();
+    let is_gui = tui_mode || tray_mode;
+
     std::thread::spawn(move || {
         rt.block_on(async {
             if let Err(e) = run_server().await {
-                eprintln!("Server error: {}", e);
-                std::process::exit(1);
+                let err_str = e.to_string();
+                if err_str.contains("Address already in use") || err_str.contains("os error 98") || err_str.contains("Solo se permite un uso") {
+                    if is_gui {
+                        // Already running, GUI can operate as client
+                    } else {
+                        eprintln!("[ZenTrack] El servidor ya está en ejecución en el puerto 3000.");
+                        let _ = tx.send(false);
+                    }
+                } else {
+                    eprintln!("Server error: {}", e);
+                    let _ = tx.send(false);
+                }
+            } else {
+                let _ = tx.send(true);
             }
         });
     });
 
     if tui_mode {
-        // Run TUI
         if let Err(e) = tui::run_tui() {
             eprintln!("TUI Error: {}", e);
         }
@@ -243,9 +258,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else if tray_mode {
         run_tray();
     } else {
-        // Fallback wait
-        loop {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+        // If headless, wait for the server thread to finish or fail
+        if let Ok(success) = rx.recv() {
+            if !success {
+                std::process::exit(1);
+            }
         }
     }
     
