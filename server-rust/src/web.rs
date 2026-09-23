@@ -90,7 +90,11 @@ async fn install_vigem_handler() -> impl IntoResponse {
 }
 
 async fn health_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let health = crate::health::inspect_system(state.config.port);
+    let port = state.config.port;
+    let health = tokio::task::spawn_blocking(move || {
+        crate::health::inspect_system(port)
+    }).await.unwrap();
+    
     (
         [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
         serde_json::to_string(&health).unwrap_or_else(|_| "{}".to_string()),
@@ -98,13 +102,16 @@ async fn health_handler(State(state): State<AppState>) -> impl IntoResponse {
 }
 
 async fn usb_reverse_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let res = if let Some(adb) = crate::health::find_adb_binary() {
-        crate::health::run_adb_reverse(&adb, state.config.port)
-            .map(|_| json!({"success": true, "message": "Túnel USB ADB activado con éxito"}))
-            .unwrap_or_else(|e| json!({"success": false, "error": e}))
-    } else {
-        json!({"success": false, "error": "Herramienta ADB no encontrada en el sistema"})
-    };
+    let port = state.config.port;
+    let res = tokio::task::spawn_blocking(move || {
+        if let Some(adb) = crate::health::find_adb_binary() {
+            crate::health::run_adb_reverse(&adb, port)
+                .map(|_| json!({"success": true, "message": "Túnel USB ADB activado con éxito"}))
+                .unwrap_or_else(|e| json!({"success": false, "error": e}))
+        } else {
+            json!({"success": false, "error": "Herramienta ADB no encontrada en el sistema"})
+        }
+    }).await.unwrap();
 
     (
         [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
