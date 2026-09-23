@@ -240,3 +240,6 @@ echo "  • zentrack gui       -> Abrir panel web de emparejamiento en el navega
 echo "  • zentrack health    -> Ver diagnóstico de salud del sistema y dispositivos"
 echo "  • zentrack logs      -> Ver registros en tiempo real"
 echo ""
+echo -e "${COLOR_GREEN}💡 TIP:${COLOR_RESET} ZenTrack ya aparece en el menú/cajón de aplicaciones de tu sistema."
+echo "Puedes iniciarlo desde allí gráficamente sin usar la terminal."
+echo ""
