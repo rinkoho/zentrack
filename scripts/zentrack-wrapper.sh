@@ -33,12 +33,19 @@ case "$1" in
         ;;
     *)
         if [ "$#" -eq 0 ]; then
-            if curl -s "http://127.0.0.1:3000/status" &>/dev/null; then
-                echo "[ZenTrack] Servidor ya activo. Abriendo Centro de Conexión..."
-                xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || true
-            else
-                exec /usr/bin/zentrack-server
+            # 1. Asegurar que el servidor está corriendo en segundo plano
+            if ! systemctl --user is-active --quiet zentrack; then
+                systemctl --user start zentrack 2>/dev/null || true
+                sleep 0.5 # Esperar a que levante el puerto
             fi
+
+            # 2. Asegurar que el icono del system tray está visible
+            if ! pgrep -f "zentrack-server --tray" > /dev/null; then
+                nohup /usr/bin/zentrack-server --tray >/dev/null 2>&1 &
+            fi
+
+            # 3. Mostrar el estado y el QR en la terminal, y devolver el prompt
+            exec /usr/bin/zentrack-server --info
         else
             exec /usr/bin/zentrack-server "$@"
         fi

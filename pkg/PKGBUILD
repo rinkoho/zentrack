@@ -1,6 +1,6 @@
 # Maintainer: Carlos <rrin08455@github.com>
 pkgname=zentrack-git
-pkgver=r1.0.0
+pkgver=r37.69981d5
 pkgrel=1
 pkgdesc="Ultra-Low Latency trackpad and keyboard server for mobile devices (Commercial Version)"
 arch=('x86_64')

@@ -120,29 +120,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let mobile_url = format!("http://{}:{}/?token={}", local_ip, port, token);
-
-    println!("========================================================");
-    println!("        ⚡ ZENTRACK ULTRA-LOW LATENCY NATIVE SERVER ⚡   ");
-    println!("========================================================");
-    println!("Platform      : {}", std::env::consts::OS);
-    println!("Local Address : http://127.0.0.1:{}", port);
-    println!("Mobile URL    : {}", mobile_url);
-    println!("Pairing GUI   : {}", pairing_url);
-    println!("Security Token: {}", token);
-    println!("--------------------------------------------------------");
-    println!("Scan this QR Code with your ZenTrack Mobile App / Camera:");
-
-    if let Ok(code) = QrCode::new(mobile_url.as_bytes()) {
-        let qr_string = code
-            .render::<Dense1x2>()
-            .dark_color(Dense1x2::Dark)
-            .light_color(Dense1x2::Light)
-            .build();
-        println!("{}", qr_string);
-    }
-
-    println!("========================================================");
-    println!("Ready for 500Hz+ connections. Waiting for client...");
+    print_banner(port, &token, &local_ip, &pairing_url, &mobile_url);
 
     let app = create_router(state);
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
@@ -155,6 +133,31 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     .await?;
 
     Ok(())
+}
+
+fn print_banner(port: u16, token: &str, local_ip: &str, pairing_url: &str, mobile_url: &str) {
+    println!("========================================================");
+    println!("        ⚡ ZENTRACK ULTRA-LOW LATENCY NATIVE SERVER ⚡   ");
+    println!("========================================================");
+    println!("Platform      : {}", std::env::consts::OS);
+    println!("Local Address : http://127.0.0.1:{}", port);
+    println!("Mobile URL    : {}", mobile_url);
+    println!("Pairing GUI   : {}", pairing_url);
+    println!("Security Token: {}", token);
+    println!("--------------------------------------------------------");
+    println!("Scan this QR Code with your ZenTrack Mobile App / Camera:\n");
+
+    if let Ok(code) = QrCode::new(mobile_url.as_bytes()) {
+        let qr_string = code
+            .render::<Dense1x2>()
+            .dark_color(Dense1x2::Dark)
+            .light_color(Dense1x2::Light)
+            .build();
+        println!("{}", qr_string);
+    }
+
+    println!("========================================================");
+    println!("Ready for 500Hz+ connections. Waiting for client...");
 }
 
 fn run_tray() {
@@ -219,6 +222,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().collect();
     let tray_mode = cfg!(target_os = "windows") || args.iter().any(|a| a == "--tray");
     let tui_mode = args.iter().any(|a| a == "--tui");
+    let info_mode = args.iter().any(|a| a == "--info");
+
+    if info_mode {
+        let config_path = if PathBuf::from("config.json").exists() {
+            PathBuf::from("config.json")
+        } else if PathBuf::from("../config.json").exists() {
+            PathBuf::from("../config.json")
+        } else {
+            PathBuf::from("config.json") // Or whatever standard path we have, but load_or_create handles it
+        };
+        // wait, we can just use the config loading from run_server.
+        let cfg = AppConfig::load_or_create(&config_path);
+        let port = cfg.port;
+        let token = cfg.token;
+        let local_ip = local_ip_address::local_ip().map(|ip| ip.to_string()).unwrap_or_else(|_| "127.0.0.1".to_string());
+        let pairing_url = format!("http://127.0.0.1:{}/pair", port);
+        let mobile_url = format!("http://{}:{}/?token={}", local_ip, port, token);
+        print_banner(port, &token, &local_ip, &pairing_url, &mobile_url);
+        std::process::exit(0);
+    }
 
     // Start Tokio in a background thread
     let rt = tokio::runtime::Builder::new_multi_thread()
