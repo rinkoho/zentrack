@@ -244,6 +244,18 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
     });
     let _ = socket.send(Message::Text(init_settings.to_string())).await;
 
+    // PACER JITTER BUFFER
+    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<(i32, i32)>();
+    let state_clone = state.clone();
+    tokio::spawn(async move {
+        while let Some((dx, dy)) = rx.recv().await {
+            let mut driver = state_clone.driver.lock().await;
+            driver.mouse_move(dx, dy);
+            drop(driver); // release lock quickly
+            tokio::time::sleep(tokio::time::Duration::from_millis(2)).await; // 500Hz pace
+        }
+    });
+
     let mut last_packet = std::time::Instant::now();
     let mut batch_count = 0;
     use std::io::Write;
@@ -271,12 +283,12 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                 }
 
                 if let Some(cmd) = InputCommand::parse_binary(&bytes) {
-                    execute_command(cmd, &state, &mut socket).await;
+                    execute_command(cmd, &state, &mut socket, &tx).await;
                 }
             }
             Message::Text(text) => {
                 if let Some(cmd) = InputCommand::parse_json(&text) {
-                    execute_command(cmd, &state, &mut socket).await;
+                    execute_command(cmd, &state, &mut socket, &tx).await;
                 }
             }
             Message::Ping(payload) => {
@@ -296,11 +308,10 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
     driver.set_gamepad_mode(false);
 }
 
-async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSocket) {
+async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSocket, tx: &tokio::sync::mpsc::UnboundedSender<(i32, i32)>) {
     match cmd {
         InputCommand::MouseMove { dx, dy } => {
-            let mut driver = state.driver.lock().await;
-            driver.mouse_move(dx, dy);
+            let _ = tx.send((dx, dy));
         }
         InputCommand::SmoothScroll { dx, dy } => {
             let mut driver = state.driver.lock().await;
@@ -362,7 +373,7 @@ async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSo
             let payload = crate::crypto::EncryptedPayload { iv, data, tag };
             if let Some(decrypted_json) = state.crypto.decrypt(&payload) {
                 if let Some(inner_cmd) = InputCommand::parse_json(&decrypted_json) {
-                    Box::pin(execute_command(inner_cmd, state, socket)).await;
+                    Box::pin(execute_command(inner_cmd, state, socket, tx)).await;
                 }
             }
         }
