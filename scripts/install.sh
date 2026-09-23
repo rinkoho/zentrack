@@ -113,13 +113,8 @@ sudo cp "$BIN_SOURCE" "$BIN_DEST"
 sudo chmod +x "$BIN_DEST"
 log_success "Binario instalado en $BIN_DEST."
 
-# 5.1 Install Tray Companion
-TRAY_SOURCE="$PROJECT_DIR/scripts/zentrack-tray.py"
-TRAY_DEST="/usr/local/bin/zentrack-tray"
-log_info "Instalando app de bandeja del sistema (System Tray / Dock) en $TRAY_DEST..."
-sudo cp "$TRAY_SOURCE" "$TRAY_DEST"
-sudo chmod +x "$TRAY_DEST"
-log_success "Bandeja del sistema instalada en $TRAY_DEST."
+# 5.1 Install Tray Companion (Now Built-in Native Rust)
+log_info "La bandeja del sistema (System Tray) ahora es nativa en Rust y está integrada en el servidor."
 
 # 5.2 Install System & Desktop Icons
 log_info "Instalando iconos del sistema en temas hicolor..."
@@ -151,7 +146,10 @@ sudo tee "$WRAPPER_DEST" >/dev/null <<EOF
 #!/usr/bin/env bash
 case "\$1" in
     tray)
-        exec /usr/local/bin/zentrack-tray "\$@"
+        exec /usr/local/bin/zentrack-server --tray "\$@"
+        ;;
+    tui)
+        exec /usr/local/bin/zentrack-server --tui "\$@"
         ;;
     gui|pair)
         xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair"
@@ -170,7 +168,7 @@ case "\$1" in
         ;;
     stop)
         systemctl --user stop zentrack
-        pkill -f zentrack-tray || true
+        pkill -f zentrack-server || true
         ;;
     restart)
         systemctl --user restart zentrack
