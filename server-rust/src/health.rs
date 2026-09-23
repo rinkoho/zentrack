@@ -176,6 +176,12 @@ pub fn is_adb_reverse_active(adb_bin: &str, port: u16) -> bool {
 
 /// Trigger adb reverse for port
 pub fn run_adb_reverse(adb_bin: &str, port: u16) -> Result<(), String> {
+    // 1. Restart ADB Daemon to fix ghost connections
+    let _ = Command::new(adb_bin).arg("kill-server").output();
+    let _ = Command::new(adb_bin).arg("start-server").output();
+    std::thread::sleep(std::time::Duration::from_millis(500));
+
+    // 2. Map reverse tunnel
     let port_str = format!("tcp:{}", port);
     match Command::new(adb_bin).args(["reverse", &port_str, &port_str]).output() {
         Ok(output) => {
