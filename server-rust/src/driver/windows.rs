@@ -167,7 +167,12 @@ impl InputDriver for WindowsDriver {
         if let Some(vk) = map_windows_key(key) {
             let scan = unsafe { MapVirtualKeyW(vk as u32, 0) as u16 };
             let is_extended = is_extended_key(vk);
-            let flags = if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
+            let mut flags = if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
+            
+            // Windows 11 DirectX / Raw Input compatibility
+            if scan != 0 {
+                flags |= KEYEVENTF_SCANCODE;
+            }
 
             unsafe {
                 let mut input: INPUT = std::mem::zeroed();
@@ -227,7 +232,12 @@ impl InputDriver for WindowsDriver {
         if let Some(vk) = map_windows_key(key) {
             let scan = unsafe { MapVirtualKeyW(vk as u32, 0) as u16 };
             let is_extended = is_extended_key(vk);
-            let flags = KEYEVENTF_KEYUP | if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
+            let mut flags = KEYEVENTF_KEYUP | if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
+            
+            // Windows 11 DirectX / Raw Input compatibility
+            if scan != 0 {
+                flags |= KEYEVENTF_SCANCODE;
+            }
 
             unsafe {
                 let mut input: INPUT = std::mem::zeroed();
