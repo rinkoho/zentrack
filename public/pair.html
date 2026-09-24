@@ -1410,6 +1410,11 @@
               <span class="icon">cable</span> Reiniciar ADB
             </button>
           </div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="btn-primary" style="flex: 1; background: var(--color-tertiary); color: var(--on-tertiary);" onclick="enableLockScreen()">
+              <span class="icon">lock_open</span> Habilitar en Pantalla de Bloqueo
+            </button>
+          </div>
           <div style="margin-top: 10px; font-size: 0.85em; color: var(--text-muted); display: flex; align-items: flex-start; gap: 6px;">
             <span class="icon" style="font-size: 16px;">lightbulb</span>
             <span style="line-height: 1.4;"><strong>Sugerencia de Rendimiento:</strong> Para obtener la máxima fluidez y menor latencia al usar ZenTrack, mantén esta pestaña cerrada.</span>
@@ -1879,6 +1884,18 @@
         alert(data.message || data.error);
       } catch(e) {
         alert("Error: " + e);
+      }
+    }
+
+    async function enableLockScreen() {
+      if (confirm("Esto habilitará ZenTrack en la pantalla de bloqueo de Linux (SDDM/GDM). Te pedirá tu contraseña de Administrador (Polkit). ¿Continuar?")) {
+        try {
+          const res = await fetch('/api/system/enable-lockscreen', { method: 'POST' });
+          const data = await res.json();
+          alert(data.message);
+        } catch(e) {
+          alert("Error: " + e);
+        }
       }
     }
 
