@@ -1,0 +1,8 @@
+post_upgrade() {
+    echo "Reiniciando instancias de zentrack-server..."
+    pkill -f zentrack-server || true
+}
+
+post_install() {
+    echo "Puedes iniciar zentrack con: systemctl --user enable --now zentrack"
+}
