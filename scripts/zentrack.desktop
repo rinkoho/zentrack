@@ -10,16 +10,4 @@ Categories=Utility;HardwareSettings;Game;
 StartupNotify=false
 Keywords=mouse;trackpad;touchpad;gamepad;controller;keyboard;remote;
 
-Actions=GUI;Status;Stop;
 
-[Desktop Action GUI]
-Name=Abrir Centro de Conexión (GUI)
-Exec=zentrack gui
-
-[Desktop Action Status]
-Name=Diagnóstico de Salud
-Exec=zentrack health
-
-[Desktop Action Stop]
-Name=Detener ZenTrack
-Exec=zentrack stop

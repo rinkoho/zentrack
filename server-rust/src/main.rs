@@ -5,8 +5,6 @@ mod driver;
 mod health;
 mod protocol;
 mod web;
-mod tui;
-
 use config::AppConfig;
 use crypto::CryptoEngine;
 use driver::create_driver;
@@ -226,7 +224,6 @@ fn run_tray() {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().collect();
     let tray_mode = cfg!(target_os = "windows") || args.iter().any(|a| a == "--tray");
-    let tui_mode = args.iter().any(|a| a == "--tui");
     let info_mode = args.iter().any(|a| a == "--info");
     let help_mode = args.iter().any(|a| a == "-h" || a == "--help");
 
@@ -236,7 +233,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Opciones:");
         println!("  --info       Muestra el estado del servidor y el código QR de emparejamiento.");
         println!("  --tray       Inicia el ícono en la bandeja del sistema (Dock/Tray).");
-        println!("  --tui        Abre el panel de diagnóstico en la terminal (Terminal UI).");
         println!("  -h, --help   Muestra este mensaje de ayuda.");
         std::process::exit(0);
     }
@@ -267,7 +263,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Handle server thread via channel
     let (tx, rx) = std::sync::mpsc::channel();
-    let is_gui = tui_mode || tray_mode;
+    let is_gui = tray_mode;
 
     std::thread::spawn(move || {
         rt.block_on(async {
@@ -290,12 +286,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     });
 
-    if tui_mode {
-        if let Err(e) = tui::run_tui() {
-            eprintln!("TUI Error: {}", e);
-        }
-        std::process::exit(0);
-    } else if tray_mode {
+    if tray_mode {
         run_tray();
     } else {
         // If headless, wait for the server thread to finish or fail
