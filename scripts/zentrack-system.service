@@ -1,0 +1,13 @@
+[Unit]
+Description=ZenTrack Ultra-Low Latency System Server (SDDM/GDM)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/zentrack-server --headless
+Restart=on-failure
+RestartSec=3
+Environment="RUST_LOG=info"
+
+[Install]
+WantedBy=multi-user.target

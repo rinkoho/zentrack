@@ -4,5 +4,14 @@ post_upgrade() {
 }
 
 post_install() {
-    echo "Puedes iniciar zentrack con: systemctl --user enable --now zentrack"
+    echo "=========================================================="
+    echo "🚀 ZenTrack instalado correctamente."
+    echo ""
+    echo "Modo Normal (Para tu usuario local):"
+    echo "  systemctl --user enable --now zentrack"
+    echo ""
+    echo "Modo Login Screen (Para usarlo en SDDM/GDM como root):"
+    echo "  sudo systemctl enable --now zentrack-system"
+    echo "  (¡Asegúrate de desactivar el de usuario si usas este!)"
+    echo "=========================================================="
 }
