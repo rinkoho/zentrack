@@ -416,6 +416,9 @@ async fn enable_lockscreen_handler() -> impl IntoResponse {
     let result = tokio::task::spawn_blocking(|| {
         #[cfg(target_os = "linux")]
         {
+            let username = std::env::var("USER").unwrap_or_else(|_| "carlos".to_string());
+            let service_name = format!("zentrack-system@{}", username);
+            
             // Desactiva el servicio de usuario primero (no necesita pkexec)
             let _ = std::process::Command::new("systemctl")
                 .args(["--user", "disable", "--now", "zentrack"])
@@ -423,7 +426,7 @@ async fn enable_lockscreen_handler() -> impl IntoResponse {
                 
             // Activa el servicio de sistema (pedirá contraseña con PolKit)
             let output = std::process::Command::new("pkexec")
-                .args(["systemctl", "enable", "--now", "zentrack-system"])
+                .args(["systemctl", "enable", "--now", &service_name])
                 .output();
                 
             match output {

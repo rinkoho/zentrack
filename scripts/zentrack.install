@@ -10,8 +10,8 @@ post_install() {
     echo "Modo Normal (Para tu usuario local):"
     echo "  systemctl --user enable --now zentrack"
     echo ""
-    echo "Modo Login Screen (Para usarlo en SDDM/GDM como root):"
-    echo "  sudo systemctl enable --now zentrack-system"
+    echo "Modo Login Screen (Para usarlo en SDDM/GDM):"
+    echo "  sudo systemctl enable --now zentrack-system@\$USER"
     echo "  (¡Asegúrate de desactivar el de usuario si usas este!)"
     echo "=========================================================="
 }
