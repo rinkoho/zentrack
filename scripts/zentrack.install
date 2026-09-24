@@ -36,3 +36,15 @@ post_install() {
     fi
     echo "=========================================================="
 }
+
+pre_remove() {
+    echo "Deteniendo servicios de ZenTrack..."
+    
+    # Detener y deshabilitar todas las instancias del servicio de sistema
+    for service in $(systemctl list-units --all -t service --full --no-legend "zentrack-system@*.service" | awk '{print $1}'); do
+        systemctl disable --now "$service" 2>/dev/null || true
+    done
+    
+    # Matar cualquier proceso residual
+    pkill -f zentrack-server || true
+}
