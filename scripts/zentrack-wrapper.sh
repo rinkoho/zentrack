@@ -3,9 +3,6 @@ case "$1" in
     tray)
         exec /usr/bin/zentrack-server --tray "$@"
         ;;
-    tui)
-        exec /usr/bin/zentrack-server --tui "$@"
-        ;;
     gui|pair)
         xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair"
         ;;
