@@ -13,11 +13,11 @@
 
   <style>
     /* ==========================================================================
-       SISTEMA DE DISEÑO PLANO (GOOGLE PIXEL / MATERIAL YOU / FLAT BENTO)
-       SIN BORDES RECARGADOS, SIN EFECTOS 3D FALSOS, SIN DESTELLOS LED PARPADEANTES
+       SISTEMA DE DISEÑO PLANO (GOOGLE PIXEL / FLAT BENTO)
+       SIN BORDES INNECESARIOS, SIN DUPLICADOS, SIN ALERTAS FALSAS
        ========================================================================== */
 
-    /* 1. TEMA: TOKYO NIGHT (PIXEL INDIGO FLAT) */
+    /* 1. TEMA: TOKYO NIGHT */
     :root, [data-theme="tokyo-night"], [data-theme="blue"], [data-theme="lavender"] {
       --theme-name: "tokyo-night";
       --bg-app: #0f1118;
@@ -50,7 +50,7 @@
       --modal-overlay: rgba(8, 9, 14, 0.75);
     }
 
-    /* 2. TEMA: MODO CLARO (PIXEL CLEAN WHITE) */
+    /* 2. TEMA: MODO CLARO */
     [data-theme="light"], [data-theme="sunset"] {
       --theme-name: "light";
       --bg-app: #f2f4f8;
@@ -83,7 +83,7 @@
       --modal-overlay: rgba(32, 33, 36, 0.45);
     }
 
-    /* 3. TEMA: MODO OSCURO (PIXEL SLATE) */
+    /* 3. TEMA: MODO OSCURO */
     [data-theme="dark"] {
       --theme-name: "dark";
       --bg-app: #141518;
@@ -116,7 +116,7 @@
       --modal-overlay: rgba(0, 0, 0, 0.72);
     }
 
-    /* 4. TEMA: OLED (TRUE BLACK #000000 FLAT) */
+    /* 4. TEMA: OLED */
     [data-theme="oled"], [data-theme="mint"] {
       --theme-name: "oled";
       --bg-app: #000000;
@@ -161,7 +161,6 @@
       --md-sys-color-on-surface-variant: var(--text-dim);
     }
 
-    /* RESET & BODY A PANTALLA COMPLETA 100vh SIN SCROLL */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -206,7 +205,7 @@
     }
 
     /* ==========================================================================
-       CABECERA SUPERIOR: BRANDING, STATUS PLANO Y BOTONES MINIMALISTAS
+       CABECERA SUPERIOR LIMPIA (SIN BOTONES DUPLICADOS)
        ========================================================================== */
     .top-bar {
       display: flex;
@@ -251,7 +250,6 @@
       margin-left: 2px;
     }
 
-    /* STATUS CHIP PLANO (SIN PARPADEO LED) */
     .center-status-group {
       display: flex;
       align-items: center;
@@ -272,7 +270,6 @@
       white-space: nowrap;
     }
 
-    /* PUNTOS DE ESTADO PLANOS: CERO PARPADEO, CERO GLOW 3D */
     .pulse-dot {
       width: 8px;
       height: 8px;
@@ -284,7 +281,6 @@
     .pulse-dot.yellow { background: var(--dot-yellow); }
     .pulse-dot.red { background: var(--dot-red); }
 
-    /* SWITCHER SEGMENTADO PLANO */
     .segmented-switch {
       display: inline-flex;
       background: var(--card-bg);
@@ -309,15 +305,13 @@
       gap: 6px;
       transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
-    .segmented-item:hover {
-      color: var(--text-main);
-    }
+    .segmented-item:hover { color: var(--text-main); }
     .segmented-item.active {
       background: var(--accent-primary-container);
       color: var(--accent-primary);
     }
 
-    /* BOTONES DE NAVEGACIÓN RÁPIDA */
+    /* TOP ACTIONS: SOLO AJUSTES Y TEMAS (SIN BOTONES DUPLICADOS) */
     .top-actions-group {
       display: flex;
       align-items: center;
@@ -344,16 +338,8 @@
       background: var(--card-bg-hover);
       transform: translateY(-2px);
     }
-    .nav-chip-btn:active {
-      transform: scale(0.96);
-    }
-    .nav-chip-btn.accent {
-      background: var(--accent-primary-container);
-      color: var(--accent-primary);
-      font-weight: 700;
-    }
+    .nav-chip-btn:active { transform: scale(0.96); }
 
-    /* DOCK DE TEMAS PLANO Y MINIMALISTA (SIN ETIQUETA "Tema:" NI ESFERAS 3D) */
     .magic-theme-dock {
       display: inline-flex;
       align-items: center;
@@ -373,9 +359,7 @@
       border: none;
       transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
-    .theme-orb:hover {
-      transform: scale(1.3);
-    }
+    .theme-orb:hover { transform: scale(1.3); }
     .theme-orb.active {
       transform: scale(1.2);
       outline: 2px solid var(--accent-primary);
@@ -387,7 +371,7 @@
     .orb-oled { background: #000000; box-shadow: inset 0 0 0 1px #444; }
 
     /* ==========================================================================
-       DASHBOARD BENTO BOX GRID: PLANO, SIN BORDES INNECESARIOS
+       DASHBOARD BENTO BOX GRID
        ========================================================================== */
     .bento-container {
       flex: 1;
@@ -412,7 +396,6 @@
       }
     }
 
-    /* TARJETAS FLOTANTES BENTO: SUPERFICIE PLANA, BORDES REDONDEADOS */
     .bento-card {
       background: var(--card-bg);
       border: none;
@@ -426,9 +409,7 @@
       transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
       animation: bentoFadeIn 0.35s cubic-bezier(0.2, 0, 0, 1) backwards;
     }
-    .bento-card:hover {
-      transform: translateY(-2px);
-    }
+    .bento-card:hover { transform: translateY(-2px); }
     @keyframes bentoFadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -464,7 +445,7 @@
     }
 
     /* ==========================================================================
-       WIDGET 1: HERO QR (COLUMNA IZQUIERDA 1 / 3)
+       WIDGET 1: HERO QR
        ========================================================================== */
     .card-qr-hero {
       grid-row: 1 / 3;
@@ -491,9 +472,7 @@
       max-height: 220px;
       transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
-    .qr-frame:hover {
-      transform: scale(1.02);
-    }
+    .qr-frame:hover { transform: scale(1.02); }
     .qr-frame img {
       width: 100%;
       height: 100%;
@@ -511,7 +490,6 @@
       margin-bottom: 12px;
     }
 
-    /* CREDENCIALES: FILAS PLANAS SIN BORDES */
     .creds-compact-list {
       display: flex;
       flex-direction: column;
@@ -530,9 +508,7 @@
       padding: 8px 12px;
       transition: background 0.15s ease;
     }
-    .cred-row:hover {
-      background: var(--card-bg-inner-hover);
-    }
+    .cred-row:hover { background: var(--card-bg-inner-hover); }
 
     .cred-meta {
       display: flex;
@@ -579,7 +555,7 @@
     }
 
     /* ==========================================================================
-       WIDGET 2: ESTADO DEL MOTOR & DRIVERS (500Hz)
+       WIDGET 2: DIAGNÓSTICO DE ENLACE DINÁMICO (ADAPTABLE AL MODO SELECCIONADO)
        ========================================================================== */
     .health-list {
       display: flex;
@@ -600,9 +576,7 @@
       font-size: 12.5px;
       transition: background 0.2s ease;
     }
-    .health-tile:hover {
-      background: var(--card-bg-inner-hover);
-    }
+    .health-tile:hover { background: var(--card-bg-inner-hover); }
 
     .health-title-group {
       display: flex;
@@ -624,7 +598,7 @@
     .badge-warn { background: var(--badge-warn-bg); color: var(--badge-warn-text); }
     .badge-err { background: var(--badge-err-bg); color: var(--badge-err-text); }
 
-    #usb-dynamic-feedback {
+    #usb-dynamic-feedback, #wifi-dynamic-feedback {
       margin-top: 10px;
     }
     .alert-box {
@@ -659,7 +633,7 @@
     }
 
     /* ==========================================================================
-       WIDGET 3: TRANSPORTE Y ASISTENTE (COLORES PLANOS MATERIAL YOU)
+       WIDGET 3: SELECCIÓN DE MODO DE TRANSPORTE
        ========================================================================== */
     .transport-selection-row {
       display: grid;
@@ -725,12 +699,13 @@
       line-height: 1.35;
     }
 
+    /* BOTÓN DE ACCIÓN CONTEXTUAL ÚNICO (SIN DUPLICACIÓN) */
     .btn-hero-launch {
       background: var(--accent-primary);
       color: var(--accent-on-primary);
       border: none;
       border-radius: 14px;
-      padding: 10px 16px;
+      padding: 11px 16px;
       font-family: var(--font-brand);
       font-size: 12px;
       font-weight: 700;
@@ -746,12 +721,10 @@
       opacity: 0.92;
       transform: translateY(-2px);
     }
-    .btn-hero-launch:active {
-      transform: scale(0.97);
-    }
+    .btn-hero-launch:active { transform: scale(0.97); }
 
     /* ==========================================================================
-       WIDGET 4: RADAR LAN UDP DISCOVERY
+       WIDGET 4: RADAR LAN UDP
        ========================================================================== */
     .radar-list {
       display: flex;
@@ -845,9 +818,7 @@
       background: var(--card-bg-inner-hover);
       transform: translateY(-2px);
     }
-    .bento-action-tile:active {
-      transform: scale(0.97);
-    }
+    .bento-action-tile:active { transform: scale(0.97); }
     .bento-action-tile .icon {
       font-size: 20px;
       color: var(--accent-primary);
@@ -855,7 +826,7 @@
     }
 
     /* ==========================================================================
-       SISTEMA DE MODALES FLOTANTES (CLEAN POPUPS)
+       SISTEMA DE MODALES FLOTANTES
        ========================================================================== */
     .bento-modal-overlay {
       position: fixed;
@@ -933,7 +904,6 @@
       line-height: 1.5;
     }
 
-    /* ESTILOS INTERIORES DE MODALES */
     .stepper-nav {
       display: flex;
       gap: 8px;
@@ -954,9 +924,7 @@
       gap: 8px;
       transition: background 0.2s;
     }
-    .step-btn.active {
-      background: var(--accent-primary-container);
-    }
+    .step-btn.active { background: var(--accent-primary-container); }
     .step-num {
       width: 22px;
       height: 22px;
@@ -1033,7 +1001,6 @@
       font-size: 11px;
     }
 
-    /* SIMULADOR DE SMARTPHONE PLANO */
     .simulator-container {
       display: flex;
       flex-direction: column;
@@ -1186,9 +1153,7 @@
       height: 16px;
       background: #222;
     }
-    .sim-cable-wrap.connected .sim-cable-head {
-      background: var(--accent-primary);
-    }
+    .sim-cable-wrap.connected .sim-cable-head { background: var(--accent-primary); }
 
     .sim-nav-controls {
       display: flex;
@@ -1213,7 +1178,6 @@
       gap: 4px;
     }
 
-    /* SELECTOR PERFIL LINUX */
     .settings-profile-row {
       background: var(--card-bg-inner);
       border: none;
@@ -1316,29 +1280,13 @@
       </div>
     </div>
 
-    <!-- Modal Shortcuts & Clean Minimalist Flat Theme Dots -->
+    <!-- Solo Ajustes y Selector de Temas (Sin botones duplicados) -->
     <div class="top-actions-group">
-      <button class="nav-chip-btn accent" onclick="openUsbGuide()" title="Guía Asistida de Cable USB y Simulador">
-        <span class="icon" style="font-size: 17px;">cable</span>
-        Guía USB
-      </button>
-
-      <button class="nav-chip-btn" onclick="openSmartScreenModal()" title="Diagnóstico de Windows SmartScreen">
-        <span class="icon" style="font-size: 17px;">security</span>
-        SmartScreen
-      </button>
-
-      <button id="btn-net-diag" class="nav-chip-btn" onclick="openFirewallModal()" title="Diagnóstico de Red y Firewall">
-        <span class="icon" style="font-size: 17px;">local_fire_department</span>
-        Firewall & Red
-      </button>
-
       <button class="nav-chip-btn" onclick="openSettingsModal()" title="Ajustes y Perfiles del Sistema">
         <span class="icon" style="font-size: 17px;">settings</span>
         Ajustes
       </button>
 
-      <!-- DOCK DE TEMAS PLANO Y MINIMALISTA -->
       <div class="magic-theme-dock" title="Cambiar tema (Tokyo Night, Claro, Oscuro, OLED)">
         <div class="theme-orb orb-tokyo active" data-theme="tokyo-night" onclick="setTheme('tokyo-night')" title="Tokyo Night"></div>
         <div class="theme-orb orb-light" data-theme="light" onclick="setTheme('light')" title="Modo Claro"></div>
@@ -1404,17 +1352,18 @@
         </div>
       </section>
 
-      <!-- ================= TILE 2: ESTADO DEL MOTOR & DRIVERS (500Hz) ================= -->
+      <!-- ================= TILE 2: ESTADO DEL MOTOR & DRIVERS (DINÁMICO SEGÚN MODO) ================= -->
       <section class="bento-card">
         <div class="card-header">
           <div class="card-title">
-            <span class="icon">speed</span>
-            Diagnóstico de Enlace & Drivers
+            <span class="icon" id="diag-icon">speed</span>
+            <span id="diag-title">Diagnóstico de Enlace</span>
           </div>
-          <span class="card-chip">500Hz</span>
+          <span class="card-chip" id="diag-chip">500Hz</span>
         </div>
 
-        <div class="health-list">
+        <!-- MODO CABLE USB: INDICADORES ESPECÍFICOS DE USB -->
+        <div id="diag-mode-usb" class="health-list">
           <div class="health-tile">
             <div class="health-title-group">
               <span id="health-driver-dot" class="pulse-dot"></span>
@@ -1455,8 +1404,51 @@
             <span id="health-tunnel-badge" class="health-badge badge-err">Inactivo</span>
           </div>
         </div>
-
         <div id="usb-dynamic-feedback"></div>
+
+        <!-- MODO WI-FI: INDICADORES ESPECÍFICOS DE WI-FI (SIN ALERTAS ROJAS DE USB) -->
+        <div id="diag-mode-wifi" class="health-list" style="display: none;">
+          <div class="health-tile">
+            <div class="health-title-group">
+              <span id="health-wifi-driver-dot" class="pulse-dot"></span>
+              <span>Driver de Ratón / Teclado (uinput / Win32)</span>
+            </div>
+            <span id="health-wifi-driver-badge" class="health-badge badge-ok">Operativo</span>
+          </div>
+
+          <div class="health-tile">
+            <div class="health-title-group">
+              <span id="health-wifi-gamepad-dot" class="pulse-dot yellow"></span>
+              <span>Driver Mando Xbox 360 (ViGEmBus)</span>
+            </div>
+            <span id="health-wifi-gamepad-badge" class="health-badge badge-warn">Comprobando...</span>
+          </div>
+
+          <div class="health-tile">
+            <div class="health-title-group">
+              <span class="pulse-dot"></span>
+              <span>Servidor WebSocket Local (TCP :3000)</span>
+            </div>
+            <span class="health-badge badge-ok">Escuchando</span>
+          </div>
+
+          <div class="health-tile">
+            <div class="health-title-group">
+              <span class="pulse-dot"></span>
+              <span>Radar LAN de Descubrimiento (UDP :37020)</span>
+            </div>
+            <span class="health-badge badge-ok">Activo</span>
+          </div>
+
+          <div class="health-tile">
+            <div class="health-title-group">
+              <span id="health-wifi-client-dot" class="pulse-dot yellow"></span>
+              <span>Estado del Enlace Wi-Fi</span>
+            </div>
+            <span id="health-wifi-client-badge" class="health-badge badge-warn">Esperando Cliente</span>
+          </div>
+        </div>
+        <div id="wifi-dynamic-feedback" style="display: none;"></div>
       </section>
 
       <!-- ================= TILE 3: MODOS DE TRANSPORTE ================= -->
@@ -1466,11 +1458,11 @@
             <span class="icon">alt_route</span>
             Modo de Transporte
           </div>
-          <span class="card-chip">Latencia Cero</span>
+          <span class="card-chip">Selección</span>
         </div>
 
         <div class="transport-selection-row">
-          <div id="card-opt-usb" class="transport-card selected" onclick="selectTransport('usb')">
+          <div id="card-opt-usb" class="transport-card" onclick="selectTransport('usb')">
             <div class="transport-top">
               <div class="transport-name">
                 <span class="icon">cable</span>
@@ -1483,7 +1475,7 @@
             </div>
           </div>
 
-          <div id="card-opt-wifi" class="transport-card" onclick="selectTransport('wifi')">
+          <div id="card-opt-wifi" class="transport-card selected" onclick="selectTransport('wifi')">
             <div class="transport-top">
               <div class="transport-name">
                 <span class="icon">wifi</span>
@@ -1497,9 +1489,10 @@
           </div>
         </div>
 
-        <button class="btn-hero-launch" onclick="openUsbGuide()">
-          <span class="icon">smart_display</span>
-          Abrir Guía Asistida & Simulador en Vivo
+        <!-- Botón Contextual Único (sin duplicación en la cabecera) -->
+        <button id="btn-transport-action" class="btn-hero-launch" onclick="openFirewallModal()">
+          <span class="icon">local_fire_department</span>
+          Diagnóstico de Red & Reglas Firewall
         </button>
       </section>
 
@@ -1510,9 +1503,7 @@
             <span class="icon">radar</span>
             Radar LAN (UDP :37020)
           </div>
-          <button id="btn-firewall-rules" class="btn-copy-mini" onclick="openFirewallModal()" title="Fijar Reglas Firewall">
-            <span class="icon" style="font-size: 13px;">shield</span> Reglas Firewall
-          </button>
+          <span class="card-chip">Auto-Detect</span>
         </div>
 
         <div id="radar-container" class="radar-list">
@@ -1523,7 +1514,7 @@
         </div>
       </section>
 
-      <!-- ================= TILE 5: ACCIONES RÁPIDAS ================= -->
+      <!-- ================= TILE 5: ACCIONES RÁPIDAS (ÚNICAS, SIN DUPLICADOS) ================= -->
       <section class="bento-card">
         <div class="card-header">
           <div class="card-title">
@@ -1881,7 +1872,10 @@
       </div>
 
       <div style="margin-top: 18px; display: flex; justify-content: flex-end; gap: 10px;">
-        <button class="btn-primary" onclick="checkHealth(); updateDevices(); alert('Diagnóstico de red ejecutado.');">
+        <button id="btn-firewall-rules" class="btn-secondary" onclick="copyRaw('sudo ufw allow 3000/tcp && sudo ufw allow 37020/udp && sudo ufw reload')">
+          <span class="icon">content_copy</span> Copiar Reglas UFW
+        </button>
+        <button id="btn-net-diag" class="btn-primary" onclick="checkHealth(); updateDevices(); alert('Diagnóstico de red ejecutado.');">
           <span class="icon">sync</span> Re-escanear Red
         </button>
       </div>
@@ -1945,7 +1939,7 @@
 
   <!-- ==================== LÓGICA JAVASCRIPT ==================== -->
   <script>
-    let currentTransport = 'usb';
+    let currentTransport = 'wifi'; // Default a Wi-Fi para evitar falsos rojos de USB
     let currentStep = 1;
     let currentBrand = 'xiaomi';
     let devTaps = 0;
@@ -2021,19 +2015,50 @@
       }
     });
 
-    // SELECCIÓN DE TRANSPORTE
+    // SELECCIÓN DE TRANSPORTE DINÁMICA (SEPARA USB DE WI-FI PARA EVITAR FALSOS ROJOS)
     function selectTransport(type) {
       currentTransport = type;
       const cardUsb = document.getElementById('card-opt-usb');
       const cardWifi = document.getElementById('card-opt-wifi');
+      const diagUsb = document.getElementById('diag-mode-usb');
+      const diagWifi = document.getElementById('diag-mode-wifi');
+      const feedbackUsb = document.getElementById('usb-dynamic-feedback');
+      const feedbackWifi = document.getElementById('wifi-dynamic-feedback');
+      const diagTitle = document.getElementById('diag-title');
+      const diagChip = document.getElementById('diag-chip');
+      const diagIcon = document.getElementById('diag-icon');
+      const btnTransportAction = document.getElementById('btn-transport-action');
 
       if (type === 'usb') {
         cardUsb.classList.add('selected');
         cardWifi.classList.remove('selected');
+        if (diagUsb) diagUsb.style.display = 'flex';
+        if (diagWifi) diagWifi.style.display = 'none';
+        if (feedbackUsb) feedbackUsb.style.display = 'block';
+        if (feedbackWifi) feedbackWifi.style.display = 'none';
+        if (diagTitle) diagTitle.textContent = 'Diagnóstico Enlace USB';
+        if (diagChip) diagChip.textContent = '0.1ms Engine';
+        if (diagIcon) diagIcon.textContent = 'cable';
+        if (btnTransportAction) {
+          btnTransportAction.innerHTML = '<span class="icon">smart_display</span> Abrir Guía Asistida & Simulador USB';
+          btnTransportAction.onclick = openUsbGuide;
+        }
       } else {
         cardUsb.classList.remove('selected');
         cardWifi.classList.add('selected');
+        if (diagUsb) diagUsb.style.display = 'none';
+        if (diagWifi) diagWifi.style.display = 'flex';
+        if (feedbackUsb) feedbackUsb.style.display = 'none';
+        if (feedbackWifi) feedbackWifi.style.display = 'block';
+        if (diagTitle) diagTitle.textContent = 'Diagnóstico Enlace Wi-Fi';
+        if (diagChip) diagChip.textContent = 'Red Local';
+        if (diagIcon) diagIcon.textContent = 'wifi';
+        if (btnTransportAction) {
+          btnTransportAction.innerHTML = '<span class="icon">local_fire_department</span> Diagnóstico de Red & Reglas Firewall';
+          btnTransportAction.onclick = openFirewallModal;
+        }
       }
+      localStorage.setItem('zentrack_transport', type);
     }
 
     // PESTAÑAS DE MARCA
@@ -2180,37 +2205,49 @@
           linuxWrapper.style.display = (h.os === 'linux') ? 'flex' : 'none';
         }
 
-        // 1. Driver Mouse / Keyboard
+        // Driver Mouse / Keyboard (USB & Wi-Fi)
         const dotDriver = document.getElementById('health-driver-dot');
         const badgeDriver = document.getElementById('health-driver-badge');
+        const wifiDotDriver = document.getElementById('health-wifi-driver-dot');
+        const wifiBadgeDriver = document.getElementById('health-wifi-driver-badge');
+
+        const driverStatusClass = h.uinput_accessible ? 'pulse-dot' : 'pulse-dot red';
+        const driverBadgeClass = h.uinput_accessible ? 'health-badge badge-ok' : 'health-badge badge-err';
+        const driverText = h.uinput_accessible ? 'Operativo' : 'Sin Permiso';
+
         if (dotDriver && badgeDriver) {
-          if (h.uinput_accessible) {
-            dotDriver.className = 'pulse-dot';
-            badgeDriver.className = 'health-badge badge-ok';
-            badgeDriver.textContent = 'Operativo';
-          } else {
-            dotDriver.className = 'pulse-dot red';
-            badgeDriver.className = 'health-badge badge-err';
-            badgeDriver.textContent = 'Sin Permiso';
-          }
+          dotDriver.className = driverStatusClass;
+          badgeDriver.className = driverBadgeClass;
+          badgeDriver.textContent = driverText;
+        }
+        if (wifiDotDriver && wifiBadgeDriver) {
+          wifiDotDriver.className = driverStatusClass;
+          wifiBadgeDriver.className = driverBadgeClass;
+          wifiBadgeDriver.textContent = driverText;
         }
 
-        // 2. Driver Gamepad Xbox 360
+        // Driver Gamepad Xbox 360 (USB & Wi-Fi)
         const dotGamepad = document.getElementById('health-gamepad-dot');
         const badgeGamepad = document.getElementById('health-gamepad-badge');
+        const wifiDotGamepad = document.getElementById('health-wifi-gamepad-dot');
+        const wifiBadgeGamepad = document.getElementById('health-wifi-gamepad-badge');
+
+        const gamepadStatusClass = h.gamepad_driver_installed ? 'pulse-dot' : 'pulse-dot red';
+        const gamepadBadgeClass = h.gamepad_driver_installed ? 'health-badge badge-ok' : 'health-badge badge-err';
+        const gamepadText = h.gamepad_driver_installed ? 'Operativo' : 'No Instalado';
+
         if (dotGamepad && badgeGamepad) {
-          if (h.gamepad_driver_installed) {
-            dotGamepad.className = 'pulse-dot';
-            badgeGamepad.className = 'health-badge badge-ok';
-            badgeGamepad.textContent = 'Operativo';
-          } else {
-            dotGamepad.className = 'pulse-dot red';
-            badgeGamepad.className = 'health-badge badge-err';
-            badgeGamepad.textContent = 'No Instalado';
-          }
+          dotGamepad.className = gamepadStatusClass;
+          badgeGamepad.className = gamepadBadgeClass;
+          badgeGamepad.textContent = gamepadText;
+        }
+        if (wifiDotGamepad && wifiBadgeGamepad) {
+          wifiDotGamepad.className = gamepadStatusClass;
+          wifiBadgeGamepad.className = gamepadBadgeClass;
+          wifiBadgeGamepad.textContent = gamepadText;
         }
 
-        // 3. ADB Tool
+        // ADB Tool (USB Mode Only)
         const dotAdb = document.getElementById('health-adb-dot');
         const badgeAdb = document.getElementById('health-adb-badge');
         if (dotAdb && badgeAdb) {
@@ -2225,7 +2262,7 @@
           }
         }
 
-        // 4. Devices & Tunnel
+        // USB Devices & Tunnel (USB Mode Only)
         const dotPhone = document.getElementById('health-phone-dot');
         const badgePhone = document.getElementById('health-phone-badge');
         const dotTunnel = document.getElementById('health-tunnel-dot');
@@ -2264,8 +2301,8 @@
               <div class="alert-box alert-success">
                 <span class="icon">check_circle</span>
                 <div>
-                  <strong>¡Teléfono Conectado! (${authorizedDev.model})</strong>
-                  <span>Túnel USB 500Hz activo en puerto 3000. Pulsa "Cable USB" en tu móvil.</span>
+                  <strong>¡Teléfono USB Conectado! (${authorizedDev.model})</strong>
+                  <span>Túnel USB 500Hz activo en puerto 3000.</span>
                 </div>
               </div>
             `;
@@ -2284,7 +2321,7 @@
               <div class="alert-box alert-warning">
                 <span class="icon">screen_lock_portrait</span>
                 <div>
-                  <strong>Teléfono detectado:</strong>
+                  <strong>Teléfono detectado por cable:</strong>
                   <span>Confirma la autorización de huella RSA en la pantalla de tu móvil.</span>
                 </div>
               </div>
@@ -2344,6 +2381,47 @@
               statusEl.textContent = `Servidor Activo • ${data.connectedCount} Cliente(s)`;
             } else {
               statusEl.textContent = 'Servidor Activo (500Hz)';
+            }
+          }
+
+          // Actualizar estado del enlace Wi-Fi dinámico
+          const wifiClientDot = document.getElementById('health-wifi-client-dot');
+          const wifiClientBadge = document.getElementById('health-wifi-client-badge');
+          const wifiFeedback = document.getElementById('wifi-dynamic-feedback');
+
+          if (data.connectedCount > 0) {
+            if (wifiClientDot) wifiClientDot.className = 'pulse-dot';
+            if (wifiClientBadge) {
+              wifiClientBadge.className = 'health-badge badge-ok';
+              wifiClientBadge.textContent = `${data.connectedCount} Conectado(s)`;
+            }
+            if (wifiFeedback) {
+              wifiFeedback.innerHTML = `
+                <div class="alert-box alert-success">
+                  <span class="icon">wifi_tethering</span>
+                  <div>
+                    <strong>¡Conexión Wi-Fi Activa (500Hz)!</strong>
+                    <span>Tu teléfono está enlazado y transmitiendo con latencia ultra-baja en la red local.</span>
+                  </div>
+                </div>
+              `;
+            }
+          } else {
+            if (wifiClientDot) wifiClientDot.className = 'pulse-dot yellow';
+            if (wifiClientBadge) {
+              wifiClientBadge.className = 'health-badge badge-warn';
+              wifiClientBadge.textContent = 'Esperando Cliente';
+            }
+            if (wifiFeedback) {
+              wifiFeedback.innerHTML = `
+                <div class="alert-box" style="background: var(--card-bg-inner);">
+                  <span class="icon">qr_code_scanner</span>
+                  <div>
+                    <strong>Modo Wi-Fi Activo</strong>
+                    <span>Abre la app ZenTrack en tu celular y escanea el código QR de la izquierda.</span>
+                  </div>
+                </div>
+              `;
             }
           }
         }
@@ -2455,6 +2533,9 @@
 
     const savedMode = localStorage.getItem('zentrack_mode');
     if (savedMode) switchView(savedMode);
+
+    const savedTransport = localStorage.getItem('zentrack_transport') || 'wifi';
+    selectTransport(savedTransport);
 
     renderSimulator();
     checkHealth();
