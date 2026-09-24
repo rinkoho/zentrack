@@ -1147,8 +1147,8 @@ pointerArea.addEventListener('pointerdown', (e) => {
     
     scrollAccumulatorX = 0;
     scrollAccumulatorY = 0;
-  } else if (activeCount === 3) {
-    // 3 fingers: Workspace navigation swipe
+  } else if (activeCount === 4) {
+    // 4 fingers: Workspace navigation swipe
     sendSocket({ type: 'log', message: 'Three fingers detected on pointerdown!' });
     if (dragTimer) {
       clearTimeout(dragTimer);
@@ -1166,8 +1166,8 @@ pointerArea.addEventListener('pointerdown', (e) => {
     isThreeFingerSwipeCandidate = true;
 
     const pointers = Array.from(activePointers.values());
-    threeFingerStartX = (pointers[0].lastX + pointers[1].lastX + pointers[2].lastX) / 3;
-    threeFingerStartY = (pointers[0].lastY + pointers[1].lastY + pointers[2].lastY) / 3;
+    threeFingerStartX = (pointers[0].lastX + pointers[1].lastX + pointers[2].lastX + pointers[3].lastX) / 4;
+    threeFingerStartY = (pointers[0].lastY + pointers[1].lastY + pointers[2].lastY + pointers[3].lastY) / 4;
     sendSocket({ type: 'log', message: `threeFingerStartX initialized to: ${threeFingerStartX.toFixed(1)}` });
   } else {
     // 4 or more fingers, disable gestures
@@ -1286,20 +1286,20 @@ pointerArea.addEventListener('pointermove', (e) => {
     lastScrollX = currentScrollX;
     lastScrollY = currentScrollY;
 
-  } else if (activeCount === 3 && isThreeFingerSwipe) {
+  } else if (activeCount === 4 && isThreeFingerSwipe) {
     // Update coordinates for the current moving pointer
     state.lastX = e.clientX;
     state.lastY = e.clientY;
 
     if (isThreeFingerSwipeCandidate) {
       const pointers = Array.from(activePointers.values());
-      if (pointers.length === 3) {
-        const currentX = (pointers[0].lastX + pointers[1].lastX + pointers[2].lastX) / 3;
+      if (pointers.length === 4) {
+        const currentX = (pointers[0].lastX + pointers[1].lastX + pointers[2].lastX + pointers[3].lastX) / 4;
         const dx = currentX - threeFingerStartX;
         
         // Log every 10px of movement to avoid spamming too much
         if (Math.floor(Math.abs(dx)) % 10 === 0) {
-          sendSocket({ type: 'log', message: `3-finger swipe dx: ${dx.toFixed(1)} (threshold: 40)` });
+          sendSocket({ type: 'log', message: `4-finger swipe dx: ${dx.toFixed(1)} (threshold: 40)` });
         }
 
         // Threshold: 40px swipe to trigger workspace switch
