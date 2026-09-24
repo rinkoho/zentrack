@@ -353,7 +353,8 @@ async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSo
             driver.key_click(&key);
         }
         InputCommand::Shortcut { action } => {
-            handle_system_shortcut(&action).await;
+            let driver = state.driver.lock().await;
+            handle_system_shortcut(&action, driver).await;
         }
         InputCommand::GamepadMode { enabled } => {
             let mut driver = state.driver.lock().await;
@@ -388,25 +389,43 @@ async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSo
     }
 }
 
-async fn handle_system_shortcut(action: &str) {
+async fn handle_system_shortcut(action: &str, mut driver: tokio::sync::MutexGuard<'_, Box<dyn crate::driver::InputDriver>>) {
     #[cfg(target_os = "linux")]
     {
-        let (cmd, args) = match action {
-            "terminal" => ("xdotool", vec!["key", "super+Return"]),
-            "browser" => ("xdotool", vec!["key", "super+b"]),
-            "file_manager" => ("xdotool", vec!["key", "super+f"]),
-            "rofi" => ("xdotool", vec!["key", "super+space"]),
-            "close_window" => ("xdotool", vec!["key", "super+x"]),
-            "workspace_left" => ("xdotool", vec!["key", "super+Left"]),
-            "workspace_right" => ("xdotool", vec!["key", "super+Right"]),
-            _ => return,
+        // Use kernel-level uinput instead of xdotool so it works from background headless system service
+        let keys = match action {
+            "terminal" => vec!["Super_L", "Return"],
+            "browser" => vec!["Super_L", "b"],
+            "file_manager" => vec!["Super_L", "f"],
+            "rofi" => vec!["Super_L", "space"],
+            "close_window" => vec!["Super_L", "x"],
+            "workspace_left" => vec!["Super_L", "Left"],
+            "workspace_right" => vec!["Super_L", "Right"],
+            _ => vec![],
         };
-        let _ = tokio::process::Command::new(cmd).args(args).spawn();
+        
+        for k in &keys {
+            driver.key_down(k);
+        }
+        for k in keys.iter().rev() {
+            driver.key_up(k);
+        }
     }
 
     #[cfg(target_os = "windows")]
     {
-        // Windows system shortcuts
-        let _ = action;
+        // Windows system shortcuts mapping to driver
+        let keys = match action {
+            "workspace_left" => vec!["Control_L", "Super_L", "Left"],
+            "workspace_right" => vec!["Control_L", "Super_L", "Right"],
+            "close_window" => vec!["Alt_L", "F4"],
+            _ => vec![],
+        };
+        for k in &keys {
+            driver.key_down(k);
+        }
+        for k in keys.iter().rev() {
+            driver.key_up(k);
+        }
     }
 }
