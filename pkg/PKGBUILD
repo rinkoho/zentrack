@@ -1,6 +1,6 @@
 # Maintainer: Carlos <rrin08455@github.com>
 pkgname=zentrack-git
-pkgver=r49.6d15e99
+pkgver=r50.763cbf4
 pkgrel=1
 pkgdesc="Ultra-Low Latency trackpad and keyboard server for mobile devices (Commercial Version)"
 arch=('x86_64')
@@ -32,8 +32,7 @@ package() {
   install -Dm755 server-rust/target/release/zentrack-server "$pkgdir/usr/bin/zentrack-server"
   install -Dm755 scripts/zentrack-wrapper.sh "$pkgdir/usr/bin/zentrack"
 
-  # Systemd user and system services
-  install -Dm644 scripts/zentrack.service "$pkgdir/usr/lib/systemd/user/zentrack.service"
+  # Systemd system service (SDDM/GDM lockscreen support)
   install -Dm644 scripts/zentrack-system@.service "$pkgdir/usr/lib/systemd/system/zentrack-system@.service"
 
   # Udev rules (Permisos para inyectar inputs de mouse/teclado)

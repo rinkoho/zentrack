@@ -50,7 +50,6 @@ pub fn create_router(state: AppState) -> Router {
         .route("/api/usb/reverse", post(usb_reverse_handler))
         .route("/api/install_vigem", post(install_vigem_handler))
         .route("/api/system/restart", post(restart_system_handler))
-        .route("/api/system/enable-lockscreen", post(enable_lockscreen_handler))
         .route("/qr.svg", get(qr_svg_handler))
         .route("/pair", get(pair_handler))
         .fallback(static_handler)
@@ -409,40 +408,5 @@ async fn handle_system_shortcut(action: &str) {
     {
         // Windows system shortcuts
         let _ = action;
-    }
-}
-
-async fn enable_lockscreen_handler() -> impl IntoResponse {
-    let result = tokio::task::spawn_blocking(|| {
-        #[cfg(target_os = "linux")]
-        {
-            let username = std::env::var("USER").unwrap_or_else(|_| "carlos".to_string());
-            let service_name = format!("zentrack-system@{}", username);
-            
-            // Desactiva el servicio de usuario primero (no necesita pkexec)
-            let _ = std::process::Command::new("systemctl")
-                .args(["--user", "disable", "--now", "zentrack"])
-                .output();
-                
-            // Activa el servicio de sistema (pedirá contraseña con PolKit)
-            let output = std::process::Command::new("pkexec")
-                .args(["systemctl", "enable", "--now", &service_name])
-                .output();
-                
-            match output {
-                Ok(out) if out.status.success() => Ok("Habilitado correctamente"),
-                Ok(_) => Err("Cancelado o falló la autenticación"),
-                Err(_) => Err("Error al ejecutar pkexec"),
-            }
-        }
-        #[cfg(not(target_os = "linux"))]
-        {
-            Err("Solo soportado en Linux actualmente")
-        }
-    }).await.unwrap_or(Err("Error interno"));
-
-    match result {
-        Ok(msg) => (axum::http::StatusCode::OK, axum::Json(serde_json::json!({"success": true, "message": msg}))),
-        Err(e) => (axum::http::StatusCode::INTERNAL_SERVER_ERROR, axum::Json(serde_json::json!({"success": false, "message": e}))),
     }
 }

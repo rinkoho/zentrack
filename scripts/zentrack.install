@@ -1,17 +1,38 @@
 post_upgrade() {
     echo "Reiniciando instancias de zentrack-server..."
     pkill -f zentrack-server || true
+    
+    # Enable system service automatically for the installing user
+    REAL_USER=$(logname 2>/dev/null || echo $SUDO_USER)
+    if [ -z "$REAL_USER" ] || [ "$REAL_USER" = "root" ]; then
+        REAL_USER=$(ls -ld /home/* 2>/dev/null | awk 'NR==1 {print $3}')
+    fi
+
+    if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
+        # Disable old user service if it existed
+        su - $REAL_USER -c "systemctl --user disable --now zentrack 2>/dev/null" || true
+        # Enable system service
+        systemctl enable --now zentrack-system@$REAL_USER 2>/dev/null || true
+    fi
 }
 
 post_install() {
     echo "=========================================================="
     echo "🚀 ZenTrack instalado correctamente."
-    echo ""
-    echo "Modo Normal (Para tu usuario local):"
-    echo "  systemctl --user enable --now zentrack"
-    echo ""
-    echo "Modo Login Screen (Para usarlo en SDDM/GDM):"
-    echo "  sudo systemctl enable --now zentrack-system@\$USER"
-    echo "  (¡Asegúrate de desactivar el de usuario si usas este!)"
+    
+    REAL_USER=$(logname 2>/dev/null || echo $SUDO_USER)
+    if [ -z "$REAL_USER" ] || [ "$REAL_USER" = "root" ]; then
+        REAL_USER=$(ls -ld /home/* 2>/dev/null | awk 'NR==1 {print $3}')
+    fi
+
+    if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
+        echo "Habilitando ZenTrack en pantalla de bloqueo para el usuario: $REAL_USER"
+        systemctl enable --now zentrack-system@$REAL_USER 2>/dev/null || true
+    else
+        echo ""
+        echo "No se pudo determinar el usuario local."
+        echo "Para habilitar ZenTrack en la pantalla de inicio de sesión ejecuta:"
+        echo "  sudo systemctl enable --now zentrack-system@TU_USUARIO"
+    fi
     echo "=========================================================="
 }

@@ -16,23 +16,23 @@ case "$1" in
         curl -s -X POST "http://127.0.0.1:3000/api/usb/reverse"
         ;;
     start)
-        systemctl --user start zentrack
+        pkexec systemctl start zentrack-system@$USER 2>/dev/null
         ;;
     stop)
-        systemctl --user stop zentrack
+        pkexec systemctl stop zentrack-system@$USER 2>/dev/null
         pkill -f zentrack-server || true
         ;;
     restart)
-        systemctl --user restart zentrack
+        pkexec systemctl restart zentrack-system@$USER 2>/dev/null
         ;;
     logs)
-        journalctl --user -u zentrack -f
+        journalctl -u zentrack-system@$USER -f
         ;;
     *)
         if [ "$#" -eq 0 ]; then
             # 1. Asegurar que el servidor está corriendo en segundo plano
-            if ! systemctl --user is-active --quiet zentrack; then
-                systemctl --user start zentrack 2>/dev/null || true
+            if ! systemctl is-active --quiet zentrack-system@$USER; then
+                pkexec systemctl start zentrack-system@$USER 2>/dev/null || true
                 sleep 0.5 # Esperar a que levante el puerto
             fi
 
