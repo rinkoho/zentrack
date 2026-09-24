@@ -50,6 +50,7 @@ pub fn create_router(state: AppState) -> Router {
         .route("/api/usb/reverse", post(usb_reverse_handler))
         .route("/api/install_vigem", post(install_vigem_handler))
         .route("/api/system/restart", post(restart_system_handler))
+        .route("/api/config/profile", post(config_profile_handler))
         .route("/qr.svg", get(qr_svg_handler))
         .route("/pair", get(pair_handler))
         .fallback(static_handler)
@@ -130,6 +131,19 @@ async fn restart_system_handler() -> impl IntoResponse {
         [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
         json!({"success": true, "message": "Reiniciando servidor..."}).to_string(),
     )
+}
+
+async fn config_profile_handler(body: String) -> impl IntoResponse {
+    let profile = body.trim().to_string();
+    if ["gnome", "kde", "bspwm"].contains(&profile.as_str()) {
+        let config_path = if std::path::PathBuf::from("config.json").exists() { "config.json" } else { "../config.json" };
+        let mut cfg = crate::config::AppConfig::load_or_create(config_path);
+        cfg.linux_profile = profile;
+        cfg.save(config_path);
+        (StatusCode::OK, "OK")
+    } else {
+        (StatusCode::BAD_REQUEST, "Invalid profile")
+    }
 }
 
 async fn devices_handler(State(state): State<AppState>) -> impl IntoResponse {
@@ -390,17 +404,39 @@ async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSo
 }
 
 async fn handle_system_shortcut(action: &str, mut driver: tokio::sync::MutexGuard<'_, Box<dyn crate::driver::InputDriver>>) {
+    let cfg = crate::config::AppConfig::load_or_create(if std::path::PathBuf::from("config.json").exists() { "config.json" } else { "../config.json" });
+    let profile = cfg.linux_profile.as_str();
+
     #[cfg(target_os = "linux")]
     {
-        // Use kernel-level uinput instead of xdotool so it works from background headless system service
         let keys = match action {
-            "terminal" => vec!["Super_L", "Return"],
-            "browser" => vec!["Super_L", "b"],
-            "file_manager" => vec!["Super_L", "f"],
-            "rofi" => vec!["Super_L", "space"],
-            "close_window" => vec!["Super_L", "x"],
-            "workspace_left" => vec!["Super_L", "Left"],
-            "workspace_right" => vec!["Super_L", "Right"],
+            "terminal" => match profile {
+                "bspwm" => vec!["Super_L", "Return"],
+                _ => vec!["Control_L", "Alt_L", "t"], // Gnome/KDE default
+            },
+            "browser" => match profile {
+                "bspwm" => vec!["Super_L", "b"],
+                _ => vec![], // No standard global browser shortcut in Gnome/KDE
+            },
+            "file_manager" => vec!["Super_L", "e"], // Super+E is standard on Windows, sometimes mapped in Linux
+            "rofi" => match profile {
+                "bspwm" => vec!["Super_L", "space"],
+                _ => vec!["Super_L"], // Gnome/KDE launcher
+            },
+            "close_window" => match profile {
+                "bspwm" => vec!["Super_L", "x"],
+                _ => vec!["Alt_L", "F4"], // Standard close
+            },
+            "workspace_left" => match profile {
+                "bspwm" => vec!["Super_L", "Left"],
+                "kde" => vec!["Control_L", "Super_L", "Left"],
+                _ => vec!["Super_L", "Page_Up"], // Gnome default
+            },
+            "workspace_right" => match profile {
+                "bspwm" => vec!["Super_L", "Right"],
+                "kde" => vec!["Control_L", "Super_L", "Right"],
+                _ => vec!["Super_L", "Page_Down"], // Gnome default
+            },
             _ => vec![],
         };
         

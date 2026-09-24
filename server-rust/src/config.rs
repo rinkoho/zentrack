@@ -10,6 +10,12 @@ pub struct AppConfig {
     pub port: u16,
     #[serde(default)]
     pub first_run_completed: bool,
+    #[serde(default = "default_linux_profile")]
+    pub linux_profile: String,
+}
+
+fn default_linux_profile() -> String {
+    "gnome".to_string()
 }
 
 fn default_port() -> u16 {
@@ -44,6 +50,7 @@ impl AppConfig {
             token,
             port: default_port(),
             first_run_completed: false,
+            linux_profile: default_linux_profile(),
         };
 
         cfg.save(path);
