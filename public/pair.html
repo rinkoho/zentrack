@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="tokyo-night">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZenTrack - Centro de Conexión & Onboarding</title>
+  <title>ZenTrack - Centro de Conexión & Dashboard Bento</title>
   
-  <!-- FUENTES ABIERTAS & LEGALMENTE SEGURAS (SIL Open Font License & Apache 2.0) -->
-  <!-- Plus Jakarta Sans: alternativa moderna y abierta a Google Sans (SIL OFL 1.1) -->
-  <!-- Roboto & Roboto Mono: fuente nativa abierta de Android y código (Apache 2.0) -->
-  <!-- Material Symbols Rounded: iconos oficiales abiertos de Google (Apache 2.0) -->
+  <!-- FUENTES ABIERTAS & LEGALMENTE SEGURAS (SIL OFL 1.1 & Apache 2.0) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -16,648 +13,1181 @@
 
   <style>
     /* ==========================================================================
-       MATERIAL YOU (MATERIAL DESIGN 3 / M3) DESIGN SYSTEM
-       Paleta Tonal Dinámica (Base Dark Baseline con extracción tonal de Google)
+       SISTEMA DE DISEÑO BENTO / HYPRLAND / PIXEL: 4 TEMAS DINÁMICOS
        ========================================================================== */
+
+    /* 1. TEMA: TOKYO NIGHT (POR DEFECTO) */
+    :root, [data-theme="tokyo-night"], [data-theme="blue"], [data-theme="lavender"] {
+      --theme-name: "tokyo-night";
+      --bg-base: #0f111a;
+      --bg-gradient: radial-gradient(circle at 10% 15%, rgba(122, 162, 247, 0.14) 0%, transparent 45%),
+                     radial-gradient(circle at 88% 85%, rgba(187, 154, 247, 0.12) 0%, transparent 45%),
+                     #0f111a;
+      --card-bg: rgba(23, 26, 40, 0.72);
+      --card-bg-hover: rgba(30, 34, 53, 0.85);
+      --card-border: rgba(122, 162, 247, 0.18);
+      --card-border-active: rgba(187, 154, 247, 0.6);
+      --card-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+      --card-glow: 0 0 28px rgba(122, 162, 247, 0.14);
+
+      --text-main: #c0caf5;
+      --text-dim: #7982a9;
+      --text-muted: #565f89;
+
+      --accent-primary: #7aa2f7;
+      --accent-primary-container: rgba(122, 162, 247, 0.18);
+      --accent-on-primary: #0a1024;
+      --accent-secondary: #bb9af7;
+      --accent-secondary-container: rgba(187, 154, 247, 0.18);
+      --accent-cyan: #7dcfff;
+
+      --accent-success: #73daca;
+      --accent-success-container: rgba(115, 218, 202, 0.18);
+      --accent-warning: #e0af68;
+      --accent-warning-container: rgba(224, 175, 104, 0.18);
+      --accent-error: #f7768e;
+      --accent-error-container: rgba(247, 118, 142, 0.18);
+
+      --modal-overlay: rgba(8, 10, 16, 0.75);
+    }
+
+    /* 2. TEMA: MODO CLARO (CRISP WHITE & TRANSLUCENT) */
+    [data-theme="light"], [data-theme="sunset"] {
+      --theme-name: "light";
+      --bg-base: #f4f6fb;
+      --bg-gradient: radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+                     radial-gradient(circle at 90% 90%, rgba(124, 58, 237, 0.06) 0%, transparent 40%),
+                     #f4f6fb;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-bg-hover: rgba(255, 255, 255, 0.98);
+      --card-border: rgba(15, 23, 42, 0.09);
+      --card-border-active: rgba(37, 99, 235, 0.45);
+      --card-shadow: 0 16px 36px rgba(15, 23, 42, 0.07), 0 2px 8px rgba(15, 23, 42, 0.04);
+      --card-glow: 0 0 24px rgba(37, 99, 235, 0.1);
+
+      --text-main: #0f172a;
+      --text-dim: #475569;
+      --text-muted: #94a3b8;
+
+      --accent-primary: #2563eb;
+      --accent-primary-container: rgba(37, 99, 235, 0.12);
+      --accent-on-primary: #ffffff;
+      --accent-secondary: #7c3aed;
+      --accent-secondary-container: rgba(124, 58, 237, 0.12);
+      --accent-cyan: #0284c7;
+
+      --accent-success: #16a34a;
+      --accent-success-container: rgba(22, 163, 74, 0.12);
+      --accent-warning: #d97706;
+      --accent-warning-container: rgba(217, 119, 6, 0.12);
+      --accent-error: #dc2626;
+      --accent-error-container: rgba(220, 38, 38, 0.12);
+
+      --modal-overlay: rgba(15, 23, 42, 0.45);
+    }
+
+    /* 3. TEMA: MODO OSCURO (MACOS GRAPHITE) */
+    [data-theme="dark"] {
+      --theme-name: "dark";
+      --bg-base: #141518;
+      --bg-gradient: radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
+                     radial-gradient(circle at 85% 85%, rgba(10, 132, 255, 0.07) 0%, transparent 40%),
+                     #141518;
+      --card-bg: rgba(28, 29, 34, 0.78);
+      --card-bg-hover: rgba(38, 39, 45, 0.88);
+      --card-border: rgba(255, 255, 255, 0.10);
+      --card-border-active: rgba(10, 132, 255, 0.5);
+      --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+      --card-glow: 0 0 26px rgba(10, 132, 255, 0.12);
+
+      --text-main: #f5f5f7;
+      --text-dim: #98989f;
+      --text-muted: #5e5e64;
+
+      --accent-primary: #0a84ff;
+      --accent-primary-container: rgba(10, 132, 255, 0.18);
+      --accent-on-primary: #ffffff;
+      --accent-secondary: #5e5ce6;
+      --accent-secondary-container: rgba(94, 92, 230, 0.18);
+      --accent-cyan: #64d2ff;
+
+      --accent-success: #30d158;
+      --accent-success-container: rgba(48, 209, 88, 0.18);
+      --accent-warning: #ffd60a;
+      --accent-warning-container: rgba(255, 214, 10, 0.18);
+      --accent-error: #ff453a;
+      --accent-error-container: rgba(255, 69, 58, 0.18);
+
+      --modal-overlay: rgba(0, 0, 0, 0.78);
+    }
+
+    /* 4. TEMA: OLED (PURE BLACK #000000 & HIGH CONTRAST) */
+    [data-theme="oled"], [data-theme="mint"] {
+      --theme-name: "oled";
+      --bg-base: #000000;
+      --bg-gradient: #000000;
+      --card-bg: rgba(6, 6, 6, 0.94);
+      --card-bg-hover: rgba(14, 14, 14, 0.98);
+      --card-border: rgba(255, 255, 255, 0.18);
+      --card-border-active: rgba(0, 245, 255, 0.85);
+      --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 14px 44px rgba(0, 0, 0, 0.95);
+      --card-glow: 0 0 30px rgba(0, 245, 255, 0.18);
+
+      --text-main: #ffffff;
+      --text-dim: #a1a1aa;
+      --text-muted: #52525b;
+
+      --accent-primary: #00f5ff;
+      --accent-primary-container: rgba(0, 245, 255, 0.15);
+      --accent-on-primary: #000000;
+      --accent-secondary: #00ff88;
+      --accent-secondary-container: rgba(0, 255, 136, 0.15);
+      --accent-cyan: #00f5ff;
+
+      --accent-success: #00ff88;
+      --accent-success-container: rgba(0, 255, 136, 0.16);
+      --accent-warning: #facc15;
+      --accent-warning-container: rgba(250, 204, 21, 0.16);
+      --accent-error: #ff0055;
+      --accent-error-container: rgba(255, 0, 85, 0.16);
+
+      --modal-overlay: rgba(0, 0, 0, 0.92);
+    }
+
+    /* MAPEO DE RETROCOMPATIBILIDAD CON MD-SYS VARIABLES */
     :root {
-      /* Dynamic Theme: Blue (Google Pixel Default) */
-      --md-sys-color-primary: #a8c7fa;
-      --md-sys-color-on-primary: #062e6f;
-      --md-sys-color-primary-container: #234275;
-      --md-sys-color-on-primary-container: #d3e3fd;
-
-      --md-sys-color-secondary: #c2e7ff;
-      --md-sys-color-on-secondary: #003355;
-      --md-sys-color-secondary-container: #004a77;
-      --md-sys-color-on-secondary-container: #c2e7ff;
-
-      --md-sys-color-tertiary: #d0bcff;
-      --md-sys-color-on-tertiary: #381e72;
-      --md-sys-color-tertiary-container: #4f378b;
-      --md-sys-color-on-tertiary-container: #e8def8;
-
-      --md-sys-color-surface: #111318;
-      --md-sys-color-surface-dim: #0e1014;
-      --md-sys-color-surface-bright: #37393e;
-      --md-sys-color-surface-container-lowest: #0c0e12;
-      --md-sys-color-surface-container-low: #191c20;
-      --md-sys-color-surface-container: #1d2024;
-      --md-sys-color-surface-container-high: #282a2f;
-      --md-sys-color-surface-container-highest: #33353a;
-
-      --md-sys-color-on-surface: #e2e2e9;
-      --md-sys-color-on-surface-variant: #c4c6d0;
-      --md-sys-color-outline: #8e9099;
-      --md-sys-color-outline-variant: #44474f;
-
-      --md-sys-color-success: #a8dab5;
-      --md-sys-color-success-container: #1a4329;
-      --md-sys-color-on-success-container: #c5eed0;
-
-      --md-sys-color-warning: #f9bc57;
-      --md-sys-color-warning-container: #4f3600;
-      --md-sys-color-on-warning-container: #ffdf9e;
-
-      --md-sys-color-error: #f2b8b5;
-      --md-sys-color-error-container: #601410;
-      --md-sys-color-on-error-container: #f9dedc;
-
-      /* Material Shapes & Elevation */
-      --md-shape-corner-small: 8px;
-      --md-shape-corner-medium: 16px;
-      --md-shape-corner-large: 24px;
-      --md-shape-corner-extra-large: 28px;
-      --md-shape-corner-full: 9999px;
-
-      /* Typography Stacks (100% Free & Open Source) */
-      --font-brand: 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Roboto', 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-brand: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Roboto', 'Plus Jakarta Sans', sans-serif;
       --font-code: 'Roboto Mono', monospace;
+
+      --md-sys-color-primary: var(--accent-primary);
+      --md-sys-color-on-primary: var(--accent-on-primary);
+      --md-sys-color-primary-container: var(--accent-primary-container);
+      --md-sys-color-on-primary-container: var(--accent-primary);
+      --md-sys-color-secondary: var(--accent-secondary);
+      --md-sys-color-surface: var(--bg-base);
+      --md-sys-color-surface-container: var(--card-bg);
+      --md-sys-color-surface-container-high: var(--card-bg-hover);
+      --md-sys-color-surface-container-lowest: var(--bg-base);
+      --md-sys-color-on-surface: var(--text-main);
+      --md-sys-color-on-surface-variant: var(--text-dim);
+      --md-sys-color-outline: var(--card-border-active);
+      --md-sys-color-outline-variant: var(--card-border);
+      --md-sys-color-success: var(--accent-success);
+      --md-sys-color-success-container: var(--accent-success-container);
+      --md-sys-color-on-success-container: var(--accent-success);
+      --md-sys-color-warning: var(--accent-warning);
+      --md-sys-color-warning-container: var(--accent-warning-container);
+      --md-sys-color-on-warning-container: var(--accent-warning);
+      --md-sys-color-error: var(--accent-error);
+      --md-sys-color-error-container: var(--accent-error-container);
+      --md-sys-color-on-error-container: var(--accent-error);
+
+      --md-shape-corner-small: 8px;
+      --md-shape-corner-medium: 14px;
+      --md-shape-corner-large: 20px;
+      --md-shape-corner-extra-large: 26px;
+      --md-shape-corner-full: 9999px;
     }
 
-    /* THEME VARIANT: MINT (ANDROID BOT GREEN) */
-    [data-theme="mint"] {
-      --md-sys-color-primary: #7adbb2;
-      --md-sys-color-on-primary: #003824;
-      --md-sys-color-primary-container: #005236;
-      --md-sys-color-on-primary-container: #97f8cd;
-
-      --md-sys-color-secondary: #b3ccbe;
-      --md-sys-color-on-secondary: #1f352b;
-      --md-sys-color-secondary-container: #354b41;
-      --md-sys-color-on-secondary-container: #cfe9da;
-
-      --md-sys-color-tertiary: #a5cde3;
-      --md-sys-color-on-tertiary: #073547;
-      --md-sys-color-tertiary-container: #234c5f;
-      --md-sys-color-on-tertiary-container: #c1e8ff;
+    /* RESET & BODY A PANTALLA COMPLETA ESTILO DESKTOP APP (100vh / SIN SCROLL) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* THEME VARIANT: LAVENDER (EXPRESSIVE MATERIAL PURPLE) */
-    [data-theme="lavender"] {
-      --md-sys-color-primary: #d0bcff;
-      --md-sys-color-on-primary: #381e72;
-      --md-sys-color-primary-container: #4f378b;
-      --md-sys-color-on-primary-container: #e8def8;
-
-      --md-sys-color-secondary: #ccc2dc;
-      --md-sys-color-on-secondary: #332d41;
-      --md-sys-color-secondary-container: #4a4458;
-      --md-sys-color-on-secondary-container: #e8def8;
-
-      --md-sys-color-tertiary: #efb8c8;
-      --md-sys-color-on-tertiary: #492532;
-      --md-sys-color-tertiary-container: #633b48;
-      --md-sys-color-on-tertiary-container: #ffd8e4;
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
 
-    /* THEME VARIANT: SUNSET PEACH (WARM MATERIAL CORAL) */
-    [data-theme="sunset"] {
-      --md-sys-color-primary: #ffb59d;
-      --md-sys-color-on-primary: #5c1900;
-      --md-sys-color-primary-container: #7f2b03;
-      --md-sys-color-on-primary-container: #ffdbd0;
-
-      --md-sys-color-secondary: #e7bdb1;
-      --md-sys-color-on-secondary: #442a22;
-      --md-sys-color-secondary-container: #5d4037;
-      --md-sys-color-on-secondary-container: #ffdbd0;
-
-      --md-sys-color-tertiary: #d8c58d;
-      --md-sys-color-on-tertiary: #3b2f05;
-      --md-sys-color-tertiary-container: #53451a;
-      --md-sys-color-on-tertiary-container: #f5e1a7;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
     body {
-      background-color: var(--md-sys-color-surface);
-      color: var(--md-sys-color-on-surface);
-      font-family: var(--font-body);
-      min-height: 100vh;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      font-family: var(--font-brand);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 24px 16px 48px;
-      -webkit-font-smoothing: antialiased;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      padding: 14px 20px 18px;
+      transition: background 0.4s ease, color 0.4s ease;
+      position: relative;
     }
 
-    /* MATERIAL 3 ICONS */
+    /* Adaptación responsiva para pantallas pequeñas o móviles */
+    @media (max-width: 980px), (max-height: 740px) {
+      html, body {
+        height: auto;
+        overflow-y: auto;
+      }
+      body {
+        padding: 16px 14px 32px;
+      }
+    }
+
+    /* MATERIAL ICONS */
     .icon {
       font-family: 'Material Symbols Rounded', sans-serif;
       font-weight: normal;
       font-style: normal;
       font-size: 20px;
       line-height: 1;
-      letter-spacing: normal;
-      text-transform: none;
       display: inline-block;
-      white-space: nowrap;
-      word-wrap: normal;
-      direction: ltr;
-      -webkit-font-feature-settings: 'liga';
-      -webkit-font-smoothing: antialiased;
       vertical-align: middle;
+      user-select: none;
     }
 
-    /* TOP APP BAR & HEADER */
-    header {
-      text-align: center;
-      margin-bottom: 28px;
-      max-width: 760px;
+    /* ==========================================================================
+       TOP APP BAR: BRANDING, STATUS & FLOATING ORNAMENTS
+       ========================================================================== */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 4px 6px 14px;
+      flex-shrink: 0;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-emblem {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-on-primary);
+      box-shadow: 0 4px 16px var(--card-glow);
+    }
+    .brand-emblem .icon {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .brand-title-wrap {
       display: flex;
       flex-direction: column;
-      align-items: center;
     }
 
-    /* Top Dynamic Theme Selector Pills */
-    .theme-picker-row {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--md-sys-color-surface-container);
-      padding: 4px 8px;
-      border-radius: var(--md-shape-corner-full);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      margin-bottom: 14px;
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: var(--text-main);
     }
-    .theme-picker-label {
+    .brand-title span {
+      color: var(--accent-primary);
+    }
+
+    .brand-tagline {
       font-size: 11px;
-      color: var(--md-sys-color-on-surface-variant);
+      color: var(--text-dim);
       font-weight: 600;
-      margin-right: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    /* BARRA CENTRAL: STATUS BADGE + MODO SWITCHER */
+    .center-status-group {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 12px;
     }
-    .theme-dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .theme-dot:hover { transform: scale(1.15); }
-    .theme-dot.active { border-color: #fff; transform: scale(1.1); }
-    .theme-dot.blue { background: #a8c7fa; }
-    .theme-dot.mint { background: #7adbb2; }
-    .theme-dot.lavender { background: #d0bcff; }
-    .theme-dot.sunset { background: #ffb59d; }
 
-    /* M3 ASSISTED BADGE */
     .badge-bar {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--md-sys-color-secondary-container);
-      color: var(--md-sys-color-on-secondary-container);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
       border-radius: var(--md-shape-corner-full);
-      padding: 6px 18px;
+      padding: 6px 16px;
       font-size: 12px;
-      font-family: var(--font-brand);
       font-weight: 700;
-      letter-spacing: 0.3px;
-      margin-bottom: 14px;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--card-shadow);
+      white-space: nowrap;
     }
+
     .pulse-dot {
       width: 8px;
       height: 8px;
-      background: var(--md-sys-color-success);
+      background: var(--accent-success);
       border-radius: 50%;
-      box-shadow: 0 0 8px var(--md-sys-color-success);
-      animation: pulse 1.8s infinite;
+      box-shadow: 0 0 10px var(--accent-success);
+      animation: pulse-glow 1.8s infinite ease-in-out;
+      flex-shrink: 0;
     }
-    .pulse-dot.yellow { background: var(--md-sys-color-warning); box-shadow: 0 0 8px var(--md-sys-color-warning); }
-    .pulse-dot.red { background: var(--md-sys-color-error); box-shadow: 0 0 8px var(--md-sys-color-error); }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.25); }
+    .pulse-dot.yellow {
+      background: var(--accent-warning);
+      box-shadow: 0 0 10px var(--accent-warning);
     }
-
-    h1 {
-      font-family: var(--font-brand);
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.6px;
-      margin-bottom: 8px;
-      color: var(--md-sys-color-on-surface);
+    .pulse-dot.red {
+      background: var(--accent-error);
+      box-shadow: 0 0 10px var(--accent-error);
     }
-    h1 span {
-      color: var(--md-sys-color-primary);
-    }
-    p.subtitle {
-      color: var(--md-sys-color-on-surface-variant);
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 600px;
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
     }
 
-    /* M3 SEGMENTED BUTTON (Google Style) */
-    .segmented-button {
+    /* VISTA SELECTOR SEGMENTADO (PIXEL STYLE) */
+    .segmented-switch {
       display: inline-flex;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: var(--md-shape-corner-full);
-      padding: 4px;
-      margin-top: 18px;
+      padding: 3px;
       gap: 2px;
+      backdrop-filter: blur(20px);
     }
+
     .segmented-item {
       background: transparent;
       border: none;
-      color: var(--md-sys-color-on-surface-variant);
-      padding: 10px 22px;
+      color: var(--text-dim);
+      padding: 6px 14px;
       border-radius: var(--md-shape-corner-full);
       font-family: var(--font-brand);
-      font-size: 12.5px;
-      font-weight: 600;
+      font-size: 11.5px;
+      font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .segmented-item:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .segmented-item.active {
+      background: var(--accent-primary-container);
+      color: var(--accent-primary);
+      border: 1px solid var(--card-border-active);
+    }
+
+    /* BARRA DERECHA: BOTONES DE MODAL Y BOLITAS MÁGICAS DE TEMA */
+    .top-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-chip-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      border-radius: var(--md-shape-corner-full);
+      padding: 6px 13px;
+      font-family: var(--font-brand);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(20px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-chip-btn:hover {
+      background: var(--card-bg-hover);
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .nav-chip-btn:active {
+      transform: scale(0.96);
+    }
+    .nav-chip-btn.accent {
+      background: var(--accent-primary-container);
+      border-color: var(--card-border-active);
+      color: var(--accent-primary);
+    }
+
+    /* ==========================================================================
+       ORNAMENTAL FLOATING THEME ORBS (SIN ETIQUETA DE TEXTO "TEMA:")
+       ========================================================================== */
+    .magic-theme-dock {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 5px 10px;
+      border-radius: var(--md-shape-corner-full);
+      backdrop-filter: blur(24px);
+      box-shadow: var(--card-shadow);
+      margin-left: 4px;
+    }
+
+    .theme-orb {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .theme-orb:hover {
+      transform: scale(1.35) translateY(-1px);
+    }
+    .theme-orb.active {
+      transform: scale(1.25);
+    }
+    .theme-orb.active::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid var(--accent-primary);
+      animation: pulse-ring 2s infinite ease-out;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .orb-tokyo {
+      background: radial-gradient(circle at 35% 35%, #bb9af7, #7aa2f7 80%, #1a1b26);
+      box-shadow: 0 0 10px rgba(122, 162, 247, 0.6);
+    }
+    .orb-light {
+      background: radial-gradient(circle at 35% 35%, #ffffff, #93c5fd 80%, #2563eb);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
+    .orb-dark {
+      background: radial-gradient(circle at 35% 35%, #8e8e93, #3a3a3c 80%, #1c1c1e);
+      box-shadow: 0 0 8px rgba(142, 142, 147, 0.5);
+    }
+    .orb-oled {
+      background: radial-gradient(circle at 35% 35%, #00f5ff, #004d40 85%, #000000);
+      box-shadow: 0 0 12px rgba(0, 245, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    /* ==========================================================================
+       BENTO BOX DASHBOARD GRID (ESTILO HYPRLAND / APPLE GLASSPHISM)
+       ========================================================================== */
+    .bento-container {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 370px 1.25fr 1fr;
+      grid-template-rows: 1.15fr 0.85fr;
+      gap: 14px;
+      padding-top: 4px;
+    }
+
+    @media (max-width: 1200px) {
+      .bento-container {
+        grid-template-columns: 340px 1fr;
+        grid-template-rows: auto auto auto;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .bento-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+    }
+
+    /* TARJETAS FLOTANTES BENTO (WIDGETS) */
+    .bento-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-large);
+      padding: 18px 20px;
+      backdrop-filter: blur(24px);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.3s ease,
+                  box-shadow 0.3s ease,
+                  background 0.3s ease;
+      animation: bentoFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+    .bento-card:hover {
+      border-color: var(--card-border-active);
+      box-shadow: var(--card-glow), var(--card-shadow);
+      transform: translateY(-2px);
+    }
+    @keyframes bentoFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* BENTO CARD HEADER */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-    }
-    .segmented-item:hover {
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--md-sys-color-on-surface);
-    }
-    .segmented-item.active {
-      background: var(--md-sys-color-secondary-container);
-      color: var(--md-sys-color-on-secondary-container);
-      font-weight: 700;
-    }
-    .segmented-item.active .icon {
-      font-variation-settings: 'FILL' 1;
     }
 
-    .main-wrap {
-      width: 100%;
-      max-width: 980px;
-    }
-
-    /* M3 TRANSPORT SELECTION CARDS */
-    .transport-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 640px) {
-      .transport-grid { grid-template-columns: 1fr; }
-    }
-    .transport-card {
-      background: var(--md-sys-color-surface-container-low);
-      border: 2px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-large);
-      padding: 22px;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: relative;
-    }
-    .transport-card:hover {
-      border-color: var(--md-sys-color-outline);
-      background: var(--md-sys-color-surface-container);
-      transform: translateY(-2px);
-    }
-    .transport-card.selected {
-      border-color: var(--md-sys-color-primary);
-      background: var(--md-sys-color-surface-container-high);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    }
-    .transport-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .transport-title {
-      font-family: var(--font-brand);
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--md-sys-color-on-surface);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .transport-card.selected .transport-title {
-      color: var(--md-sys-color-primary);
-    }
-    .transport-tag {
+    .card-chip {
       font-size: 10.5px;
-      font-family: var(--font-brand);
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: var(--md-shape-corner-full);
-      text-transform: uppercase;
+      background: var(--accent-primary-container);
+      color: var(--accent-primary);
       letter-spacing: 0.3px;
     }
-    .tag-pro {
-      background: var(--md-sys-color-success-container);
-      color: var(--md-sys-color-on-success-container);
-    }
-    .tag-wireless {
-      background: var(--md-sys-color-secondary-container);
-      color: var(--md-sys-color-on-secondary-container);
-    }
-    .transport-desc {
-      font-size: 12.5px;
-      color: var(--md-sys-color-on-surface-variant);
-      line-height: 1.5;
-    }
 
-    /* DETAIL CONTAINER (M3 Elevated Card) */
-    .detail-card {
-      background: var(--md-sys-color-surface-container);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-extra-large);
-      padding: 28px;
-      box-shadow: 0 12px 36px rgba(0,0,0,0.3);
-    }
-    .section-heading {
-      font-family: var(--font-brand);
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--md-sys-color-primary);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* M3 HEALTH STATUS WIDGET */
-    .health-bar {
+    /* ==========================================================================
+       WIDGET 1: HERO QR VINCULACIÓN INALÁMBRICA (COLUMNA IZQUIERDA 1 / 3)
+       ========================================================================== */
+    .card-qr-hero {
+      grid-row: 1 / 3;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 24px;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-large);
-      padding: 18px;
+      justify-content: space-between;
+      text-align: center;
     }
-    .health-item {
+    @media (max-width: 900px) {
+      .card-qr-hero { grid-row: auto; }
+    }
+
+    .qr-frame {
+      background: #ffffff;
+      border: 3px solid var(--accent-primary);
+      border-radius: var(--md-shape-corner-large);
+      padding: 14px;
+      margin: 8px auto 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 230px;
+      max-height: 230px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .qr-frame:hover {
+      transform: scale(1.03);
+    }
+    .qr-frame img {
+      width: 100%;
+      height: 100%;
+      max-width: 200px;
+      max-height: 200px;
+      object-fit: contain;
+      display: block;
+      border-radius: 6px;
+    }
+
+    .qr-caption {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    /* CREDENCIALES PILL ROWS DENTRO DE QR CARD */
+    .creds-compact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      text-align: left;
+      margin-top: auto;
+    }
+
+    .cred-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 8px 12px;
     }
-    .health-label {
+    .cred-meta {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .cred-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cred-val {
+      font-family: var(--font-code);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .btn-copy-mini {
+      background: var(--accent-primary-container);
+      color: var(--accent-primary);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-full);
+      padding: 4px 10px;
+      font-family: var(--font-brand);
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-copy-mini:hover {
+      background: var(--accent-primary);
+      color: var(--accent-on-primary);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       WIDGET 2: ESTADO DEL MOTOR & DRIVERS (500Hz ENGINE)
+       ========================================================================== */
+    .health-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .health-tile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 9px 14px;
+      font-size: 12px;
+      transition: border-color 0.2s ease;
+    }
+    .health-tile:hover {
+      border-color: var(--card-border-active);
+    }
+
+    .health-title-group {
       display: flex;
       align-items: center;
       gap: 10px;
-      color: var(--md-sys-color-on-surface);
-      font-weight: 500;
+      font-weight: 600;
+      color: var(--text-main);
     }
+
     .health-badge {
-      font-family: var(--font-brand);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 12px;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px 10px;
       border-radius: var(--md-shape-corner-full);
       letter-spacing: 0.3px;
     }
     .badge-ok {
-      background: var(--md-sys-color-success-container);
-      color: var(--md-sys-color-on-success-container);
+      background: var(--accent-success-container);
+      color: var(--accent-success);
+      border: 1px solid rgba(115, 218, 202, 0.3);
     }
     .badge-warn {
-      background: var(--md-sys-color-warning-container);
-      color: var(--md-sys-color-on-warning-container);
+      background: var(--accent-warning-container);
+      color: var(--accent-warning);
+      border: 1px solid rgba(224, 175, 104, 0.3);
     }
     .badge-err {
-      background: var(--md-sys-color-error-container);
-      color: var(--md-sys-color-on-error-container);
+      background: var(--accent-error-container);
+      color: var(--accent-error);
+      border: 1px solid rgba(247, 118, 142, 0.3);
     }
 
-    /* M3 ALERT CARDS */
+    /* BANNER DE FEEDBACK DINÁMICO */
+    #usb-dynamic-feedback {
+      margin-top: 10px;
+    }
     .alert-box {
-      border-radius: var(--md-shape-corner-large);
-      padding: 16px 20px;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-    }
-    .alert-warning {
-      background: var(--md-sys-color-warning-container);
-      color: var(--md-sys-color-on-warning-container);
-      border: 1px solid rgba(249, 188, 87, 0.3);
-    }
-    .alert-success {
-      background: var(--md-sys-color-success-container);
-      color: var(--md-sys-color-on-success-container);
-      border: 1px solid rgba(168, 218, 181, 0.3);
-    }
-
-    .cmd-box {
-      background: var(--md-sys-color-surface-container-lowest);
-      border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-shape-corner-medium);
       padding: 10px 14px;
+      font-size: 11.5px;
+      line-height: 1.45;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .alert-warning {
+      background: var(--accent-warning-container);
+      color: var(--accent-warning);
+      border: 1px solid var(--accent-warning);
+    }
+    .alert-success {
+      background: var(--accent-success-container);
+      color: var(--accent-success);
+      border: 1px solid var(--accent-success);
+    }
+    .cmd-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      margin-top: 4px;
+      font-family: var(--font-code);
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       WIDGET 3: TRANSPORTE Y ACCESO AL ASISTENTE USB
+       ========================================================================== */
+    .transport-selection-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .transport-card {
+      background: rgba(0, 0, 0, 0.18);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .transport-card:hover {
+      background: var(--card-bg-hover);
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+    .transport-card.selected {
+      background: var(--accent-primary-container);
+      border-color: var(--accent-primary);
+      box-shadow: 0 4px 14px var(--card-glow);
+    }
+
+    .transport-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-top: 10px;
-      font-family: var(--font-code);
-      font-size: 12px;
-      color: var(--md-sys-color-primary);
     }
-    .btn-copy {
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
-      border: none;
-      border-radius: var(--md-shape-corner-full);
-      padding: 6px 14px;
-      font-family: var(--font-brand);
-      font-size: 11px;
+    .transport-name {
+      font-size: 13px;
       font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      display: inline-flex;
+      color: var(--text-main);
+      display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
-    .btn-copy:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
+    .transport-card.selected .transport-name {
+      color: var(--accent-primary);
+    }
+    .transport-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: var(--md-shape-corner-full);
+      text-transform: uppercase;
+    }
+    .tag-pro {
+      background: var(--accent-success-container);
+      color: var(--accent-success);
+    }
+    .tag-wireless {
+      background: var(--accent-secondary-container);
+      color: var(--accent-secondary);
+    }
+    .transport-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.35;
     }
 
-    /* M3 STEPPER CHIPS */
-    .stepper-nav {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-    .step-btn {
-      flex: 1;
-      min-width: 140px;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
+    .btn-hero-launch {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: var(--accent-on-primary);
+      border: none;
       border-radius: var(--md-shape-corner-medium);
-      padding: 12px 14px;
+      padding: 10px 16px;
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 800;
       cursor: pointer;
-      text-align: left;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .step-btn:hover {
-      border-color: var(--md-sys-color-outline);
-    }
-    .step-btn.active {
-      border-color: var(--md-sys-color-primary);
-      background: var(--md-sys-color-primary-container);
-    }
-    .step-num {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--md-sys-color-surface-container-highest);
-      color: var(--md-sys-color-on-surface-variant);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--font-brand);
-      font-size: 11.5px;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 6px 20px var(--card-glow);
+      margin-top: auto;
+    }
+    .btn-hero-launch:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+    .btn-hero-launch:active {
+      transform: scale(0.97);
+    }
+
+    /* ==========================================================================
+       WIDGET 4: RADAR LAN UDP DISCOVERY
+       ========================================================================== */
+    .radar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .device-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 9px 12px;
+      animation: bentoFadeIn 0.3s ease;
+    }
+    .device-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .device-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .device-ip {
+      font-size: 10.5px;
+      color: var(--text-dim);
+    }
+    .device-status {
+      font-size: 10px;
       font-weight: 800;
-      flex-shrink: 0;
+      color: var(--accent-success);
+      background: var(--accent-success-container);
+      padding: 2px 8px;
+      border-radius: var(--md-shape-corner-full);
     }
-    .step-btn.active .step-num {
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
+
+    .radar-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 0;
+      color: var(--text-dim);
+      font-size: 11.5px;
+      text-align: center;
+      gap: 6px;
     }
-    .step-text {
+    .radar-anim {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--accent-primary);
+      border-radius: 50%;
+      animation: ripple 2s infinite ease-out;
+    }
+    @keyframes ripple {
+      0% { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    /* ==========================================================================
+       WIDGET 5: ACCIONES DEL SISTEMA & BOTONES PRESERVADOS
+       ========================================================================== */
+    .bento-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex: 1;
+      align-content: center;
+    }
+
+    .bento-action-tile {
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-family: var(--font-brand);
       font-size: 11.5px;
       font-weight: 700;
-      color: var(--md-sys-color-on-surface);
-      white-space: nowrap;
+      color: var(--text-main);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: left;
     }
-    .step-btn.active .step-text {
-      color: var(--md-sys-color-on-primary-container);
+    .bento-action-tile:hover {
+      background: var(--card-bg-hover);
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .bento-action-tile:active {
+      transform: scale(0.96);
+    }
+    .bento-action-tile .icon {
+      font-size: 20px;
+      color: var(--accent-primary);
+      flex-shrink: 0;
     }
 
-    /* ASSISTED TWO COLUMN LAYOUT */
+    /* ==========================================================================
+       SISTEMA DE MODALES FLOTANTES (GLASSMORPHISM POPUPS)
+       ========================================================================== */
+    .bento-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--modal-overlay);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+    }
+    .bento-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .bento-modal-dialog {
+      background: var(--card-bg-hover);
+      border: 1px solid var(--card-border-active);
+      border-radius: var(--md-shape-corner-extra-large);
+      padding: 28px;
+      max-width: 820px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), var(--card-glow);
+      position: relative;
+      transform: scale(0.94) translateY(14px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bento-modal-overlay.active .bento-modal-dialog {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-close-btn:hover {
+      color: var(--text-main);
+      background: var(--accent-error-container);
+      border-color: var(--accent-error);
+      transform: scale(1.1);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* ESTILOS DEL SIMULADOR & STEPPER DENTRO DEL MODAL USB */
+    .stepper-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+    }
+    .step-btn {
+      flex: 1;
+      min-width: 130px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .step-btn.active {
+      border-color: var(--accent-primary);
+      background: var(--accent-primary-container);
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .step-btn.active .step-num {
+      background: var(--accent-primary);
+      color: var(--accent-on-primary);
+    }
+    .step-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
     .assisted-layout {
       display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 24px;
+      grid-template-columns: 1.2fr 280px;
+      gap: 20px;
       align-items: start;
     }
-    @media (max-width: 860px) {
+    @media (max-width: 760px) {
       .assisted-layout { grid-template-columns: 1fr; }
     }
 
-    /* M3 FILTER CHIPS (Brand Tabs) */
     .brand-tabs {
       display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 6px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
     }
     .brand-tab-btn {
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      color: var(--md-sys-color-on-surface-variant);
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      color: var(--text-dim);
       border-radius: var(--md-shape-corner-small);
-      padding: 8px 16px;
+      padding: 6px 12px;
       font-family: var(--font-brand);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .brand-tab-btn:hover {
-      background: var(--md-sys-color-surface-container-highest);
-      color: var(--md-sys-color-on-surface);
-    }
     .brand-tab-btn.active {
-      border-color: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary-container);
-      background: var(--md-sys-color-primary-container);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      background: var(--accent-primary-container);
       font-weight: 700;
-    }
-    .brand-steps {
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-large);
-      padding: 20px;
-      font-size: 13px;
-      line-height: 1.8;
-      color: var(--md-sys-color-on-surface);
-    }
-    .brand-steps ol {
-      padding-left: 20px;
-    }
-    .brand-steps li {
-      margin-bottom: 8px;
-    }
-    .brand-steps strong {
-      color: var(--md-sys-color-on-surface);
-      font-weight: 700;
-    }
-    .highlight-pill {
-      background: var(--md-sys-color-secondary-container);
-      color: var(--md-sys-color-on-secondary-container);
-      padding: 2px 8px;
-      border-radius: var(--md-shape-corner-full);
-      font-weight: 700;
-      font-size: 11.5px;
     }
 
-    /* MATERIAL YOU SMARTPHONE SIMULATOR (Pixel 8 / 9 Pro Styling) */
+    .brand-steps {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 16px;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--text-main);
+    }
+    .brand-steps ol { padding-left: 18px; }
+    .highlight-pill {
+      background: var(--accent-secondary-container);
+      color: var(--accent-secondary);
+      padding: 2px 7px;
+      border-radius: var(--md-shape-corner-full);
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    /* PHONE SIMULATOR PIXEL STYLE */
     .simulator-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
       border-radius: var(--md-shape-corner-large);
-      padding: 20px 14px 24px;
-      position: relative;
+      padding: 16px 12px;
     }
     .sim-title {
-      font-family: var(--font-brand);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--md-sys-color-on-surface-variant);
+      color: var(--text-dim);
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
     .phone-body {
-      width: 270px;
-      height: 500px;
-      background: var(--md-sys-color-surface-container-lowest);
-      border: 6px solid #2d3036;
-      border-radius: 40px;
-      box-shadow: 0 20px 48px rgba(0,0,0,0.6), 0 0 20px rgba(168, 199, 250, 0.12);
+      width: 230px;
+      height: 420px;
+      background: #08090b;
+      border: 5px solid #27282d;
+      border-radius: 34px;
       position: relative;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      transition: all 0.3s ease;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
     }
-    .phone-body.shake {
-      animation: phone-shake 0.5s ease;
-    }
+    .phone-body.shake { animation: phone-shake 0.5s ease; }
     @keyframes phone-shake {
       0%, 100% { transform: translateX(0); }
       20%, 60% { transform: translateX(-6px); }
@@ -665,510 +1195,402 @@
     }
     .phone-speaker {
       position: absolute;
-      top: 10px;
+      top: 8px;
       left: 50%;
       transform: translateX(-50%);
-      width: 48px;
-      height: 4px;
+      width: 40px;
+      height: 3px;
       background: #44474f;
-      border-radius: 3px;
+      border-radius: 2px;
       z-index: 10;
     }
     .phone-notch {
       position: absolute;
-      top: 18px;
+      top: 15px;
       left: 50%;
       transform: translateX(-50%);
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       background: #000;
       border-radius: 50%;
       z-index: 10;
-      box-shadow: inset 0 0 2px #333;
     }
     .phone-screen {
       flex: 1;
-      padding: 38px 16px 16px;
+      padding: 32px 14px 14px;
       display: flex;
       flex-direction: column;
-      position: relative;
-      font-size: 11.5px;
-      overflow: hidden;
-      background: var(--md-sys-color-surface-container-lowest);
-    }
-    .sim-header {
-      font-family: var(--font-brand);
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--md-sys-color-on-surface-variant);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 11px;
+      background: #0f1015;
     }
     .sim-card {
-      background: var(--md-sys-color-surface-container);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-medium);
-      padding: 12px;
-      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
     }
     .sim-tap-target {
-      border: 2px dashed var(--md-sys-color-primary);
-      background: var(--md-sys-color-primary-container);
+      border: 2px dashed var(--accent-primary);
+      background: var(--accent-primary-container);
       position: relative;
       cursor: pointer;
     }
     .sim-hand-tap {
       position: absolute;
-      right: 12px;
-      top: 10px;
-      font-size: 22px;
+      right: 8px;
+      top: 8px;
+      font-size: 18px;
       animation: hand-bounce 1s infinite alternate ease-in-out;
     }
     @keyframes hand-bounce {
-      0% { transform: translateY(0) scale(1); }
-      100% { transform: translateY(-4px) scale(0.9); }
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-3px); }
     }
     .sim-tap-count {
       position: absolute;
-      right: 40px;
-      top: 10px;
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
-      font-family: var(--font-brand);
-      font-size: 10px;
+      right: 32px;
+      top: 8px;
+      background: var(--accent-primary);
+      color: var(--accent-on-primary);
+      font-size: 9px;
       font-weight: 800;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: var(--md-shape-corner-full);
-      animation: pulse 1s infinite;
     }
     .sim-toggle-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 4px;
     }
-
-    /* M3 SWITCH IN SIMULATOR */
     .sim-switch {
-      width: 40px;
-      height: 24px;
-      background: var(--md-sys-color-surface-container-highest);
-      border: 2px solid var(--md-sys-color-outline);
-      border-radius: var(--md-shape-corner-full);
+      width: 34px;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
       position: relative;
-      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
-    .sim-switch.on {
-      background: var(--md-sys-color-primary);
-      border-color: var(--md-sys-color-primary);
-    }
+    .sim-switch.on { background: var(--accent-primary); }
     .sim-switch-thumb {
-      width: 16px;
-      height: 16px;
-      background: var(--md-sys-color-outline);
+      width: 14px;
+      height: 14px;
+      background: #fff;
       border-radius: 50%;
       position: absolute;
-      top: 2px;
-      left: 2px;
-      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
     }
-    .sim-switch.on .sim-switch-thumb {
-      transform: translateX(16px);
-      background: var(--md-sys-color-on-primary);
-    }
+    .sim-switch.on .sim-switch-thumb { transform: translateX(14px); }
 
-    /* ANDROID MATERIAL 3 DIALOG MOCKUP */
     .sim-dialog {
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-primary);
-      border-radius: var(--md-shape-corner-large);
-      padding: 16px;
-      margin-top: 10px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.8);
-      animation: modal-pop 0.3s cubic-bezier(0.2, 0, 0, 1);
+      background: #1a1c22;
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 8px;
     }
-    @keyframes modal-pop {
-      from { opacity: 0; transform: scale(0.92); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .sim-dialog-title {
-      font-family: var(--font-brand);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--md-sys-color-on-surface);
-      margin-bottom: 6px;
-    }
-    .sim-dialog-desc {
-      font-size: 10px;
-      color: var(--md-sys-color-on-surface-variant);
-      line-height: 1.4;
-      margin-bottom: 12px;
-    }
-    .sim-dialog-check {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 9.5px;
-      color: var(--md-sys-color-primary);
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
+    .sim-dialog-title { font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .sim-dialog-desc { font-size: 9.5px; color: #aaa; margin-bottom: 8px; line-height: 1.3; }
     .sim-dialog-btn {
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
+      background: var(--accent-primary);
+      color: var(--accent-on-primary);
       border: none;
-      padding: 6px 14px;
-      font-family: var(--font-brand);
-      font-size: 10.5px;
+      padding: 4px 10px;
+      font-size: 10px;
       font-weight: 700;
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 10px;
       float: right;
       cursor: pointer;
     }
 
-    /* SIMULATED USB-C CABLE */
     .sim-cable-wrap {
-      margin-top: 10px;
+      margin-top: 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .sim-cable-head {
-      width: 24px;
-      height: 14px;
-      background: var(--md-sys-color-surface-container-highest);
-      border-radius: 3px;
-      border: 1px solid var(--md-sys-color-outline-variant);
+      width: 20px;
+      height: 10px;
+      background: #333;
+      border-radius: 2px;
       transition: all 0.3s;
     }
     .sim-cable-wire {
-      width: 8px;
-      height: 26px;
-      background: linear-gradient(180deg, var(--md-sys-color-surface-container-highest) 0%, var(--md-sys-color-surface-container-lowest) 100%);
-      border-radius: 0 0 4px 4px;
+      width: 6px;
+      height: 18px;
+      background: #222;
     }
     .sim-cable-wrap.connected .sim-cable-head {
-      background: var(--md-sys-color-primary);
-      border-color: var(--md-sys-color-primary);
-      box-shadow: 0 0 14px var(--md-sys-color-primary);
+      background: var(--accent-primary);
+      box-shadow: 0 0 10px var(--accent-primary);
     }
 
-    /* CONTROLS BELOW SIMULATOR */
     .sim-nav-controls {
       display: flex;
       justify-content: space-between;
       width: 100%;
-      margin-top: 16px;
-      gap: 10px;
+      margin-top: 12px;
+      gap: 8px;
     }
     .sim-btn-nav {
       flex: 1;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      color: var(--md-sys-color-on-surface);
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
       border-radius: var(--md-shape-corner-full);
-      padding: 8px 14px;
-      font-family: var(--font-brand);
-      font-size: 11px;
-      font-weight: 600;
+      padding: 6px 10px;
+      font-size: 10.5px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 4px;
+    }
+
+    /* SELECTOR DE PERFILES LINUX EN MODAL SETTINGS */
+    .settings-profile-row {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .bento-select {
+      background: var(--card-bg-hover);
+      color: var(--text-main);
+      border: 1px solid var(--card-border-active);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* BOTONES PRIMARIOS Y SECUNDARIOS */
+    .btn-primary {
+      background: var(--accent-primary);
+      color: var(--accent-on-primary);
+      border: none;
+      border-radius: var(--md-shape-corner-full);
+      padding: 9px 18px;
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
       gap: 6px;
+      transition: all 0.2s;
     }
-    .sim-btn-nav:hover {
-      background: var(--md-sys-color-surface-container-highest);
-      border-color: var(--md-sys-color-outline);
-    }
+    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
-    /* QR BOX */
-    .qr-box {
-      background: #ffffff;
-      border: 3px solid var(--md-sys-color-primary);
-      border-radius: var(--md-shape-corner-large);
-      padding: 18px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-      margin: 0 auto 18px;
-      width: fit-content;
-    }
-    .qr-box img {
-      width: 240px;
-      height: 240px;
-      display: block;
-      border-radius: 6px;
-    }
-
-    /* ADVANCED GRID */
-    .adv-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    @media (max-width: 768px) {
-      .adv-container { grid-template-columns: 1fr; }
-    }
-    .prop-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-medium);
-      padding: 12px 16px;
-      margin-bottom: 12px;
-    }
-    .prop-label {
+    .btn-secondary {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      border-radius: var(--md-shape-corner-full);
+      padding: 9px 18px;
       font-family: var(--font-brand);
-      font-size: 11px;
-      color: var(--md-sys-color-on-surface-variant);
-      text-transform: uppercase;
+      font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
     }
-    .prop-value {
-      font-family: var(--font-brand);
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--md-sys-color-on-surface);
-    }
+    .btn-secondary:hover { background: var(--card-bg-hover); border-color: var(--accent-primary); }
 
-    /* RADAR */
-    .radar-list {
+    /* VISTA AVANZADA CONTAINER */
+    #view-advanced {
+      display: none;
+      flex: 1;
+      min-height: 0;
+    }
+    #view-wizard {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      min-height: 100px;
-    }
-    .device-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--md-sys-color-surface-container-high);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-shape-corner-medium);
-      padding: 12px 16px;
-    }
-    .device-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .device-name {
-      font-family: var(--font-brand);
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--md-sys-color-on-surface);
-    }
-    .device-ip {
-      font-size: 11.5px;
-      color: var(--md-sys-color-on-surface-variant);
-    }
-    .device-status {
-      font-family: var(--font-brand);
-      font-size: 11px;
-      color: var(--md-sys-color-success);
-      font-weight: 700;
-    }
-    .radar-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 0;
-      color: var(--md-sys-color-on-surface-variant);
-      font-size: 12.5px;
-      text-align: center;
-      gap: 10px;
-    }
-    .radar-anim {
-      width: 40px;
-      height: 40px;
-      border: 2px solid var(--md-sys-color-primary);
-      border-radius: 50%;
-      animation: ripple 2s infinite ease-out;
-      margin-bottom: 4px;
-    }
-    @keyframes ripple {
-      0% { transform: scale(0.3); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
+      flex: 1;
+      min-height: 0;
     }
   </style>
 </head>
 <body>
-  <header>
-    <!-- Dynamic Material You Palette Picker -->
-    <div class="theme-picker-row">
-      <span class="theme-picker-label"><span class="icon">palette</span> Tema:</span>
-      <div class="theme-dot blue active" title="Pixel Blue" onclick="setTheme('blue')"></div>
-      <div class="theme-dot mint" title="Mint Android" onclick="setTheme('mint')"></div>
-      <div class="theme-dot lavender" title="Lavender Expressive" onclick="setTheme('lavender')"></div>
-      <div class="theme-dot sunset" title="Sunset Peach" onclick="setTheme('sunset')"></div>
-      
-      <!-- Linux Shortcut Profile Selector -->
-      <span id="linux-profile-wrapper" style="display: none;">
-        <span class="theme-picker-label" style="margin-left: 20px;"><span class="icon">keyboard</span> Entorno Linux:</span>
-        <select id="linux-profile-select" style="background: var(--surface-container-high); color: var(--on-surface); border: 1px solid var(--outline); border-radius: 8px; padding: 4px 8px; font-family: inherit; font-size: 0.85em; cursor: pointer; outline: none;">
-          <option value="gnome">GNOME (Por defecto)</option>
-          <option value="kde">KDE Plasma</option>
-          <option value="bspwm">BSPWM / i3</option>
-        </select>
-      </span>
+
+  <!-- ==================== TOP APP BAR ==================== -->
+  <header class="top-bar">
+    <div class="brand-group">
+      <div class="brand-emblem">
+        <span class="icon">drag_click</span>
+      </div>
+      <div class="brand-title-wrap">
+        <div class="brand-title">Zen<span>Track</span></div>
+        <div class="brand-tagline">500Hz ULTRA-LOW LATENCY</div>
+      </div>
     </div>
 
-    <div class="badge-bar">
-      <div class="pulse-dot"></div>
-      <span id="header-status">Servidor Activo (500Hz)</span>
-    </div>
-    <h1>Centro de Conexión <span>ZenTrack</span></h1>
-    <p class="subtitle">Trackpad háptico de latencia ultra-baja, teclado mecánico 65% y gamepad para tu PC</p>
+    <!-- Live Server Status Chip & View Mode Switcher -->
+    <div class="center-status-group">
+      <div class="badge-bar">
+        <div class="pulse-dot"></div>
+        <span id="header-status">Servidor Activo (500Hz)</span>
+      </div>
 
-    <!-- M3 SEGMENTED BUTTON (Google Style) -->
-    <div class="segmented-button">
-      <button id="btn-mode-wizard" class="segmented-item active" onclick="switchView('wizard')">
-        <span class="icon">rocket_launch</span>
-        Asistente Paso a Paso
+      <!-- Segmented View Mode Switcher -->
+      <div class="segmented-switch">
+        <button id="btn-mode-wizard" class="segmented-item active" onclick="switchView('wizard')">
+          <span class="icon" style="font-size: 17px;">grid_view</span>
+          Dashboard Bento
+        </button>
+        <button id="btn-mode-advanced" class="segmented-item" onclick="switchView('advanced')">
+          <span class="icon" style="font-size: 17px;">tune</span>
+          Panel Avanzado
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Header: Modal Shortcuts & Ornamental Floating Theme Orbs -->
+    <div class="top-actions-group">
+      <button class="nav-chip-btn accent" onclick="openUsbGuide()" title="Guía Asistida de Cable USB y Simulador">
+        <span class="icon" style="font-size: 17px;">cable</span>
+        Guía USB
       </button>
-      <button id="btn-mode-advanced" class="segmented-item" onclick="switchView('advanced')">
-        <span class="icon">tune</span>
-        Panel Avanzado
+
+      <button class="nav-chip-btn" onclick="openSmartScreenModal()" title="Diagnóstico de Windows SmartScreen">
+        <span class="icon" style="font-size: 17px;">security</span>
+        SmartScreen
       </button>
+
+      <button id="btn-net-diag" class="nav-chip-btn" onclick="openFirewallModal()" title="Diagnóstico de Red y Firewall">
+        <span class="icon" style="font-size: 17px;">local_fire_department</span>
+        Firewall & Red
+      </button>
+
+      <button class="nav-chip-btn" onclick="openSettingsModal()" title="Ajustes y Perfiles del Sistema">
+        <span class="icon" style="font-size: 17px;">settings</span>
+        Ajustes
+      </button>
+
+      <!-- ORNAMENTO PURAMENTE VISUAL: BOLITAS MÁGICAS DE TEMA (SIN ETIQUETA "Tema:") -->
+      <div class="magic-theme-dock" title="Cambiar tema visual (Tokyo Night, Claro, Oscuro, OLED)">
+        <div class="theme-orb orb-tokyo active" data-theme="tokyo-night" onclick="setTheme('tokyo-night')" title="Tokyo Night (Neón)"></div>
+        <div class="theme-orb orb-light" data-theme="light" onclick="setTheme('light')" title="Modo Claro"></div>
+        <div class="theme-orb orb-dark" data-theme="dark" onclick="setTheme('dark')" title="Modo Oscuro (macOS)"></div>
+        <div class="theme-orb orb-oled" data-theme="oled" onclick="setTheme('oled')" title="Modo OLED (Negro Puro)"></div>
+      </div>
     </div>
   </header>
 
-  <div class="main-wrap">
-    
-    <!-- SMARTSCREEN EXPLAINER GRAPHIC FOR WINDOWS -->
-    <div class="alert-box alert-warning" id="smartscreen-explainer" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; border-radius: var(--md-shape-corner-extra-large); background: var(--md-sys-color-surface-container-high); border: 2px solid var(--md-sys-color-warning); overflow: hidden; position: relative;">
-      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--md-sys-color-warning); animation: shimmer 2s infinite linear;"></div>
-      <div style="font-family: var(--font-brand); font-size: 16px; font-weight: 800; color: var(--md-sys-color-on-surface); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-        <span class="icon" style="color: var(--md-sys-color-warning); font-size: 24px;">security</span>
-        Aviso de Windows SmartScreen
-      </div>
-      <p style="font-size: 13.5px; color: var(--md-sys-color-on-surface-variant); max-width: 600px; margin-bottom: 16px;">
-        ZenTrack no tiene una firma digital corporativa costosa todavía. Si Windows muestra una pantalla azul bloqueando la aplicación, sigue estos 2 pasos para permitir la conexión ultra-baja latencia en tu propia red local:
-      </p>
-      
-      <!-- Explainer Graphic UI -->
-      <div style="display: flex; gap: 16px; align-items: stretch; justify-content: center; flex-wrap: wrap; width: 100%;">
-        <div style="flex: 1; min-width: 200px; max-width: 280px; background: #005A9E; border-radius: 8px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite;">
-          <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Windows protegió su PC</div>
-          <div style="font-size: 11px; margin-bottom: 16px; opacity: 0.8;">Microsoft Defender SmartScreen impidió que se iniciara una aplicación no reconocida.</div>
-          <div style="display: flex; justify-content: flex-end;">
-             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 4px;">No ejecutar</span>
+  <!-- ==================== VISTA 1: DASHBOARD BENTO BOX ==================== -->
+  <main id="view-wizard">
+    <div class="bento-container">
+
+      <!-- ================= TILE 1: HERO QR CODE CARD ================= -->
+      <section class="bento-card card-qr-hero">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">qr_code_scanner</span>
+            Escaneo QR Directo
           </div>
-          <!-- The 'More Info' click animation -->
-          <div style="position: absolute; top: 38px; left: 16px; font-size: 11px; text-decoration: underline; font-weight: bold; cursor: pointer; color: #fff;">
-            Más información
-            <div style="position: absolute; top: 6px; left: 40px; width: 14px; height: 14px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
-            <span class="icon" style="position: absolute; top: 12px; left: 48px; font-size: 18px; color: white; animation: hand-click 2s infinite;">touch_app</span>
-          </div>
+          <span class="card-chip">Wi-Fi LAN</span>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: center;">
-          <span class="icon" style="font-size: 32px; color: var(--md-sys-color-outline-variant);">arrow_forward</span>
+        <div id="qrcode" class="qr-frame">
+          <img id="qr-image-wizard" src="/qr.svg" alt="Código QR ZenTrack">
         </div>
 
-        <div style="flex: 1; min-width: 200px; max-width: 280px; background: #005A9E; border-radius: 8px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
-          <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Windows protegió su PC</div>
-          <div style="font-size: 11px; margin-bottom: 12px; opacity: 0.8;">
-            Aplicación: zentrack-server.exe<br>
-            Editor: Desconocido
-          </div>
-          <div style="display: flex; justify-content: flex-end; gap: 8px;">
-             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-weight: bold;">Ejecutar de todas formas</span>
-             <span style="font-size: 12px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 4px;">No ejecutar</span>
-          </div>
-          <div style="position: absolute; bottom: 8px; right: 110px; width: 14px; height: 14px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
-          <span class="icon" style="position: absolute; bottom: -2px; right: 100px; font-size: 18px; color: white; animation: hand-click 2s infinite;">touch_app</span>
-        </div>
-      </div>
-      <style>
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        @keyframes hand-click { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
-        @keyframes ripple-click { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-      </style>
-    </div>
+        <p class="qr-caption">
+          Apunta la cámara de la app <strong>ZenTrack</strong> a este código para vincularte instantáneamente a 500Hz en tu red local.
+        </p>
 
-    <!-- ==================== VISTA 1: ASISTENTE INTERACTIVO ==================== -->
-    <div id="view-wizard">
-      <!-- Selector de Transporte -->
-      <div class="transport-grid">
-        <!-- Tarjeta Cable USB -->
-        <div id="card-opt-usb" class="transport-card selected" onclick="selectTransport('usb')">
-          <div class="transport-header">
-            <div class="transport-title">
-              <span class="icon">cable</span>
-              Por Cable USB
+        <!-- Host Credentials List -->
+        <div class="creds-compact-list">
+          <div class="cred-row">
+            <div class="cred-meta">
+              <span class="cred-label">IP del Equipo</span>
+              <span class="cred-val" id="val-ip">Cargando...</span>
             </div>
-            <span class="transport-tag tag-pro">0.1ms Latencia</span>
+            <button class="btn-copy-mini" onclick="copyText('val-ip')">
+              <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+            </button>
           </div>
-          <div class="transport-desc">
-            Recomendado para gaming, shooters o máxima precisión sin lag ni interferencias. Conecta y juega a 500Hz estables.
-          </div>
-        </div>
 
-        <!-- Tarjeta Wi-Fi -->
-        <div id="card-opt-wifi" class="transport-card" onclick="selectTransport('wifi')">
-          <div class="transport-header">
-            <div class="transport-title">
-              <span class="icon">wifi</span>
-              Por Red Wi-Fi
+          <div class="cred-row">
+            <div class="cred-meta">
+              <span class="cred-label">Puerto WebSocket</span>
+              <span class="cred-val" id="val-port">3000</span>
             </div>
-            <span class="transport-tag tag-wireless">Sin Cables</span>
+            <button class="btn-copy-mini" onclick="copyText('val-port')">
+              <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+            </button>
           </div>
-          <div class="transport-desc">
-            Conexión instantánea escaneando el código QR con la cámara de la app. Ideal para navegación en el sofá o presentaciones.
+
+          <div class="cred-row">
+            <div class="cred-meta">
+              <span class="cred-label">Token de Sesión</span>
+              <span class="cred-val" id="val-token">Cargando...</span>
+            </div>
+            <button class="btn-copy-mini" onclick="copyText('val-token')">
+              <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- SECCIÓN DETALLE: CABLE USB -->
-      <div id="wizard-usb-section" class="detail-card">
-        <div class="section-heading">
-          <span class="icon">usb</span>
-          Guía Asistida de Conexión por Cable USB
+      <!-- ================= TILE 2: ESTADO DEL MOTOR & DRIVERS (500Hz) ================= -->
+      <section class="bento-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">speed</span>
+            Diagnóstico de Enlace & Drivers
+          </div>
+          <span class="card-chip">500Hz Engine</span>
         </div>
 
-        <!-- HEALTH BAR EN VIVO -->
-        <div class="health-bar">
-          <div class="health-item">
-            <div class="health-label">
+        <div class="health-list">
+          <div class="health-tile">
+            <div class="health-title-group">
               <span id="health-driver-dot" class="pulse-dot"></span>
-              <span>Driver de Ratón / Teclado (SendInput / uinput)</span>
+              <span>Driver de Ratón / Teclado (uinput / Win32)</span>
             </div>
             <span id="health-driver-badge" class="health-badge badge-ok">Operativo</span>
           </div>
-          <div class="health-item">
-            <div class="health-label">
+
+          <div class="health-tile">
+            <div class="health-title-group">
               <span id="health-gamepad-dot" class="pulse-dot yellow"></span>
-              <span>Driver de Mando Xbox 360 (ViGEmBus)</span>
+              <span>Driver Mando Xbox 360 (ViGEmBus)</span>
             </div>
             <span id="health-gamepad-badge" class="health-badge badge-warn">Comprobando...</span>
           </div>
-          <div class="health-item">
-            <div class="health-label">
+
+          <div class="health-tile">
+            <div class="health-title-group">
               <span id="health-adb-dot" class="pulse-dot yellow"></span>
               <span>Herramienta de Conexión en PC (ADB)</span>
             </div>
             <span id="health-adb-badge" class="health-badge badge-warn">Comprobando...</span>
           </div>
-          <div class="health-item">
-            <div class="health-label">
+
+          <div class="health-tile">
+            <div class="health-title-group">
               <span id="health-phone-dot" class="pulse-dot red"></span>
               <span>Dispositivo Móvil USB</span>
             </div>
             <span id="health-phone-badge" class="health-badge badge-err">Sin Detectar</span>
           </div>
-          <div class="health-item">
-            <div class="health-label">
+
+          <div class="health-tile">
+            <div class="health-title-group">
               <span id="health-tunnel-dot" class="pulse-dot red"></span>
               <span>Túnel Inverso (adb reverse tcp:3000)</span>
             </div>
@@ -1176,10 +1598,211 @@
           </div>
         </div>
 
-        <!-- CONTENEDOR DINÁMICO DE ESTADO USB -->
         <div id="usb-dynamic-feedback"></div>
+      </section>
 
-        <!-- STEPPER NAV -->
+      <!-- ================= TILE 3: MODOS DE TRANSPORTE & ASISTENTE ================= -->
+      <section class="bento-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">alt_route</span>
+            Modo de Transporte
+          </div>
+          <span class="card-chip">Latencia Cero</span>
+        </div>
+
+        <div class="transport-selection-row">
+          <div id="card-opt-usb" class="transport-card selected" onclick="selectTransport('usb')">
+            <div class="transport-top">
+              <div class="transport-name">
+                <span class="icon">cable</span>
+                Cable USB
+              </div>
+              <span class="transport-tag tag-pro">0.1ms</span>
+            </div>
+            <div class="transport-desc">
+              Máxima precisión a 500Hz para gaming, emuladores y trabajo sin lag ni interferencias.
+            </div>
+          </div>
+
+          <div id="card-opt-wifi" class="transport-card" onclick="selectTransport('wifi')">
+            <div class="transport-top">
+              <div class="transport-name">
+                <span class="icon">wifi</span>
+                Red Wi-Fi
+              </div>
+              <span class="transport-tag tag-wireless">Sin Cables</span>
+            </div>
+            <div class="transport-desc">
+              Conexión libre mediante escaneo de código QR en tu misma red local doméstica.
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-hero-launch" onclick="openUsbGuide()">
+          <span class="icon">smart_display</span>
+          Abrir Guía Asistida & Simulador en Vivo
+        </button>
+      </section>
+
+      <!-- ================= TILE 4: RADAR LAN UDP ================= -->
+      <section class="bento-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">radar</span>
+            Radar LAN (UDP Discovery :37020)
+          </div>
+          <button id="btn-firewall-rules" class="btn-copy-mini" onclick="openFirewallModal()" title="Fijar Reglas Firewall">
+            <span class="icon" style="font-size: 13px;">shield</span> Reglas Firewall
+          </button>
+        </div>
+
+        <div id="radar-container" class="radar-list">
+          <div class="radar-empty">
+            <div class="radar-anim"></div>
+            <div>Escaneando red local por balizas UDP (:37020)...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TILE 5: ACCIONES RÁPIDAS Y DRIVERS ================= -->
+      <section class="bento-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">terminal</span>
+            Acciones Rápidas
+          </div>
+          <span class="card-chip">Sistema</span>
+        </div>
+
+        <div class="bento-actions-grid">
+          <button id="btn-install-vigem" class="bento-action-tile" onclick="installVigemDriver()">
+            <span class="icon">sports_esports</span>
+            <span>Instalar Driver ViGEmBus</span>
+          </button>
+
+          <button class="bento-action-tile" onclick="openSmartScreenModal()">
+            <span class="icon">verified_user</span>
+            <span>Aviso Windows SmartScreen</span>
+          </button>
+
+          <button class="bento-action-tile" onclick="forceAdbTunnel()">
+            <span class="icon">sync_alt</span>
+            <span>Forzar Túnel ADB Reverse</span>
+          </button>
+
+          <button class="bento-action-tile" onclick="restartServer()">
+            <span class="icon">restart_alt</span>
+            <span>Reiniciar Servidor (500Hz)</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== VISTA 2: PANEL AVANZADO ==================== -->
+  <main id="view-advanced">
+    <div class="bento-container" style="grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr;">
+      
+      <!-- Banner de Rendimiento -->
+      <div class="bento-card" style="grid-column: 1 / -1; background: var(--accent-secondary-container); border-color: var(--card-border-active); flex-direction: row; align-items: center; gap: 14px;">
+        <span class="icon" style="font-size: 28px; color: var(--accent-secondary);">speed</span>
+        <div>
+          <strong style="color: var(--text-main); font-size: 13px;">¡Sugerencia de Rendimiento para Latencia Ultra-Baja!</strong>
+          <p style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+            Para obtener la máxima fluidez a 500Hz estables con jitter menor a 0.2ms, mantén esta pestaña cerrada mientras juegas en pantalla completa.
+          </p>
+        </div>
+      </div>
+
+      <!-- Credenciales y Configuración de Red Avanzada -->
+      <div class="bento-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">key</span>
+            Tokens y Parámetros de Enlace
+          </div>
+        </div>
+
+        <div class="creds-compact-list" style="margin-top: 0; gap: 10px;">
+          <div class="cred-row">
+            <div class="cred-meta">
+              <span class="cred-label">Comando ADB Reverse Manual</span>
+              <span class="cred-val">adb reverse tcp:3000 tcp:3000</span>
+            </div>
+            <button class="btn-copy-mini" onclick="copyRaw('adb reverse tcp:3000 tcp:3000')">
+              <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+            </button>
+          </div>
+
+          <div class="cred-row">
+            <div class="cred-meta">
+              <span class="cred-label">Regla UFW para Puerto 3000</span>
+              <span class="cred-val">sudo ufw allow 3000/tcp</span>
+            </div>
+            <button class="btn-copy-mini" onclick="copyRaw('sudo ufw allow 3000/tcp')">
+              <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+            </button>
+          </div>
+
+          <div class="cred-row">
+            <div class="cred-meta">
+              <span class="cred-label">Regla UFW para Radar UDP</span>
+              <span class="cred-val">sudo ufw allow 37020/udp</span>
+            </div>
+            <button class="btn-copy-mini" onclick="copyRaw('sudo ufw allow 37020/udp')">
+              <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control y Reinicio de Motor -->
+      <div class="bento-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">settings_power</span>
+            Control del Daemon y Kernel
+          </div>
+        </div>
+
+        <p style="font-size: 12.5px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.5;">
+          El motor de ZenTrack corre en modo Multi-threaded de alta prioridad con anillo de eventos uinput en Linux y Win32 SendInput en Windows.
+        </p>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" style="flex: 1;" onclick="restartServer()">
+            <span class="icon">restart_alt</span> Reiniciar Motor
+          </button>
+          <button class="btn-secondary" style="flex: 1;" onclick="forceAdbTunnel()">
+            <span class="icon">cable</span> Reintentar ADB
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       MODAL 1: GUÍA ASISTIDA USB & SIMULADOR ANDROID
+       ========================================================================== -->
+  <div id="modal-usb-guide" class="bento-modal-overlay">
+    <div class="bento-modal-dialog">
+      <button class="modal-close-btn" onclick="closeModal('modal-usb-guide')">
+        <span class="icon">close</span>
+      </button>
+
+      <div class="modal-title">
+        <span class="icon" style="color: var(--accent-primary);">usb</span>
+        Guía Asistida de Conexión USB & Simulador en Vivo
+      </div>
+      <div class="modal-subtitle">
+        Sigue estos pasos en tu teléfono para activar la depuración USB y disfrutar de 0.1ms de latencia sin compresión ni lag.
+      </div>
+
+      <div id="wizard-usb-section">
+        <!-- Stepper Navigation -->
         <div class="stepper-nav">
           <div id="step-nav-1" class="step-btn active" onclick="setStep(1)">
             <div class="step-num">1</div>
@@ -1199,12 +1822,11 @@
           </div>
         </div>
 
-        <!-- TWO COLUMN ASSISTED LAYOUT: INSTRUCTIONS + SMARTPHONE SIMULATOR -->
         <div class="assisted-layout">
-          <!-- LEFT: BRAND TABS & STEP INSTRUCTIONS -->
+          <!-- Left: Brand Tabs & Instructions -->
           <div>
             <div class="brand-tabs">
-              <button class="brand-tab-btn active" onclick="switchBrandTab('xiaomi')">Xiaomi / HyperOS / MIUI</button>
+              <button class="brand-tab-btn active" onclick="switchBrandTab('xiaomi')">Xiaomi / HyperOS</button>
               <button class="brand-tab-btn" onclick="switchBrandTab('samsung')">Samsung / One UI</button>
               <button class="brand-tab-btn" onclick="switchBrandTab('motorola')">Motorola / Pixel</button>
               <button class="brand-tab-btn" onclick="switchBrandTab('generic')">Otras Marcas</button>
@@ -1214,36 +1836,34 @@
               <div id="step-desc-1" class="step-body">
                 <strong>Paso 1: Activar Opciones de Desarrollador</strong>
                 <ol style="margin-top: 8px;">
-                  <li>En tu teléfono Xiaomi, abre la app de <strong>Ajustes</strong>.</li>
+                  <li>Abre <strong>Ajustes</strong> en tu teléfono Xiaomi.</li>
                   <li>Toca en <strong>Sobre el teléfono</strong>.</li>
                   <li>Toca <span class="highlight-pill">7 veces seguidas</span> sobre <strong>Versión de OS</strong> (o Versión MIUI).</li>
-                  <li>Aparecerá un mensaje flotante en la pantalla diciendo <em>"¡Ya eres desarrollador!"</em>.</li>
+                  <li>Verás el aviso: <em>"¡Ya eres desarrollador!"</em>.</li>
                 </ol>
               </div>
               <div id="step-desc-2" class="step-body" style="display: none;">
                 <strong>Paso 2: Activar Depuración por USB</strong>
                 <ol style="margin-top: 8px;">
-                  <li>Regresa al menú principal de <strong>Ajustes</strong>.</li>
                   <li>Entra a <strong>Ajustes adicionales</strong> ➔ <strong>Opciones de desarrollador</strong>.</li>
-                  <li>Activa estas dos casillas fundamentales:
+                  <li>Activa estas casillas indispensables:
                     <br>• ☑️ <strong>Depuración por USB</strong>
-                    <br>• ☑️ <strong>Depuración USB (Ajustes de seguridad)</strong> <em>(permite enviar pulsaciones de control)</em>.
+                    <br>• ☑️ <strong>Depuración USB (Ajustes de seguridad)</strong>
                   </li>
                 </ol>
               </div>
               <div id="step-desc-3" class="step-body" style="display: none;">
-                <strong>Paso 3: Conectar el Cable y Autorizar tu Computadora</strong>
+                <strong>Paso 3: Conectar el Cable y Autorizar</strong>
                 <ol style="margin-top: 8px;">
-                  <li>Enchufa el cable USB entre el celular y tu PC.</li>
-                  <li>Mira la pantalla de tu teléfono: saldrá la ventana <strong>"¿Permitir depuración por USB?"</strong>.</li>
-                  <li>Marca la casilla ☑️ <strong>"Permitir siempre desde esta computadora"</strong> y pulsa <strong>Aceptar</strong>.</li>
+                  <li>Enchufa el cable USB entre el teléfono y tu PC.</li>
+                  <li>En la pantalla de tu móvil saldrá la ventana de confirmación.</li>
+                  <li>Marca ☑️ <strong>"Permitir siempre desde esta computadora"</strong> y pulsa <strong>Aceptar</strong>.</li>
                 </ol>
               </div>
               <div id="step-desc-4" class="step-body" style="display: none;">
-                <strong>Paso 4: ¡Todo listo para jugar!</strong>
+                <strong>Paso 4: ¡Todo listo a 500Hz!</strong>
                 <p style="margin-top: 8px;">
-                  Abre la aplicación <strong>ZenTrack</strong> en tu teléfono y pulsa la píldora superior o el botón <strong>"Cable USB"</strong>. 
-                  ¡Tu conexión funcionará inmediatamente con 0.1ms de latencia a 500Hz!
+                  Abre la app <strong>ZenTrack</strong> en tu celular y pulsa el botón <strong>"Cable USB"</strong>. ¡Conexión con latencia cero inmediata!
                 </p>
               </div>
             </div>
@@ -1252,9 +1872,9 @@
               <ol>
                 <li>Abre <strong>Ajustes</strong> ➔ <strong>Acerca del teléfono</strong> ➔ <strong>Información de software</strong>.</li>
                 <li>Pulsa <span class="highlight-pill">7 veces seguidas</span> en <strong>Número de compilación</strong>.</li>
-                <li>Regresa a Ajustes y entra a <strong>Opciones de desarrollador</strong> abajo del todo.</li>
-                <li>Activa el interruptor ☑️ <strong>Depuración por USB</strong>.</li>
-                <li>Enchufa el cable y marca <strong>"Permitir siempre"</strong> ➔ <strong>Aceptar</strong>.</li>
+                <li>Regresa a Ajustes ➔ <strong>Opciones de desarrollador</strong>.</li>
+                <li>Activa ☑️ <strong>Depuración por USB</strong>.</li>
+                <li>Enchufa el cable y confirma la clave RSA.</li>
               </ol>
             </div>
 
@@ -1263,8 +1883,7 @@
                 <li>Abre <strong>Configuración</strong> ➔ <strong>Acerca del teléfono</strong>.</li>
                 <li>Toca <span class="highlight-pill">7 veces</span> sobre <strong>Número de compilación</strong>.</li>
                 <li>Ve a <strong>Sistema</strong> ➔ <strong>Opciones para desarrolladores</strong>.</li>
-                <li>Activa ☑️ <strong>Depuración USB</strong>.</li>
-                <li>Conecta el cable USB y pulsa <strong>Permitir</strong> en la pantalla.</li>
+                <li>Activa ☑️ <strong>Depuración USB</strong> y conecta el cable.</li>
               </ol>
             </div>
 
@@ -1272,13 +1891,12 @@
               <ol>
                 <li>Entra a <strong>Ajustes</strong> ➔ <strong>Acerca del dispositivo</strong>.</li>
                 <li>Toca 7 veces el <strong>Número de compilación</strong>.</li>
-                <li>Busca <strong>Opciones de desarrollador</strong> y activa <strong>Depuración USB</strong>.</li>
-                <li>Conecta el cable USB al PC y confirma la huella RSA en pantalla.</li>
+                <li>Activa <strong>Depuración USB</strong> y conecta el cable al PC.</li>
               </ol>
             </div>
           </div>
 
-          <!-- RIGHT: INTERACTIVE SMARTPHONE SIMULATOR (Pixel Material 3 Style) -->
+          <!-- Right: Interactive Smartphone Simulator -->
           <div class="simulator-container">
             <div class="sim-title">
               <span class="icon">smartphone</span>
@@ -1288,18 +1906,14 @@
             <div id="sim-phone" class="phone-body">
               <div class="phone-speaker"></div>
               <div class="phone-notch"></div>
-              <div id="sim-screen" class="phone-screen">
-                <!-- Dynamically filled by renderSimulator() -->
-              </div>
+              <div id="sim-screen" class="phone-screen"></div>
             </div>
 
-            <!-- Virtual USB Cable -->
             <div id="sim-cable" class="sim-cable-wrap">
               <div class="sim-cable-head"></div>
               <div class="sim-cable-wire"></div>
             </div>
 
-            <!-- Simulator Navigation -->
             <div class="sim-nav-controls">
               <button class="sim-btn-nav" onclick="prevStep()">
                 <span class="icon">arrow_back</span> Anterior
@@ -1312,128 +1926,191 @@
         </div>
       </div>
 
-      <!-- SECCIÓN DETALLE: WI-FI -->
-      <div id="wizard-wifi-section" class="detail-card" style="display: none;">
-        <div class="section-heading">
-          <span class="icon">qr_code_scanner</span>
-          Conexión Inalámbrica por Red Local (Wi-Fi)
-        </div>
-        <p style="color: var(--md-sys-color-on-surface-variant); font-size: 13.5px; margin-bottom: 22px; line-height: 1.6;">
-          Asegúrate de que tu PC y tu celular estén conectados a la <strong>misma red Wi-Fi</strong>. Abre la aplicación <strong>ZenTrack</strong> en tu teléfono y pulsa <strong>Escanear QR</strong>.
-        </p>
+      <!-- Hidden Wi-Fi fallback container to preserve original ID -->
+      <div id="wizard-wifi-section" style="display: none;"></div>
+    </div>
+  </div>
 
-        <div class="qr-box">
-          <img id="qr-image-wizard" src="/qr.svg" alt="Código QR ZenTrack">
-        </div>
+  <!-- ==========================================================================
+       MODAL 2: AVISO DE WINDOWS SMARTSCREEN & SEGURIDAD
+       ========================================================================== -->
+  <div id="modal-smartscreen" class="bento-modal-overlay">
+    <div class="bento-modal-dialog" style="max-width: 720px; text-align: center;">
+      <button class="modal-close-btn" onclick="closeModal('modal-smartscreen')">
+        <span class="icon">close</span>
+      </button>
 
-        <div style="text-align: center; color: var(--md-sys-color-on-surface-variant); font-size: 12px;">
-          Código de alta polaridad optimizado para escaneo instantáneo con la cámara.
+      <div class="modal-title" style="justify-content: center;">
+        <span class="icon" style="color: var(--accent-warning); font-size: 26px;">security</span>
+        Aviso de Seguridad de Windows SmartScreen
+      </div>
+      <div class="modal-subtitle">
+        ZenTrack es un proyecto de código abierto y no cuenta con un certificado corporativo comercial costoso ($400/año).
+        Si Windows Defender muestra una pantalla azul bloqueando el ejecutable, sigue estos 2 sencillos pasos:
+      </div>
+
+      <!-- SMART SCREEN EXPLAINER GRAPHIC -->
+      <div id="smartscreen-explainer" style="display: flex; flex-direction: column; align-items: center;">
+        <div style="display: flex; gap: 16px; align-items: stretch; justify-content: center; flex-wrap: wrap; width: 100%; margin-top: 10px;">
+          <!-- Paso 1 Card -->
+          <div style="flex: 1; min-width: 220px; max-width: 280px; background: #005A9E; border-radius: 12px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite;">
+            <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Windows protegió su PC</div>
+            <div style="font-size: 10.5px; margin-bottom: 18px; opacity: 0.85;">Microsoft Defender SmartScreen impidió que se iniciara una aplicación no reconocida.</div>
+            <div style="display: flex; justify-content: flex-end;">
+              <span style="font-size: 11px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 10px; border-radius: 4px;">No ejecutar</span>
+            </div>
+            <div style="position: absolute; top: 38px; left: 16px; font-size: 11px; text-decoration: underline; font-weight: bold; cursor: pointer; color: #fff;">
+              Más información
+              <div style="position: absolute; top: 6px; left: 40px; width: 12px; height: 12px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
+              <span class="icon" style="position: absolute; top: 10px; left: 46px; font-size: 16px; color: white; animation: hand-click 2s infinite;">touch_app</span>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <span class="icon" style="font-size: 28px; color: var(--accent-primary);">arrow_forward</span>
+          </div>
+
+          <!-- Paso 2 Card -->
+          <div style="flex: 1; min-width: 220px; max-width: 280px; background: #005A9E; border-radius: 12px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
+            <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Windows protegió su PC</div>
+            <div style="font-size: 10.5px; margin-bottom: 12px; opacity: 0.85;">
+              Aplicación: zentrack-server.exe<br>
+              Editor: Desconocido (Open Source)
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <span style="font-size: 11px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 4px; font-weight: bold;">Ejecutar de todas formas</span>
+              <span style="font-size: 11px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 10px; border-radius: 4px;">No ejecutar</span>
+            </div>
+            <div style="position: absolute; bottom: 8px; right: 106px; width: 12px; height: 12px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
+            <span class="icon" style="position: absolute; bottom: -2px; right: 98px; font-size: 16px; color: white; animation: hand-click 2s infinite;">touch_app</span>
+          </div>
         </div>
       </div>
+      <style>
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes hand-click { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+        @keyframes ripple-click { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+      </style>
     </div>
+  </div>
 
-    <!-- ==================== VISTA 2: PANEL AVANZADO ==================== -->
-    <div id="view-advanced" style="display: none;">
-      <div class="adv-container">
-        <!-- SUGERENCIA DE RENDIMIENTO -->
-        <div style="grid-column: 1 / -1; background: var(--color-secondary-container); color: var(--on-secondary-container); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-          <span class="icon" style="font-size: 24px; color: var(--color-secondary);">speed</span>
-          <span style="line-height: 1.4; font-size: 0.95em;">
-            <strong>¡Sugerencia de Rendimiento!</strong><br>
-            Para obtener la máxima fluidez (500Hz) y la menor latencia posible al mover el ratón, mantén esta pestaña cerrada mientras juegas.
+  <!-- ==========================================================================
+       MODAL 3: DIAGNÓSTICO DE RED & REGLAS DE FIREWALL
+       ========================================================================== -->
+  <div id="modal-firewall" class="bento-modal-overlay">
+    <div class="bento-modal-dialog">
+      <button class="modal-close-btn" onclick="closeModal('modal-firewall')">
+        <span class="icon">close</span>
+      </button>
+
+      <div class="modal-title">
+        <span class="icon" style="color: var(--accent-warning);">local_fire_department</span>
+        Diagnóstico de Red & Reglas de Firewall (Puertos 3000 / 37020)
+      </div>
+      <div class="modal-subtitle">
+        Si tu celular no detecta el servidor por Wi-Fi o el Radar UDP no responde, el firewall local puede estar bloqueando las conexiones entrantes.
+      </div>
+
+      <div class="creds-compact-list" style="margin-top: 0; gap: 12px;">
+        <!-- Regla UFW -->
+        <div class="cred-row" style="padding: 12px 16px;">
+          <div class="cred-meta">
+            <span class="cred-label">UFW (Ubuntu, Debian, Arch Linux)</span>
+            <span class="cred-val" style="margin-top: 4px;">sudo ufw allow 3000/tcp && sudo ufw allow 37020/udp && sudo ufw reload</span>
+          </div>
+          <button class="btn-copy-mini" onclick="copyRaw('sudo ufw allow 3000/tcp && sudo ufw allow 37020/udp && sudo ufw reload')">
+            <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+          </button>
+        </div>
+
+        <!-- Regla Firewalld -->
+        <div class="cred-row" style="padding: 12px 16px;">
+          <div class="cred-meta">
+            <span class="cred-label">Firewalld (Fedora, RHEL)</span>
+            <span class="cred-val" style="margin-top: 4px;">sudo firewall-cmd --add-port=3000/tcp --add-port=37020/udp --permanent && sudo firewall-cmd --reload</span>
+          </div>
+          <button class="btn-copy-mini" onclick="copyRaw('sudo firewall-cmd --add-port=3000/tcp --add-port=37020/udp --permanent && sudo firewall-cmd --reload')">
+            <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+          </button>
+        </div>
+
+        <!-- Regla Windows Defender -->
+        <div class="cred-row" style="padding: 12px 16px;">
+          <div class="cred-meta">
+            <span class="cred-label">Windows Defender Firewall (PowerShell como Administrador)</span>
+            <span class="cred-val" style="margin-top: 4px;">New-NetFirewallRule -DisplayName "ZenTrack 500Hz" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow</span>
+          </div>
+          <button class="btn-copy-mini" onclick="copyRaw('New-NetFirewallRule -DisplayName &quot;ZenTrack 500Hz&quot; -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow')">
+            <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-primary" onclick="checkHealth(); updateDevices(); alert('Diagnóstico de red ejecutado. Comprueba el estado de los indicadores.');">
+          <span class="icon">sync</span> Re-escanear Red Ahora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: AJUSTES DEL SISTEMA & PERFILES DE ENTORNO
+       ========================================================================== -->
+  <div id="modal-settings" class="bento-modal-overlay">
+    <div class="bento-modal-dialog" style="max-width: 650px;">
+      <button class="modal-close-btn" onclick="closeModal('modal-settings')">
+        <span class="icon">close</span>
+      </button>
+
+      <div class="modal-title">
+        <span class="icon" style="color: var(--accent-primary);">settings</span>
+        Ajustes del Sistema & Configuración
+      </div>
+      <div class="modal-subtitle">
+        Personaliza los atajos de teclado del sistema operativo y gestiona los servicios en segundo plano.
+      </div>
+
+      <!-- Selector Oculto de Perfiles Linux (sin etiqueta "Entorno Linux:" en la pantalla principal) -->
+      <div id="linux-profile-wrapper" class="settings-profile-row" style="display: none;">
+        <div style="display: flex; flex-direction: column;">
+          <strong style="color: var(--text-main); font-size: 13px;">Perfil de Escritorio Linux</strong>
+          <span style="color: var(--text-dim); font-size: 11px; margin-top: 2px;">
+            Ajusta los gestos del trackpad y atajos multimedia según tu gestor de ventanas.
           </span>
         </div>
+        <select id="linux-profile-select" class="bento-select">
+          <option value="gnome">GNOME (Por defecto)</option>
+          <option value="kde">KDE Plasma</option>
+          <option value="bspwm">BSPWM / i3</option>
+        </select>
+      </div>
 
-        <!-- QR CARD -->
-        <div class="detail-card">
-          <div class="section-heading">
-            <span class="icon">qr_code</span>
-            Escaneo Directo QR
+      <div class="creds-compact-list" style="margin-top: 14px; gap: 10px;">
+        <div class="cred-row">
+          <div class="cred-meta">
+            <span class="cred-label">Túnel Inverso ADB USB</span>
+            <span class="cred-val">Redirige el puerto 3000 sobre cable físico</span>
           </div>
-          <div class="qr-box">
-            <img src="/qr.svg" alt="Código QR ZenTrack">
-          </div>
-          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 12px; text-align: center; line-height: 1.5;">
-            Apunta la cámara de la app ZenTrack a este código para vincularte a 500Hz.
-          </p>
+          <button class="btn-copy-mini" onclick="forceAdbTunnel()">
+            <span class="icon" style="font-size: 14px;">sync_alt</span> Forzar
+          </button>
         </div>
 
-        <!-- RADAR & CREDENTIALS -->
-        <div class="detail-card">
-          <div class="section-heading">
-            <span class="icon">radar</span>
-            Radar LAN (UDP Discovery :37020)
+        <div class="cred-row">
+          <div class="cred-meta">
+            <span class="cred-label">Reinicio del Servicio ZenTrack</span>
+            <span class="cred-val">Reinicia el motor y recarga las interfaces uinput</span>
           </div>
-          <div id="radar-container" class="radar-list">
-            <div class="radar-empty">
-              <div class="radar-anim"></div>
-              <div>Escaneando red local por balizas UDP...</div>
-            </div>
-          </div>
-
-          <div class="section-heading" style="margin-top: 24px;">
-            <span class="icon">key</span>
-            Credenciales Directas
-          </div>
-          <div class="prop-row">
-            <div>
-              <div class="prop-label">IP Local (Wi-Fi)</div>
-              <div class="prop-value" id="val-ip">Cargando...</div>
-            </div>
-            <button class="btn-copy" onclick="copyText('val-ip')">
-              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
-            </button>
-          </div>
-          <div class="prop-row">
-            <div>
-              <div class="prop-label">Puerto WebSocket</div>
-              <div class="prop-value" id="val-port">3000</div>
-            </div>
-            <button class="btn-copy" onclick="copyText('val-port')">
-              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
-            </button>
-          </div>
-          <div class="prop-row">
-            <div>
-              <div class="prop-label">Token de Seguridad</div>
-              <div class="prop-value" id="val-token" style="font-size: 12px;">Cargando...</div>
-            </div>
-            <button class="btn-copy" onclick="copyText('val-token')">
-              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
-            </button>
-          </div>
-
-          <div class="section-heading" style="margin-top: 18px;">
-            <span class="icon">terminal</span>
-            Túnel Manual ADB
-          </div>
-          <div class="prop-row">
-            <div>
-              <div class="prop-label">Comando ADB Reverse</div>
-              <div class="prop-value" style="font-size: 12px; font-family: var(--font-code);">adb reverse tcp:3000 tcp:3000</div>
-            </div>
-            <button class="btn-copy" onclick="copyRaw('adb reverse tcp:3000 tcp:3000')">
-              <span class="icon" style="font-size: 16px;">content_copy</span> Copiar
-            </button>
-          </div>
-
-          <div class="section-heading" style="margin-top: 18px;">
-            <span class="icon">settings_power</span>
-            Acciones del Servidor
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 12px;">
-            <button class="btn-primary" style="flex: 1;" onclick="restartServer()">
-              <span class="icon">restart_alt</span> Reiniciar Motor
-            </button>
-            <button class="btn-secondary" style="flex: 1;" onclick="forceAdbTunnel()">
-              <span class="icon">cable</span> Reiniciar ADB
-            </button>
-          </div>
+          <button class="btn-copy-mini" onclick="restartServer()">
+            <span class="icon" style="font-size: 14px;">restart_alt</span> Reiniciar
+          </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ==================== LÓGICA JAVASCRIPT ==================== -->
   <script>
     let currentTransport = 'usb';
     let currentStep = 1;
@@ -1441,18 +2118,28 @@
     let devTaps = 0;
     let autoAdvanced = false;
 
-    // Material You Dynamic Theme Switching
+    // SISTEMA DE 4 TEMAS DINÁMICOS CON ORNAMENTOS CIRCULARES
     function setTheme(theme) {
-      document.body.removeAttribute('data-theme');
-      if (theme !== 'blue') {
-        document.body.setAttribute('data-theme', theme);
-      }
-      document.querySelectorAll('.theme-dot').forEach(d => {
-        d.classList.toggle('active', d.classList.contains(theme));
+      const legacyMap = {
+        'blue': 'tokyo-night',
+        'lavender': 'tokyo-night',
+        'sunset': 'light',
+        'mint': 'oled'
+      };
+      const activeTheme = legacyMap[theme] || theme || 'tokyo-night';
+
+      document.documentElement.setAttribute('data-theme', activeTheme);
+      document.body.setAttribute('data-theme', activeTheme);
+
+      document.querySelectorAll('.theme-orb').forEach(orb => {
+        orb.classList.toggle('active', orb.dataset.theme === activeTheme);
       });
-      localStorage.setItem('zentrack_material_theme', theme);
+
+      localStorage.setItem('zentrack_material_theme', activeTheme);
+      localStorage.setItem('zentrack_theme', activeTheme);
     }
 
+    // GESTIÓN DE VISTAS (DASHBOARD BENTO VS PANEL AVANZADO)
     function switchView(mode) {
       const wizardView = document.getElementById('view-wizard');
       const advView = document.getElementById('view-advanced');
@@ -1460,44 +2147,71 @@
       const btnAdv = document.getElementById('btn-mode-advanced');
 
       if (mode === 'wizard') {
-        wizardView.style.display = 'block';
+        wizardView.style.display = 'flex';
         advView.style.display = 'none';
         btnWiz.classList.add('active');
         btnAdv.classList.remove('active');
       } else {
         wizardView.style.display = 'none';
-        advView.style.display = 'block';
+        advView.style.display = 'flex';
         btnWiz.classList.remove('active');
         btnAdv.classList.add('active');
       }
       localStorage.setItem('zentrack_mode', mode);
     }
 
+    // CONTROL DE MODALES FLOTANTES
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('active');
+    }
+
+    function openUsbGuide() { openModal('modal-usb-guide'); }
+    function openSmartScreenModal() { openModal('modal-smartscreen'); }
+    function openFirewallModal() { openModal('modal-firewall'); }
+    function openSettingsModal() { openModal('modal-settings'); }
+
+    // Cerrar al pulsar el fondo oscuro
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('bento-modal-overlay')) {
+        e.target.classList.remove('active');
+      }
+    });
+
+    // Cerrar al pulsar la tecla Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.bento-modal-overlay.active').forEach(m => m.classList.remove('active'));
+      }
+    });
+
+    // SELECCIÓN DE TRANSPORTE
     function selectTransport(type) {
       currentTransport = type;
       const cardUsb = document.getElementById('card-opt-usb');
       const cardWifi = document.getElementById('card-opt-wifi');
-      const secUsb = document.getElementById('wizard-usb-section');
-      const secWifi = document.getElementById('wizard-wifi-section');
 
       if (type === 'usb') {
         cardUsb.classList.add('selected');
         cardWifi.classList.remove('selected');
-        secUsb.style.display = 'block';
-        secWifi.style.display = 'none';
       } else {
         cardUsb.classList.remove('selected');
         cardWifi.classList.add('selected');
-        secUsb.style.display = 'none';
-        secWifi.style.display = 'block';
       }
     }
 
+    // PESTAÑAS DE MARCA
     function switchBrandTab(brand) {
       currentBrand = brand;
       const brands = ['xiaomi', 'samsung', 'motorola', 'generic'];
       brands.forEach(b => {
-        document.getElementById(`brand-tab-${b}`).style.display = (b === brand) ? 'block' : 'none';
+        const el = document.getElementById(`brand-tab-${b}`);
+        if (el) el.style.display = (b === brand) ? 'block' : 'none';
       });
       document.querySelectorAll('.brand-tab-btn').forEach((btn, idx) => {
         btn.classList.toggle('active', brands[idx] === brand);
@@ -1505,6 +2219,7 @@
       renderSimulator();
     }
 
+    // STEPPER DE GUÍA USB
     function setStep(step) {
       currentStep = step;
       for (let i = 1; i <= 4; i++) {
@@ -1535,9 +2250,11 @@
       }
     }
 
+    // RENDERIZADO DEL SIMULADOR ANDROID
     function renderSimulator() {
       const screen = document.getElementById('sim-screen');
       const cable = document.getElementById('sim-cable');
+      if (!screen || !cable) return;
 
       cable.classList.toggle('connected', currentStep >= 3);
 
@@ -1548,29 +2265,29 @@
 
       if (currentStep === 1) {
         screen.innerHTML = `
-          <div class="sim-header"><span class="icon" style="font-size: 14px;">settings</span> Ajustes ➔ Sobre el teléfono</div>
+          <div style="font-size: 10px; font-weight: 700; color: #888; margin-bottom: 8px;">Ajustes ➔ Sobre el teléfono</div>
           <div class="sim-card">
-            <div style="font-weight: 700; color: var(--md-sys-color-on-surface);">Dispositivo Android</div>
-            <div style="color: var(--md-sys-color-on-surface-variant); font-size: 10px; margin-top: 2px;">Almacenamiento: 256 GB</div>
+            <div style="font-weight: 700; color: #fff;">Dispositivo Android</div>
+            <div style="color: #888; font-size: 9px; margin-top: 2px;">Almacenamiento: 256 GB</div>
           </div>
           <div class="sim-card sim-tap-target" onclick="simTapVersion()">
-            <div style="font-weight: 700; color: var(--md-sys-color-primary);">${brandOsLabel}</div>
-            <div style="color: var(--md-sys-color-on-surface); font-size: 9.5px; margin-top: 2px;">1.0.12.0.UNLMIXM</div>
+            <div style="font-weight: 700; color: var(--accent-primary);">${brandOsLabel}</div>
+            <div style="color: #fff; font-size: 9px; margin-top: 2px;">1.0.12.0.UNLMIXM</div>
             <div id="sim-tap-counter" class="sim-tap-count">¡Toca 7 veces!</div>
             <div class="sim-hand-tap">👆</div>
           </div>
-          <div style="text-align: center; color: var(--md-sys-color-on-surface-variant); font-size: 9.5px; margin-top: 14px;">
+          <div style="text-align: center; color: #777; font-size: 9px; margin-top: 10px;">
             Toca el recuadro para desbloquear Opciones de Desarrollador.
           </div>
         `;
       } else if (currentStep === 2) {
         screen.innerHTML = `
-          <div class="sim-header"><span class="icon" style="font-size: 14px;">terminal</span> Opciones de Desarrollador</div>
+          <div style="font-size: 10px; font-weight: 700; color: #888; margin-bottom: 8px;">Opciones de Desarrollador</div>
           <div class="sim-card">
             <div class="sim-toggle-row">
               <div>
-                <div style="font-weight: 700; color: var(--md-sys-color-on-surface);">Depuración por USB</div>
-                <div style="color: var(--md-sys-color-on-surface-variant); font-size: 9px;">Permite conectar con la PC</div>
+                <div style="font-weight: 700; color: #fff;">Depuración por USB</div>
+                <div style="color: #888; font-size: 8.5px;">Permite conectar con la PC</div>
               </div>
               <div class="sim-switch on"><div class="sim-switch-thumb"></div></div>
             </div>
@@ -1578,47 +2295,41 @@
           <div class="sim-card">
             <div class="sim-toggle-row">
               <div>
-                <div style="font-weight: 700; color: var(--md-sys-color-on-surface);">Ajustes de seguridad</div>
-                <div style="color: var(--md-sys-color-on-surface-variant); font-size: 9px;">Permite clics e inputs</div>
+                <div style="font-weight: 700; color: #fff;">Ajustes de seguridad</div>
+                <div style="color: #888; font-size: 8.5px;">Permite clics e inputs</div>
               </div>
               <div class="sim-switch on"><div class="sim-switch-thumb"></div></div>
             </div>
           </div>
-          <div style="text-align: center; color: var(--md-sys-color-success); font-size: 10px; font-weight: 700; margin-top: 12px;">
+          <div style="text-align: center; color: var(--accent-success); font-size: 9.5px; font-weight: 700; margin-top: 8px;">
             ✓ Depuración activada correctamente
           </div>
         `;
       } else if (currentStep === 3) {
         screen.innerHTML = `
-          <div class="sim-header"><span class="icon" style="font-size: 14px;">cable</span> Cable USB Enchufado</div>
+          <div style="font-size: 10px; font-weight: 700; color: #888; margin-bottom: 8px;">Cable USB Enchufado</div>
           <div class="sim-dialog">
             <div class="sim-dialog-title">¿Permitir depuración por USB?</div>
-            <div class="sim-dialog-desc">
-              La computadora con clave RSA 3F:A2:9B:... solicita autorización para conectar.
-            </div>
-            <div class="sim-dialog-check">
-              <span class="icon" style="font-size: 14px;">check_box</span>
-              <span>Permitir siempre desde este equipo</span>
+            <div class="sim-dialog-desc">La PC con clave RSA 3F:A2:... solicita autorización para conectar.</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 9px; color: var(--accent-primary); margin-bottom: 8px; font-weight: 700;">
+              <span>☑️ Permitir siempre</span>
             </div>
             <button class="sim-dialog-btn" onclick="setStep(4)">Aceptar</button>
             <div style="clear: both;"></div>
           </div>
-          <div style="text-align: center; color: var(--md-sys-color-warning); font-size: 9.5px; margin-top: 14px; font-weight: 700;">
-            ⚠️ Confirma la autorización en tu celular
-          </div>
         `;
       } else if (currentStep === 4) {
         screen.innerHTML = `
-          <div style="background: var(--md-sys-color-surface-container); border-radius: 8px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span style="font-weight: 800; color: var(--md-sys-color-primary); font-size: 10.5px;">ZEN-TRACK</span>
-            <span style="background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 8.5px;">USB 500Hz</span>
+          <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-weight: 800; color: var(--accent-primary); font-size: 10px;">ZEN-TRACK</span>
+            <span style="background: var(--accent-success-container); color: var(--accent-success); padding: 1px 6px; border-radius: 10px; font-weight: 700; font-size: 8px;">USB 500Hz</span>
           </div>
-          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px;">
-            <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); display: flex; align-items: center; justify-content: center; font-size: 26px;">
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--accent-success-container); color: var(--accent-success); display: flex; align-items: center; justify-content: center; font-size: 22px;">
               ✓
             </div>
-            <div style="font-weight: 700; color: var(--md-sys-color-on-surface); font-size: 13px;">¡Conexión Activa!</div>
-            <div style="color: var(--md-sys-color-on-surface-variant); font-size: 10px; line-height: 1.4;">
+            <div style="font-weight: 700; color: #fff; font-size: 12px;">¡Conexión Activa!</div>
+            <div style="color: #888; font-size: 9.5px; line-height: 1.4;">
               Latencia: &lt;0.2ms<br>Tasa de refresco: 500Hz
             </div>
           </div>
@@ -1626,33 +2337,35 @@
       }
     }
 
-    // HEALTH CHECK POLLER
+    // CHECK HEALTH POLLER
     async function checkHealth() {
       try {
         const res = await fetch('/api/system-health');
         if (!res.ok) return;
         const h = await res.json();
 
-        if (h.os === 'linux') {
-          document.getElementById('linux-profile-wrapper').style.display = 'inline-flex';
-        } else {
-          document.getElementById('linux-profile-wrapper').style.display = 'none';
+        // Selector Linux dentro de modal
+        const linuxWrapper = document.getElementById('linux-profile-wrapper');
+        if (linuxWrapper) {
+          linuxWrapper.style.display = (h.os === 'linux') ? 'flex' : 'none';
         }
 
-        // 1. Driver Mouse/Keyboard
+        // 1. Driver Mouse / Keyboard
         const dotDriver = document.getElementById('health-driver-dot');
         const badgeDriver = document.getElementById('health-driver-badge');
-        if (h.uinput_accessible) {
-          dotDriver.className = 'pulse-dot';
-          badgeDriver.className = 'health-badge badge-ok';
-          badgeDriver.textContent = 'Operativo';
-        } else {
-          dotDriver.className = 'pulse-dot red';
-          badgeDriver.className = 'health-badge badge-err';
-          badgeDriver.textContent = 'Sin Permiso';
+        if (dotDriver && badgeDriver) {
+          if (h.uinput_accessible) {
+            dotDriver.className = 'pulse-dot';
+            badgeDriver.className = 'health-badge badge-ok';
+            badgeDriver.textContent = 'Operativo';
+          } else {
+            dotDriver.className = 'pulse-dot red';
+            badgeDriver.className = 'health-badge badge-err';
+            badgeDriver.textContent = 'Sin Permiso';
+          }
         }
 
-        // 1b. Driver Gamepad Xbox
+        // 2. Driver Gamepad Xbox 360
         const dotGamepad = document.getElementById('health-gamepad-dot');
         const badgeGamepad = document.getElementById('health-gamepad-badge');
         if (dotGamepad && badgeGamepad) {
@@ -1667,100 +2380,86 @@
           }
         }
 
-        // 2. ADB Tool
+        // 3. ADB Tool
         const dotAdb = document.getElementById('health-adb-dot');
         const badgeAdb = document.getElementById('health-adb-badge');
-        if (h.adb_installed) {
-          dotAdb.className = 'pulse-dot';
-          badgeAdb.className = 'health-badge badge-ok';
-          badgeAdb.textContent = 'Instalado';
-        } else {
-          dotAdb.className = 'pulse-dot red';
-          badgeAdb.className = 'health-badge badge-err';
-          badgeAdb.textContent = 'No Encontrado';
+        if (dotAdb && badgeAdb) {
+          if (h.adb_installed) {
+            dotAdb.className = 'pulse-dot';
+            badgeAdb.className = 'health-badge badge-ok';
+            badgeAdb.textContent = 'Instalado';
+          } else {
+            dotAdb.className = 'pulse-dot red';
+            badgeAdb.className = 'health-badge badge-err';
+            badgeAdb.textContent = 'No Encontrado';
+          }
         }
 
-        // 3. Devices & Tunnel
+        // 4. Devices & Tunnel
         const dotPhone = document.getElementById('health-phone-dot');
         const badgePhone = document.getElementById('health-phone-badge');
         const dotTunnel = document.getElementById('health-tunnel-dot');
         const badgeTunnel = document.getElementById('health-tunnel-badge');
         const feedback = document.getElementById('usb-dynamic-feedback');
 
-        const authorizedDev = h.devices.find(d => d.is_authorized);
-        const unauthorizedDev = h.devices.find(d => d.state === 'unauthorized');
+        const authorizedDev = (h.devices || []).find(d => d.is_authorized);
+        const unauthorizedDev = (h.devices || []).find(d => d.state === 'unauthorized');
 
         if (!h.adb_installed) {
-          dotPhone.className = 'pulse-dot red';
-          badgePhone.className = 'health-badge badge-err';
-          badgePhone.textContent = 'Requiere ADB';
+          if (dotPhone) { dotPhone.className = 'pulse-dot red'; badgePhone.className = 'health-badge badge-err'; badgePhone.textContent = 'Requiere ADB'; }
+          if (dotTunnel) { dotTunnel.className = 'pulse-dot red'; badgeTunnel.className = 'health-badge badge-err'; badgeTunnel.textContent = 'Inactivo'; }
 
-          dotTunnel.className = 'pulse-dot red';
-          badgeTunnel.className = 'health-badge badge-err';
-          badgeTunnel.textContent = 'Inactivo';
-
-          const isWin = (h.distro_id || '').toLowerCase() === 'windows';
-          const instructionText = isWin 
-            ? 'Para conectar por cable a latencia cero (<0.2ms), abre PowerShell o CMD y ejecuta este comando:' 
-            : 'Para conectar por cable a latencia cero (<0.2ms), instala las herramientas con este comando:';
-
-          feedback.innerHTML = `
-            <div class="alert-box alert-warning">
-              <span class="icon" style="font-size: 26px;">warning</span>
-              <div style="flex: 1;">
-                <strong>Falta la herramienta ADB en tu PC (${h.distro_name || 'Sistema'}):</strong>
-                <p>${instructionText}</p>
-                <div class="cmd-box">
-                  <code>${h.install_command || 'winget install Google.PlatformTools'}</code>
-                  <button class="btn-copy" onclick="copyRaw('${h.install_command || 'winget install Google.PlatformTools'}')">
-                    <span class="icon" style="font-size: 15px;">content_copy</span> Copiar
-                  </button>
+          if (feedback) {
+            feedback.innerHTML = `
+              <div class="alert-box alert-warning">
+                <span class="icon">warning</span>
+                <div style="flex: 1;">
+                  <strong>Falta la herramienta ADB en tu PC:</strong>
+                  <div class="cmd-box">
+                    <code>${h.install_command || 'winget install Google.PlatformTools'}</code>
+                    <button class="btn-copy-mini" onclick="copyRaw('${h.install_command || 'winget install Google.PlatformTools'}')">
+                      <span class="icon" style="font-size: 13px;">content_copy</span> Copiar
+                    </button>
+                  </div>
                 </div>
-                ${isWin ? '<p style="margin-top: 8px; font-size: 12px; opacity: 0.85;">O si prefieres, descarga el archivo oficial de Google: <a href="https://dl.google.com/android/repository/platform-tools-latest-windows.zip" target="_blank" style="color: var(--md-sys-color-primary); text-decoration: underline;">platform-tools-latest-windows.zip</a> y descomprime <code>adb.exe</code> en la misma carpeta de ZenTrack.</p>' : ''}
               </div>
-            </div>
-          `;
+            `;
+          }
         } else if (authorizedDev) {
-          dotPhone.className = 'pulse-dot';
-          badgePhone.className = 'health-badge badge-ok';
-          badgePhone.textContent = authorizedDev.model;
+          if (dotPhone) { dotPhone.className = 'pulse-dot'; badgePhone.className = 'health-badge badge-ok'; badgePhone.textContent = authorizedDev.model; }
+          if (dotTunnel) { dotTunnel.className = 'pulse-dot'; badgeTunnel.className = 'health-badge badge-ok'; badgeTunnel.textContent = '500Hz Activo'; }
 
-          dotTunnel.className = 'pulse-dot';
-          badgeTunnel.className = 'health-badge badge-ok';
-          badgeTunnel.textContent = 'Túnel 500Hz Activo';
-
-          feedback.innerHTML = `
-            <div class="alert-box alert-success">
-              <span class="icon" style="font-size: 26px;">check_circle</span>
-              <div>
-                <strong>¡Teléfono Conectado y Autorizado! (${authorizedDev.model})</strong>
-                <p>El túnel USB de 500Hz está activo en el puerto 3000. Abre <strong>ZenTrack</strong> en tu celular y pulsa el botón <strong>"Cable USB"</strong>.</p>
+          if (feedback) {
+            feedback.innerHTML = `
+              <div class="alert-box alert-success">
+                <span class="icon">check_circle</span>
+                <div>
+                  <strong>¡Teléfono Conectado! (${authorizedDev.model})</strong>
+                  <span>Túnel USB 500Hz activo en puerto 3000. Pulsa "Cable USB" en tu móvil.</span>
+                </div>
               </div>
-            </div>
-          `;
+            `;
+          }
 
           if (!autoAdvanced) {
             setStep(4);
             autoAdvanced = true;
           }
         } else if (unauthorizedDev) {
-          dotPhone.className = 'pulse-dot yellow';
-          badgePhone.className = 'health-badge badge-warn';
-          badgePhone.textContent = 'No Autorizado';
+          if (dotPhone) { dotPhone.className = 'pulse-dot yellow'; badgePhone.className = 'health-badge badge-warn'; badgePhone.textContent = 'No Autorizado'; }
+          if (dotTunnel) { dotTunnel.className = 'pulse-dot yellow'; badgeTunnel.className = 'health-badge badge-warn'; badgeTunnel.textContent = 'Esperando Permiso'; }
 
-          dotTunnel.className = 'pulse-dot yellow';
-          badgeTunnel.className = 'health-badge badge-warn';
-          badgeTunnel.textContent = 'Esperando Permiso';
-
-          feedback.innerHTML = `
-            <div class="alert-box alert-warning">
-              <span class="icon" style="font-size: 26px;">screen_lock_portrait</span>
-              <div>
-                <strong>Teléfono detectado, pero requiere autorización en pantalla:</strong>
-                <p>Mira la pantalla de tu móvil. Aparecerá un cuadro: <em>"¿Permitir depuración por USB?"</em>. Marca la casilla <strong>"Permitir siempre"</strong> y pulsa <strong>Aceptar</strong>.</p>
+          if (feedback) {
+            feedback.innerHTML = `
+              <div class="alert-box alert-warning">
+                <span class="icon">screen_lock_portrait</span>
+                <div>
+                  <strong>Teléfono detectado:</strong>
+                  <span>Confirma la autorización de huella RSA en la pantalla de tu móvil.</span>
+                </div>
               </div>
-            </div>
-          `;
+            `;
+          }
 
           setStep(3);
           const p = document.getElementById('sim-phone');
@@ -1770,39 +2469,32 @@
             p.classList.add('shake');
           }
         } else {
-          dotPhone.className = 'pulse-dot red';
-          badgePhone.className = 'health-badge badge-err';
-          badgePhone.textContent = 'Desconectado';
+          if (dotPhone) { dotPhone.className = 'pulse-dot red'; badgePhone.className = 'health-badge badge-err'; badgePhone.textContent = 'Desconectado'; }
+          if (dotTunnel) { dotTunnel.className = 'pulse-dot red'; badgeTunnel.className = 'health-badge badge-err'; badgeTunnel.textContent = 'En Espera'; }
 
-          dotTunnel.className = 'pulse-dot red';
-          badgeTunnel.className = 'health-badge badge-err';
-          badgeTunnel.textContent = 'En Espera';
-
-          feedback.innerHTML = `
-            <div class="alert-box" style="background: var(--md-sys-color-surface-container-high); border: 1px dashed var(--md-sys-color-outline-variant);">
-              <span class="icon" style="font-size: 26px;">usb</span>
-              <div>
-                <strong>Esperando conexión por cable USB...</strong>
-                <p>Conecta el cable USB de tu celular a la PC y asegúrate de tener activada la <em>Depuración por USB</em> (sigue los pasos abajo).</p>
+          if (feedback) {
+            feedback.innerHTML = `
+              <div class="alert-box" style="background: rgba(0,0,0,0.18); border: 1px dashed var(--card-border);">
+                <span class="icon">cable</span>
+                <div>
+                  <strong>Esperando conexión por cable USB...</strong>
+                  <span>Enchufa tu teléfono a la PC con Depuración USB activa.</span>
+                </div>
               </div>
-            </div>
-          `;
+            `;
+          }
           autoAdvanced = false;
         }
 
-        if (!h.gamepad_driver_installed && (h.os || '').toLowerCase() === 'windows') {
+        if (!h.gamepad_driver_installed && (h.os || '').toLowerCase() === 'windows' && feedback) {
           feedback.innerHTML += `
-            <div class="alert-box alert-warning" style="margin-top: 12px; border: 1px solid var(--md-sys-color-warning);">
-              <span class="icon" style="font-size: 26px; color: var(--md-sys-color-warning);">sports_esports</span>
+            <div class="alert-box alert-warning" style="margin-top: 8px;">
+              <span class="icon">sports_esports</span>
               <div style="flex: 1;">
-                <strong style="color: var(--md-sys-color-warning);">Falta el Driver de Mando Xbox 360 (ViGEmBus):</strong>
-                <p>Para usar tu celular como gamepad Xbox en juegos y emuladores, instala el driver oficial ViGEmBus:</p>
-                <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                  <button class="m3-btn" onclick="installVigemDriver()" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); padding: 8px 16px; border-radius: 9999px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px;">
-                    <span class="icon" style="font-size: 16px;">download</span> Instalar Driver ViGEmBus (1 Clic)
-                  </button>
-                  <span style="font-size: 11px; opacity: 0.85;">o en PowerShell: <code>winget install Nefarius.ViGEmBus</code></span>
-                </div>
+                <strong>Driver de Mando Xbox (ViGEmBus):</strong>
+                <button class="btn-copy-mini" onclick="installVigemDriver()" style="margin-left: 8px;">
+                  Instalar Driver (1 Clic)
+                </button>
               </div>
             </div>
           `;
@@ -1812,28 +2504,38 @@
       }
     }
 
+    // UPDATE STATUS POLLER
     async function updateStatus() {
       try {
         const res = await fetch('/status');
         if (res.ok) {
           const data = await res.json();
-          document.getElementById('val-token').textContent = data.token || '';
-          document.getElementById('val-port').textContent = data.port || '3000';
-          if (data.connectedCount > 0) {
-            document.getElementById('header-status').textContent = `Servidor Activo • ${data.connectedCount} Cliente(s) Conectado(s)`;
-          } else {
-            document.getElementById('header-status').textContent = 'Servidor Activo • Esperando Conexión (500Hz+)';
+          const tokenEl = document.getElementById('val-token');
+          const portEl = document.getElementById('val-port');
+          const statusEl = document.getElementById('header-status');
+
+          if (tokenEl) tokenEl.textContent = data.token || '';
+          if (portEl) portEl.textContent = data.port || '3000';
+          if (statusEl) {
+            if (data.connectedCount > 0) {
+              statusEl.textContent = `Servidor Activo • ${data.connectedCount} Cliente(s)`;
+            } else {
+              statusEl.textContent = 'Servidor Activo (500Hz)';
+            }
           }
         }
       } catch (e) {}
     }
 
+    // UPDATE LAN RADAR DEVICES POLLER
     async function updateDevices() {
       try {
         const res = await fetch('/api/devices');
         if (res.ok) {
           const devices = await res.json();
           const container = document.getElementById('radar-container');
+          if (!container) return;
+
           if (devices.length > 0) {
             container.innerHTML = devices.map(d => `
               <div class="device-item">
@@ -1860,9 +2562,16 @@
     }
 
     function copyText(id) {
-      const text = document.getElementById(id).textContent;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const text = el.textContent;
       navigator.clipboard.writeText(text);
-      alert("Copiado: " + text);
+      alert("Copiado al portapapeles: " + text);
+    }
+
+    function copyRaw(text) {
+      navigator.clipboard.writeText(text);
+      alert("Comando copiado: " + text);
     }
 
     async function installVigemDriver() {
@@ -1875,17 +2584,12 @@
       }
     }
 
-    function copyRaw(text) {
-      navigator.clipboard.writeText(text);
-      alert("Comando copiado al portapapeles: " + text);
-    }
-
     async function restartServer() {
-      if(confirm("¿Estás seguro de reiniciar el servidor? Esto desconectará todos los dispositivos temporalmente.")) {
+      if (confirm("¿Estás seguro de reiniciar el servidor ZenTrack?")) {
         try {
           const res = await fetch('/api/system/restart', { method: 'POST' });
           const data = await res.json();
-          alert(data.message);
+          alert(data.message || 'Reiniciando...');
           setTimeout(() => location.reload(), 2000);
         } catch(e) {
           alert("Error: " + e);
@@ -1897,41 +2601,43 @@
       try {
         const res = await fetch('/api/usb/reverse', { method: 'POST' });
         const data = await res.json();
-        alert(data.message || data.error);
+        alert(data.message || data.error || 'Petición enviada');
       } catch(e) {
         alert("Error: " + e);
       }
     }
 
-    document.getElementById('val-ip').textContent = window.location.hostname;
+    // IP Local
+    const valIpEl = document.getElementById('val-ip');
+    if (valIpEl) valIpEl.textContent = window.location.hostname || '127.0.0.1';
 
-    // Load saved Material theme
-    const savedTheme = localStorage.getItem('zentrack_material_theme') || 'blue';
+    // Cargar Tema Guardado (Default: Tokyo Night)
+    const savedTheme = localStorage.getItem('zentrack_theme') || localStorage.getItem('zentrack_material_theme') || 'tokyo-night';
     setTheme(savedTheme);
 
-    // Linux profile selector logic
+    // Perfiles Linux
     const profileSelect = document.getElementById('linux-profile-select');
-    const savedProfile = localStorage.getItem('zentrack_linux_profile');
-    if (savedProfile) {
-      profileSelect.value = savedProfile;
-    }
-    profileSelect.addEventListener('change', async (e) => {
-      const val = e.target.value;
-      localStorage.setItem('zentrack_linux_profile', val);
-      try {
-        await fetch('/api/config/profile', { method: 'POST', body: val });
-        alert('Perfil guardado exitosamente. Los atajos cambiarán de inmediato.');
-      } catch (err) {
-        console.error(err);
-      }
-    });
+    if (profileSelect) {
+      const savedProfile = localStorage.getItem('zentrack_linux_profile');
+      if (savedProfile) profileSelect.value = savedProfile;
 
-    // Load saved view mode
+      profileSelect.addEventListener('change', async (e) => {
+        const val = e.target.value;
+        localStorage.setItem('zentrack_linux_profile', val);
+        try {
+          await fetch('/api/config/profile', { method: 'POST', body: val });
+          alert('Perfil guardado exitosamente. Los atajos cambiarán de inmediato.');
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+
+    // Cargar Modo de Vista Guardado
     const savedMode = localStorage.getItem('zentrack_mode');
-    if (savedMode) {
-      switchView(savedMode);
-    }
+    if (savedMode) switchView(savedMode);
 
+    // Inicialización y Polling
     renderSimulator();
     checkHealth();
     updateStatus();

@@ -179,7 +179,12 @@ async fn qr_svg_handler(State(state): State<AppState>) -> impl IntoResponse {
 }
 
 async fn pair_handler() -> Response {
-    serve_static_asset("pair.html")
+    let mut resp = serve_static_asset("pair.html");
+    resp.headers_mut().insert(
+        header::CACHE_CONTROL,
+        header::HeaderValue::from_static("no-cache, no-store, must-revalidate"),
+    );
+    resp
 }
 
 async fn status_handler(State(state): State<AppState>) -> impl IntoResponse {
