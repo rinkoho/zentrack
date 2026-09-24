@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZenTrack - Centro de Conexión & Dashboard Bento</title>
+  <title>ZenTrack - Centro de Conexión</title>
   
   <!-- FUENTES ABIERTAS & LEGALMENTE SEGURAS (SIL OFL 1.1 & Apache 2.0) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,190 +13,160 @@
 
   <style>
     /* ==========================================================================
-       SISTEMA DE DISEÑO BENTO / HYPRLAND / PIXEL: 4 TEMAS DINÁMICOS
+       SISTEMA DE DISEÑO PLANO (GOOGLE PIXEL / MATERIAL YOU / FLAT BENTO)
+       SIN BORDES RECARGADOS, SIN EFECTOS 3D FALSOS, SIN DESTELLOS LED PARPADEANTES
        ========================================================================== */
 
-    /* 1. TEMA: TOKYO NIGHT (POR DEFECTO) */
+    /* 1. TEMA: TOKYO NIGHT (PIXEL INDIGO FLAT) */
     :root, [data-theme="tokyo-night"], [data-theme="blue"], [data-theme="lavender"] {
       --theme-name: "tokyo-night";
-      --bg-base: #0f111a;
-      --bg-gradient: radial-gradient(circle at 10% 15%, rgba(122, 162, 247, 0.14) 0%, transparent 45%),
-                     radial-gradient(circle at 88% 85%, rgba(187, 154, 247, 0.12) 0%, transparent 45%),
-                     #0f111a;
-      --card-bg: rgba(23, 26, 40, 0.72);
-      --card-bg-hover: rgba(30, 34, 53, 0.85);
-      --card-border: rgba(122, 162, 247, 0.18);
-      --card-border-active: rgba(187, 154, 247, 0.6);
-      --card-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
-      --card-glow: 0 0 28px rgba(122, 162, 247, 0.14);
+      --bg-app: #0f1118;
+      --card-bg: #181a24;
+      --card-bg-hover: #1f2230;
+      --card-bg-inner: rgba(255, 255, 255, 0.04);
+      --card-bg-inner-hover: rgba(255, 255, 255, 0.07);
 
-      --text-main: #c0caf5;
-      --text-dim: #7982a9;
-      --text-muted: #565f89;
+      --text-main: #e2e8f8;
+      --text-dim: #8b93b5;
+      --text-muted: #5e6482;
 
-      --accent-primary: #7aa2f7;
-      --accent-primary-container: rgba(122, 162, 247, 0.18);
+      --accent-primary: #82aaff;
+      --accent-primary-container: #22293d;
       --accent-on-primary: #0a1024;
-      --accent-secondary: #bb9af7;
-      --accent-secondary-container: rgba(187, 154, 247, 0.18);
-      --accent-cyan: #7dcfff;
+      --accent-secondary: #c5b4e3;
 
-      --accent-success: #73daca;
-      --accent-success-container: rgba(115, 218, 202, 0.18);
-      --accent-warning: #e0af68;
-      --accent-warning-container: rgba(224, 175, 104, 0.18);
-      --accent-error: #f7768e;
-      --accent-error-container: rgba(247, 118, 142, 0.18);
+      --dot-green: #4ade80;
+      --dot-yellow: #facc15;
+      --dot-red: #f87171;
 
-      --modal-overlay: rgba(8, 10, 16, 0.75);
+      --badge-ok-bg: #143324;
+      --badge-ok-text: #86efac;
+      --badge-warn-bg: #382c12;
+      --badge-warn-text: #fde047;
+      --badge-err-bg: #3b181b;
+      --badge-err-text: #fca5a5;
+
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
+      --modal-overlay: rgba(8, 9, 14, 0.75);
     }
 
-    /* 2. TEMA: MODO CLARO (CRISP WHITE & TRANSLUCENT) */
+    /* 2. TEMA: MODO CLARO (PIXEL CLEAN WHITE) */
     [data-theme="light"], [data-theme="sunset"] {
       --theme-name: "light";
-      --bg-base: #f4f6fb;
-      --bg-gradient: radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
-                     radial-gradient(circle at 90% 90%, rgba(124, 58, 237, 0.06) 0%, transparent 40%),
-                     #f4f6fb;
-      --card-bg: rgba(255, 255, 255, 0.88);
-      --card-bg-hover: rgba(255, 255, 255, 0.98);
-      --card-border: rgba(15, 23, 42, 0.09);
-      --card-border-active: rgba(37, 99, 235, 0.45);
-      --card-shadow: 0 16px 36px rgba(15, 23, 42, 0.07), 0 2px 8px rgba(15, 23, 42, 0.04);
-      --card-glow: 0 0 24px rgba(37, 99, 235, 0.1);
+      --bg-app: #f2f4f8;
+      --card-bg: #ffffff;
+      --card-bg-hover: #f9fafc;
+      --card-bg-inner: #f3f5f9;
+      --card-bg-inner-hover: #eaedf3;
 
-      --text-main: #0f172a;
-      --text-dim: #475569;
-      --text-muted: #94a3b8;
+      --text-main: #1f2024;
+      --text-dim: #5f6368;
+      --text-muted: #80868b;
 
-      --accent-primary: #2563eb;
-      --accent-primary-container: rgba(37, 99, 235, 0.12);
+      --accent-primary: #1a73e8;
+      --accent-primary-container: #e8f0fe;
       --accent-on-primary: #ffffff;
       --accent-secondary: #7c3aed;
-      --accent-secondary-container: rgba(124, 58, 237, 0.12);
-      --accent-cyan: #0284c7;
 
-      --accent-success: #16a34a;
-      --accent-success-container: rgba(22, 163, 74, 0.12);
-      --accent-warning: #d97706;
-      --accent-warning-container: rgba(217, 119, 6, 0.12);
-      --accent-error: #dc2626;
-      --accent-error-container: rgba(220, 38, 38, 0.12);
+      --dot-green: #16a34a;
+      --dot-yellow: #ca8a04;
+      --dot-red: #dc2626;
 
-      --modal-overlay: rgba(15, 23, 42, 0.45);
+      --badge-ok-bg: #e6f4ea;
+      --badge-ok-text: #137333;
+      --badge-warn-bg: #fef7e0;
+      --badge-warn-text: #b06000;
+      --badge-err-bg: #fce8e6;
+      --badge-err-text: #c5221f;
+
+      --card-shadow: 0 2px 14px rgba(0, 0, 0, 0.05);
+      --modal-overlay: rgba(32, 33, 36, 0.45);
     }
 
-    /* 3. TEMA: MODO OSCURO (MACOS GRAPHITE) */
+    /* 3. TEMA: MODO OSCURO (PIXEL SLATE) */
     [data-theme="dark"] {
       --theme-name: "dark";
-      --bg-base: #141518;
-      --bg-gradient: radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
-                     radial-gradient(circle at 85% 85%, rgba(10, 132, 255, 0.07) 0%, transparent 40%),
-                     #141518;
-      --card-bg: rgba(28, 29, 34, 0.78);
-      --card-bg-hover: rgba(38, 39, 45, 0.88);
-      --card-border: rgba(255, 255, 255, 0.10);
-      --card-border-active: rgba(10, 132, 255, 0.5);
-      --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
-      --card-glow: 0 0 26px rgba(10, 132, 255, 0.12);
+      --bg-app: #141518;
+      --card-bg: #1e1f24;
+      --card-bg-hover: #26282e;
+      --card-bg-inner: rgba(255, 255, 255, 0.04);
+      --card-bg-inner-hover: rgba(255, 255, 255, 0.07);
 
-      --text-main: #f5f5f7;
-      --text-dim: #98989f;
-      --text-muted: #5e5e64;
+      --text-main: #f1f3f4;
+      --text-dim: #9aa0a6;
+      --text-muted: #6e7379;
 
-      --accent-primary: #0a84ff;
-      --accent-primary-container: rgba(10, 132, 255, 0.18);
-      --accent-on-primary: #ffffff;
-      --accent-secondary: #5e5ce6;
-      --accent-secondary-container: rgba(94, 92, 230, 0.18);
-      --accent-cyan: #64d2ff;
+      --accent-primary: #a8c7fa;
+      --accent-primary-container: #2b3345;
+      --accent-on-primary: #062e6f;
+      --accent-secondary: #d0bcff;
 
-      --accent-success: #30d158;
-      --accent-success-container: rgba(48, 209, 88, 0.18);
-      --accent-warning: #ffd60a;
-      --accent-warning-container: rgba(255, 214, 10, 0.18);
-      --accent-error: #ff453a;
-      --accent-error-container: rgba(255, 69, 58, 0.18);
+      --dot-green: #81c995;
+      --dot-yellow: #fdd663;
+      --dot-red: #f28b82;
 
-      --modal-overlay: rgba(0, 0, 0, 0.78);
+      --badge-ok-bg: #193a26;
+      --badge-ok-text: #a8dab5;
+      --badge-warn-bg: #382e16;
+      --badge-warn-text: #f9bc57;
+      --badge-err-bg: #3c191a;
+      --badge-err-text: #f2b8b5;
+
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      --modal-overlay: rgba(0, 0, 0, 0.72);
     }
 
-    /* 4. TEMA: OLED (PURE BLACK #000000 & HIGH CONTRAST) */
+    /* 4. TEMA: OLED (TRUE BLACK #000000 FLAT) */
     [data-theme="oled"], [data-theme="mint"] {
       --theme-name: "oled";
-      --bg-base: #000000;
-      --bg-gradient: #000000;
-      --card-bg: rgba(6, 6, 6, 0.94);
-      --card-bg-hover: rgba(14, 14, 14, 0.98);
-      --card-border: rgba(255, 255, 255, 0.18);
-      --card-border-active: rgba(0, 245, 255, 0.85);
-      --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 14px 44px rgba(0, 0, 0, 0.95);
-      --card-glow: 0 0 30px rgba(0, 245, 255, 0.18);
+      --bg-app: #000000;
+      --card-bg: #0d0e12;
+      --card-bg-hover: #15161c;
+      --card-bg-inner: #181920;
+      --card-bg-inner-hover: #22232c;
 
       --text-main: #ffffff;
-      --text-dim: #a1a1aa;
+      --text-dim: #9ca3af;
       --text-muted: #52525b;
 
-      --accent-primary: #00f5ff;
-      --accent-primary-container: rgba(0, 245, 255, 0.15);
+      --accent-primary: #38bdf8;
+      --accent-primary-container: #0f2434;
       --accent-on-primary: #000000;
-      --accent-secondary: #00ff88;
-      --accent-secondary-container: rgba(0, 255, 136, 0.15);
-      --accent-cyan: #00f5ff;
+      --accent-secondary: #c084fc;
 
-      --accent-success: #00ff88;
-      --accent-success-container: rgba(0, 255, 136, 0.16);
-      --accent-warning: #facc15;
-      --accent-warning-container: rgba(250, 204, 21, 0.16);
-      --accent-error: #ff0055;
-      --accent-error-container: rgba(255, 0, 85, 0.16);
+      --dot-green: #34d399;
+      --dot-yellow: #facc15;
+      --dot-red: #fb7185;
 
-      --modal-overlay: rgba(0, 0, 0, 0.92);
+      --badge-ok-bg: #072a1a;
+      --badge-ok-text: #6ee7b7;
+      --badge-warn-bg: #2d2309;
+      --badge-warn-text: #fde047;
+      --badge-err-bg: #311116;
+      --badge-err-text: #fda4af;
+
+      --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.9);
+      --modal-overlay: rgba(0, 0, 0, 0.88);
     }
 
-    /* MAPEO DE RETROCOMPATIBILIDAD CON MD-SYS VARIABLES */
+    /* MAPEO DE COMPATIBILIDAD CON LÓGICA EXISTENTE */
     :root {
-      --font-brand: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Roboto', 'Plus Jakarta Sans', sans-serif;
+      --font-brand: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       --font-code: 'Roboto Mono', monospace;
-
       --md-sys-color-primary: var(--accent-primary);
-      --md-sys-color-on-primary: var(--accent-on-primary);
-      --md-sys-color-primary-container: var(--accent-primary-container);
-      --md-sys-color-on-primary-container: var(--accent-primary);
-      --md-sys-color-secondary: var(--accent-secondary);
-      --md-sys-color-surface: var(--bg-base);
+      --md-sys-color-surface: var(--bg-app);
       --md-sys-color-surface-container: var(--card-bg);
       --md-sys-color-surface-container-high: var(--card-bg-hover);
-      --md-sys-color-surface-container-lowest: var(--bg-base);
       --md-sys-color-on-surface: var(--text-main);
       --md-sys-color-on-surface-variant: var(--text-dim);
-      --md-sys-color-outline: var(--card-border-active);
-      --md-sys-color-outline-variant: var(--card-border);
-      --md-sys-color-success: var(--accent-success);
-      --md-sys-color-success-container: var(--accent-success-container);
-      --md-sys-color-on-success-container: var(--accent-success);
-      --md-sys-color-warning: var(--accent-warning);
-      --md-sys-color-warning-container: var(--accent-warning-container);
-      --md-sys-color-on-warning-container: var(--accent-warning);
-      --md-sys-color-error: var(--accent-error);
-      --md-sys-color-error-container: var(--accent-error-container);
-      --md-sys-color-on-error-container: var(--accent-error);
-
-      --md-shape-corner-small: 8px;
-      --md-shape-corner-medium: 14px;
-      --md-shape-corner-large: 20px;
-      --md-shape-corner-extra-large: 26px;
-      --md-shape-corner-full: 9999px;
     }
 
-    /* RESET & BODY A PANTALLA COMPLETA ESTILO DESKTOP APP (100vh / SIN SCROLL) */
+    /* RESET & BODY A PANTALLA COMPLETA 100vh SIN SCROLL */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     html, body {
@@ -206,32 +176,28 @@
     }
 
     body {
-      background: var(--bg-gradient);
+      background: var(--bg-app);
       color: var(--text-main);
       font-family: var(--font-brand);
       display: flex;
       flex-direction: column;
-      padding: 14px 20px 18px;
-      transition: background 0.4s ease, color 0.4s ease;
+      padding: 16px 22px;
+      transition: background 0.25s ease, color 0.25s ease;
       position: relative;
     }
 
-    /* Adaptación responsiva para pantallas pequeñas o móviles */
     @media (max-width: 980px), (max-height: 740px) {
       html, body {
         height: auto;
         overflow-y: auto;
       }
       body {
-        padding: 16px 14px 32px;
+        padding: 14px 12px 30px;
       }
     }
 
-    /* MATERIAL ICONS */
     .icon {
       font-family: 'Material Symbols Rounded', sans-serif;
-      font-weight: normal;
-      font-style: normal;
       font-size: 20px;
       line-height: 1;
       display: inline-block;
@@ -240,67 +206,56 @@
     }
 
     /* ==========================================================================
-       TOP APP BAR: BRANDING, STATUS & FLOATING ORNAMENTS
+       CABECERA SUPERIOR: BRANDING, STATUS PLANO Y BOTONES MINIMALISTAS
        ========================================================================== */
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 4px 6px 14px;
+      padding-bottom: 14px;
       flex-shrink: 0;
     }
 
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-emblem {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--accent-primary-container);
+      color: var(--accent-primary);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-on-primary);
-      box-shadow: 0 4px 16px var(--card-glow);
     }
-    .brand-emblem .icon {
-      font-size: 22px;
-      font-weight: 800;
-    }
-
-    .brand-title-wrap {
-      display: flex;
-      flex-direction: column;
-    }
+    .brand-emblem .icon { font-size: 20px; font-weight: 700; }
 
     .brand-title {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
-      letter-spacing: -0.5px;
-      line-height: 1.1;
+      letter-spacing: -0.4px;
       color: var(--text-main);
     }
-    .brand-title span {
-      color: var(--accent-primary);
-    }
+    .brand-title span { color: var(--accent-primary); }
 
     .brand-tagline {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-dim);
-      font-weight: 600;
-      letter-spacing: 0.2px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-left: 2px;
     }
 
-    /* BARRA CENTRAL: STATUS BADGE + MODO SWITCHER */
+    /* STATUS CHIP PLANO (SIN PARPADEO LED) */
     .center-status-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .badge-bar {
@@ -308,56 +263,43 @@
       align-items: center;
       gap: 8px;
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
       color: var(--text-main);
-      border-radius: var(--md-shape-corner-full);
-      padding: 6px 16px;
+      border-radius: 9999px;
+      padding: 6px 14px;
       font-size: 12px;
-      font-weight: 700;
-      backdrop-filter: blur(20px);
+      font-weight: 600;
       box-shadow: var(--card-shadow);
       white-space: nowrap;
     }
 
+    /* PUNTOS DE ESTADO PLANOS: CERO PARPADEO, CERO GLOW 3D */
     .pulse-dot {
       width: 8px;
       height: 8px;
-      background: var(--accent-success);
       border-radius: 50%;
-      box-shadow: 0 0 10px var(--accent-success);
-      animation: pulse-glow 1.8s infinite ease-in-out;
+      background: var(--dot-green);
+      display: inline-block;
       flex-shrink: 0;
     }
-    .pulse-dot.yellow {
-      background: var(--accent-warning);
-      box-shadow: 0 0 10px var(--accent-warning);
-    }
-    .pulse-dot.red {
-      background: var(--accent-error);
-      box-shadow: 0 0 10px var(--accent-error);
-    }
-    @keyframes pulse-glow {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.5; }
-    }
+    .pulse-dot.yellow { background: var(--dot-yellow); }
+    .pulse-dot.red { background: var(--dot-red); }
 
-    /* VISTA SELECTOR SEGMENTADO (PIXEL STYLE) */
+    /* SWITCHER SEGMENTADO PLANO */
     .segmented-switch {
       display: inline-flex;
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
       padding: 3px;
-      gap: 2px;
-      backdrop-filter: blur(20px);
+      gap: 3px;
+      box-shadow: var(--card-shadow);
     }
 
     .segmented-item {
       background: transparent;
       border: none;
       color: var(--text-dim);
-      padding: 6px 14px;
-      border-radius: var(--md-shape-corner-full);
+      padding: 6px 13px;
+      border-radius: 9999px;
       font-family: var(--font-brand);
       font-size: 11.5px;
       font-weight: 700;
@@ -365,136 +307,100 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
     .segmented-item:hover {
       color: var(--text-main);
-      background: rgba(255, 255, 255, 0.04);
     }
     .segmented-item.active {
       background: var(--accent-primary-container);
       color: var(--accent-primary);
-      border: 1px solid var(--card-border-active);
     }
 
-    /* BARRA DERECHA: BOTONES DE MODAL Y BOLITAS MÁGICAS DE TEMA */
+    /* BOTONES DE NAVEGACIÓN RÁPIDA */
     .top-actions-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .nav-chip-btn {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      border: none;
       color: var(--text-main);
-      border-radius: var(--md-shape-corner-full);
-      padding: 6px 13px;
+      border-radius: 9999px;
+      padding: 7px 14px;
       font-family: var(--font-brand);
       font-size: 11.5px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      backdrop-filter: blur(20px);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--card-shadow);
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
     }
     .nav-chip-btn:hover {
       background: var(--card-bg-hover);
-      border-color: var(--accent-primary);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     .nav-chip-btn:active {
       transform: scale(0.96);
     }
     .nav-chip-btn.accent {
       background: var(--accent-primary-container);
-      border-color: var(--card-border-active);
       color: var(--accent-primary);
+      font-weight: 700;
     }
 
-    /* ==========================================================================
-       ORNAMENTAL FLOATING THEME ORBS (SIN ETIQUETA DE TEXTO "TEMA:")
-       ========================================================================== */
+    /* DOCK DE TEMAS PLANO Y MINIMALISTA (SIN ETIQUETA "Tema:" NI ESFERAS 3D) */
     .magic-theme-dock {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
+      gap: 8px;
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      padding: 5px 10px;
-      border-radius: var(--md-shape-corner-full);
-      backdrop-filter: blur(24px);
+      padding: 6px 10px;
+      border-radius: 9999px;
       box-shadow: var(--card-shadow);
       margin-left: 4px;
     }
 
     .theme-orb {
-      width: 17px;
-      height: 17px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       cursor: pointer;
-      position: relative;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: none;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
     .theme-orb:hover {
-      transform: scale(1.35) translateY(-1px);
+      transform: scale(1.3);
     }
     .theme-orb.active {
-      transform: scale(1.25);
+      transform: scale(1.2);
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 2px;
     }
-    .theme-orb.active::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      border: 1.5px solid var(--accent-primary);
-      animation: pulse-ring 2s infinite ease-out;
-    }
-    @keyframes pulse-ring {
-      0% { transform: scale(0.9); opacity: 1; }
-      100% { transform: scale(1.4); opacity: 0; }
-    }
-
-    .orb-tokyo {
-      background: radial-gradient(circle at 35% 35%, #bb9af7, #7aa2f7 80%, #1a1b26);
-      box-shadow: 0 0 10px rgba(122, 162, 247, 0.6);
-    }
-    .orb-light {
-      background: radial-gradient(circle at 35% 35%, #ffffff, #93c5fd 80%, #2563eb);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-    }
-    .orb-dark {
-      background: radial-gradient(circle at 35% 35%, #8e8e93, #3a3a3c 80%, #1c1c1e);
-      box-shadow: 0 0 8px rgba(142, 142, 147, 0.5);
-    }
-    .orb-oled {
-      background: radial-gradient(circle at 35% 35%, #00f5ff, #004d40 85%, #000000);
-      box-shadow: 0 0 12px rgba(0, 245, 255, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-    }
+    .orb-tokyo { background: #82aaff; }
+    .orb-light { background: #e2e8f0; }
+    .orb-dark { background: #4b5563; }
+    .orb-oled { background: #000000; box-shadow: inset 0 0 0 1px #444; }
 
     /* ==========================================================================
-       BENTO BOX DASHBOARD GRID (ESTILO HYPRLAND / APPLE GLASSPHISM)
+       DASHBOARD BENTO BOX GRID: PLANO, SIN BORDES INNECESARIOS
        ========================================================================== */
     .bento-container {
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: 370px 1.25fr 1fr;
+      grid-template-columns: 350px 1.25fr 1fr;
       grid-template-rows: 1.15fr 0.85fr;
       gap: 14px;
-      padding-top: 4px;
     }
 
     @media (max-width: 1200px) {
       .bento-container {
-        grid-template-columns: 340px 1fr;
+        grid-template-columns: 320px 1fr;
         grid-template-rows: auto auto auto;
       }
     }
@@ -506,35 +412,28 @@
       }
     }
 
-    /* TARJETAS FLOTANTES BENTO (WIDGETS) */
+    /* TARJETAS FLOTANTES BENTO: SUPERFICIE PLANA, BORDES REDONDEADOS */
     .bento-card {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-large);
+      border: none;
+      border-radius: 24px;
       padding: 18px 20px;
-      backdrop-filter: blur(24px);
       box-shadow: var(--card-shadow);
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-                  border-color 0.3s ease,
-                  box-shadow 0.3s ease,
-                  background 0.3s ease;
-      animation: bentoFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
+      animation: bentoFadeIn 0.35s cubic-bezier(0.2, 0, 0, 1) backwards;
     }
     .bento-card:hover {
-      border-color: var(--card-border-active);
-      box-shadow: var(--card-glow), var(--card-shadow);
       transform: translateY(-2px);
     }
     @keyframes bentoFadeIn {
-      from { opacity: 0; transform: translateY(12px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* BENTO CARD HEADER */
     .card-header {
       display: flex;
       align-items: center;
@@ -544,8 +443,8 @@
     }
 
     .card-title {
-      font-size: 13.5px;
-      font-weight: 800;
+      font-size: 13px;
+      font-weight: 700;
       color: var(--accent-primary);
       text-transform: uppercase;
       letter-spacing: 0.6px;
@@ -558,14 +457,14 @@
       font-size: 10.5px;
       font-weight: 700;
       padding: 3px 9px;
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
       background: var(--accent-primary-container);
       color: var(--accent-primary);
       letter-spacing: 0.3px;
     }
 
     /* ==========================================================================
-       WIDGET 1: HERO QR VINCULACIÓN INALÁMBRICA (COLUMNA IZQUIERDA 1 / 3)
+       WIDGET 1: HERO QR (COLUMNA IZQUIERDA 1 / 3)
        ========================================================================== */
     .card-qr-hero {
       grid-row: 1 / 3;
@@ -580,43 +479,43 @@
 
     .qr-frame {
       background: #ffffff;
-      border: 3px solid var(--accent-primary);
-      border-radius: var(--md-shape-corner-large);
+      border: none;
+      border-radius: 20px;
       padding: 14px;
-      margin: 8px auto 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      margin: 6px auto 14px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      max-width: 230px;
-      max-height: 230px;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 220px;
+      max-height: 220px;
+      transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
     .qr-frame:hover {
-      transform: scale(1.03);
+      transform: scale(1.02);
     }
     .qr-frame img {
       width: 100%;
       height: 100%;
-      max-width: 200px;
-      max-height: 200px;
+      max-width: 192px;
+      max-height: 192px;
       object-fit: contain;
       display: block;
-      border-radius: 6px;
+      border-radius: 4px;
     }
 
     .qr-caption {
       font-size: 12px;
       color: var(--text-dim);
       line-height: 1.45;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
-    /* CREDENCIALES PILL ROWS DENTRO DE QR CARD */
+    /* CREDENCIALES: FILAS PLANAS SIN BORDES */
     .creds-compact-list {
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 6px;
       text-align: left;
       margin-top: auto;
     }
@@ -625,11 +524,16 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 12px;
       padding: 8px 12px;
+      transition: background 0.15s ease;
     }
+    .cred-row:hover {
+      background: var(--card-bg-inner-hover);
+    }
+
     .cred-meta {
       display: flex;
       flex-direction: column;
@@ -645,42 +549,42 @@
     .cred-val {
       font-family: var(--font-code);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-main);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 200px;
+      max-width: 190px;
     }
 
     .btn-copy-mini {
-      background: var(--accent-primary-container);
-      color: var(--accent-primary);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-full);
+      background: var(--card-bg-inner-hover);
+      color: var(--text-main);
+      border: none;
+      border-radius: 9999px;
       padding: 4px 10px;
       font-family: var(--font-brand);
-      font-size: 10.5px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
     .btn-copy-mini:hover {
-      background: var(--accent-primary);
-      color: var(--accent-on-primary);
+      background: var(--accent-primary-container);
+      color: var(--accent-primary);
       transform: translateY(-1px);
     }
 
     /* ==========================================================================
-       WIDGET 2: ESTADO DEL MOTOR & DRIVERS (500Hz ENGINE)
+       WIDGET 2: ESTADO DEL MOTOR & DRIVERS (500Hz)
        ========================================================================== */
     .health-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
       flex: 1;
       justify-content: center;
     }
@@ -689,15 +593,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 12px;
       padding: 9px 14px;
-      font-size: 12px;
-      transition: border-color 0.2s ease;
+      font-size: 12.5px;
+      transition: background 0.2s ease;
     }
     .health-tile:hover {
-      border-color: var(--card-border-active);
+      background: var(--card-bg-inner-hover);
     }
 
     .health-title-group {
@@ -709,54 +613,41 @@
     }
 
     .health-badge {
-      font-size: 10.5px;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: var(--md-shape-corner-full);
-      letter-spacing: 0.3px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 11px;
+      border-radius: 9999px;
+      letter-spacing: 0.2px;
+      border: none;
     }
-    .badge-ok {
-      background: var(--accent-success-container);
-      color: var(--accent-success);
-      border: 1px solid rgba(115, 218, 202, 0.3);
-    }
-    .badge-warn {
-      background: var(--accent-warning-container);
-      color: var(--accent-warning);
-      border: 1px solid rgba(224, 175, 104, 0.3);
-    }
-    .badge-err {
-      background: var(--accent-error-container);
-      color: var(--accent-error);
-      border: 1px solid rgba(247, 118, 142, 0.3);
-    }
+    .badge-ok { background: var(--badge-ok-bg); color: var(--badge-ok-text); }
+    .badge-warn { background: var(--badge-warn-bg); color: var(--badge-warn-text); }
+    .badge-err { background: var(--badge-err-bg); color: var(--badge-err-text); }
 
-    /* BANNER DE FEEDBACK DINÁMICO */
     #usb-dynamic-feedback {
       margin-top: 10px;
     }
     .alert-box {
-      border-radius: var(--md-shape-corner-medium);
+      border-radius: 12px;
       padding: 10px 14px;
       font-size: 11.5px;
       line-height: 1.45;
       display: flex;
       gap: 10px;
       align-items: center;
+      border: none;
     }
     .alert-warning {
-      background: var(--accent-warning-container);
-      color: var(--accent-warning);
-      border: 1px solid var(--accent-warning);
+      background: var(--badge-warn-bg);
+      color: var(--badge-warn-text);
     }
     .alert-success {
-      background: var(--accent-success-container);
-      color: var(--accent-success);
-      border: 1px solid var(--accent-success);
+      background: var(--badge-ok-bg);
+      color: var(--badge-ok-text);
     }
     .cmd-box {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--card-border);
+      background: rgba(0, 0, 0, 0.25);
+      border: none;
       border-radius: 6px;
       padding: 4px 8px;
       margin-top: 4px;
@@ -768,7 +659,7 @@
     }
 
     /* ==========================================================================
-       WIDGET 3: TRANSPORTE Y ACCESO AL ASISTENTE USB
+       WIDGET 3: TRANSPORTE Y ASISTENTE (COLORES PLANOS MATERIAL YOU)
        ========================================================================== */
     .transport-selection-row {
       display: grid;
@@ -778,25 +669,22 @@
     }
 
     .transport-card {
-      background: rgba(0, 0, 0, 0.18);
-      border: 1.5px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
-      padding: 12px;
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 16px;
+      padding: 14px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
     }
     .transport-card:hover {
-      background: var(--card-bg-hover);
-      border-color: var(--accent-primary);
+      background: var(--card-bg-inner-hover);
       transform: translateY(-2px);
     }
     .transport-card.selected {
       background: var(--accent-primary-container);
-      border-color: var(--accent-primary);
-      box-shadow: 0 4px 14px var(--card-glow);
     }
 
     .transport-top {
@@ -819,16 +707,17 @@
       font-size: 9.5px;
       font-weight: 800;
       padding: 2px 7px;
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
       text-transform: uppercase;
+      border: none;
     }
     .tag-pro {
-      background: var(--accent-success-container);
-      color: var(--accent-success);
+      background: var(--badge-ok-bg);
+      color: var(--badge-ok-text);
     }
     .tag-wireless {
-      background: var(--accent-secondary-container);
-      color: var(--accent-secondary);
+      background: var(--card-bg-inner-hover);
+      color: var(--text-main);
     }
     .transport-desc {
       font-size: 11px;
@@ -837,25 +726,24 @@
     }
 
     .btn-hero-launch {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      background: var(--accent-primary);
       color: var(--accent-on-primary);
       border: none;
-      border-radius: var(--md-shape-corner-medium);
+      border-radius: 14px;
       padding: 10px 16px;
       font-family: var(--font-brand);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 6px 20px var(--card-glow);
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
       margin-top: auto;
     }
     .btn-hero-launch:hover {
-      filter: brightness(1.15);
+      opacity: 0.92;
       transform: translateY(-2px);
     }
     .btn-hero-launch:active {
@@ -868,21 +756,21 @@
     .radar-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
       flex: 1;
       justify-content: center;
-      min-height: 80px;
+      min-height: 75px;
     }
 
     .device-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 12px;
       padding: 9px 12px;
-      animation: bentoFadeIn 0.3s ease;
+      animation: bentoFadeIn 0.2s ease;
     }
     .device-info {
       display: flex;
@@ -901,10 +789,10 @@
     .device-status {
       font-size: 10px;
       font-weight: 800;
-      color: var(--accent-success);
-      background: var(--accent-success-container);
+      color: var(--badge-ok-text);
+      background: var(--badge-ok-bg);
       padding: 2px 8px;
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
     }
 
     .radar-empty {
@@ -912,26 +800,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 12px 0;
+      padding: 10px 0;
       color: var(--text-dim);
       font-size: 11.5px;
       text-align: center;
       gap: 6px;
     }
     .radar-anim {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border: 2px solid var(--accent-primary);
       border-radius: 50%;
-      animation: ripple 2s infinite ease-out;
-    }
-    @keyframes ripple {
-      0% { transform: scale(0.3); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
+      opacity: 0.6;
     }
 
     /* ==========================================================================
-       WIDGET 5: ACCIONES DEL SISTEMA & BOTONES PRESERVADOS
+       WIDGET 5: ACCIONES RÁPIDAS
        ========================================================================== */
     .bento-actions-grid {
       display: grid;
@@ -942,29 +826,27 @@
     }
 
     .bento-action-tile {
-      background: rgba(0, 0, 0, 0.18);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
-      padding: 10px 12px;
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 14px;
+      padding: 11px 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 10px;
       font-family: var(--font-brand);
       font-size: 11.5px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-main);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
       text-align: left;
     }
     .bento-action-tile:hover {
-      background: var(--card-bg-hover);
-      border-color: var(--accent-primary);
+      background: var(--card-bg-inner-hover);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     .bento-action-tile:active {
-      transform: scale(0.96);
+      transform: scale(0.97);
     }
     .bento-action-tile .icon {
       font-size: 20px;
@@ -973,22 +855,22 @@
     }
 
     /* ==========================================================================
-       SISTEMA DE MODALES FLOTANTES (GLASSMORPHISM POPUPS)
+       SISTEMA DE MODALES FLOTANTES (CLEAN POPUPS)
        ========================================================================== */
     .bento-modal-overlay {
       position: fixed;
       inset: 0;
       background: var(--modal-overlay);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+      transition: opacity 0.25s cubic-bezier(0.2, 0, 0, 1), visibility 0.25s;
     }
     .bento-modal-overlay.active {
       opacity: 1;
@@ -996,18 +878,18 @@
     }
 
     .bento-modal-dialog {
-      background: var(--card-bg-hover);
-      border: 1px solid var(--card-border-active);
-      border-radius: var(--md-shape-corner-extra-large);
-      padding: 28px;
-      max-width: 820px;
+      background: var(--card-bg);
+      border: none;
+      border-radius: 28px;
+      padding: 26px;
+      max-width: 800px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), var(--card-glow);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
       position: relative;
-      transform: scale(0.94) translateY(14px);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(0.96) translateY(8px);
+      transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
     .bento-modal-overlay.active .bento-modal-dialog {
       transform: scale(1) translateY(0);
@@ -1015,13 +897,13 @@
 
     .modal-close-btn {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 18px;
+      right: 18px;
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: var(--card-bg-inner);
+      border: none;
       color: var(--text-dim);
       display: flex;
       align-items: center;
@@ -1031,50 +913,48 @@
     }
     .modal-close-btn:hover {
       color: var(--text-main);
-      background: var(--accent-error-container);
-      border-color: var(--accent-error);
+      background: var(--card-bg-inner-hover);
       transform: scale(1.1);
     }
 
     .modal-title {
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 17px;
+      font-weight: 700;
       color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .modal-subtitle {
       font-size: 13px;
       color: var(--text-dim);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       line-height: 1.5;
     }
 
-    /* ESTILOS DEL SIMULADOR & STEPPER DENTRO DEL MODAL USB */
+    /* ESTILOS INTERIORES DE MODALES */
     .stepper-nav {
       display: flex;
       gap: 8px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       overflow-x: auto;
     }
     .step-btn {
       flex: 1;
-      min-width: 130px;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
-      padding: 10px 12px;
+      min-width: 125px;
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 12px;
+      padding: 9px 12px;
       cursor: pointer;
       text-align: left;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.2s;
+      transition: background 0.2s;
     }
     .step-btn.active {
-      border-color: var(--accent-primary);
       background: var(--accent-primary-container);
     }
     .step-num {
@@ -1087,7 +967,7 @@
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
     }
     .step-btn.active .step-num {
       background: var(--accent-primary);
@@ -1102,8 +982,8 @@
 
     .assisted-layout {
       display: grid;
-      grid-template-columns: 1.2fr 280px;
-      gap: 20px;
+      grid-template-columns: 1.2fr 260px;
+      gap: 18px;
       align-items: start;
     }
     @media (max-width: 760px) {
@@ -1113,14 +993,14 @@
     .brand-tabs {
       display: flex;
       gap: 6px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
     }
     .brand-tab-btn {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
+      background: var(--card-bg-inner);
+      border: none;
       color: var(--text-dim);
-      border-radius: var(--md-shape-corner-small);
+      border-radius: 8px;
       padding: 6px 12px;
       font-family: var(--font-brand);
       font-size: 11px;
@@ -1129,16 +1009,15 @@
       transition: all 0.2s;
     }
     .brand-tab-btn.active {
-      border-color: var(--accent-primary);
       color: var(--accent-primary);
       background: var(--accent-primary-container);
       font-weight: 700;
     }
 
     .brand-steps {
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 16px;
       padding: 16px;
       font-size: 12.5px;
       line-height: 1.7;
@@ -1146,23 +1025,23 @@
     }
     .brand-steps ol { padding-left: 18px; }
     .highlight-pill {
-      background: var(--accent-secondary-container);
-      color: var(--accent-secondary);
+      background: var(--accent-primary-container);
+      color: var(--accent-primary);
       padding: 2px 7px;
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
       font-weight: 700;
       font-size: 11px;
     }
 
-    /* PHONE SIMULATOR PIXEL STYLE */
+    /* SIMULADOR DE SMARTPHONE PLANO */
     .simulator-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-large);
-      padding: 16px 12px;
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 20px;
+      padding: 14px 10px;
     }
     .sim-title {
       font-size: 11px;
@@ -1176,31 +1055,24 @@
       gap: 6px;
     }
     .phone-body {
-      width: 230px;
-      height: 420px;
-      background: #08090b;
-      border: 5px solid #27282d;
-      border-radius: 34px;
+      width: 220px;
+      height: 400px;
+      background: #000000;
+      border-radius: 28px;
       position: relative;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
-    }
-    .phone-body.shake { animation: phone-shake 0.5s ease; }
-    @keyframes phone-shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-6px); }
-      40%, 80% { transform: translateX(6px); }
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
     .phone-speaker {
       position: absolute;
       top: 8px;
       left: 50%;
       transform: translateX(-50%);
-      width: 40px;
+      width: 36px;
       height: 3px;
-      background: #44474f;
+      background: #333;
       border-radius: 2px;
       z-index: 10;
     }
@@ -1209,29 +1081,27 @@
       top: 15px;
       left: 50%;
       transform: translateX(-50%);
-      width: 10px;
-      height: 10px;
-      background: #000;
+      width: 8px;
+      height: 8px;
+      background: #111;
       border-radius: 50%;
       z-index: 10;
     }
     .phone-screen {
       flex: 1;
-      padding: 32px 14px 14px;
+      padding: 30px 12px 12px;
       display: flex;
       flex-direction: column;
       font-size: 11px;
-      background: #0f1015;
+      background: #121316;
     }
     .sim-card {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      padding: 10px;
+      border-radius: 8px;
+      padding: 8px 10px;
       margin-bottom: 8px;
     }
     .sim-tap-target {
-      border: 2px dashed var(--accent-primary);
       background: var(--accent-primary-container);
       position: relative;
       cursor: pointer;
@@ -1240,23 +1110,18 @@
       position: absolute;
       right: 8px;
       top: 8px;
-      font-size: 18px;
-      animation: hand-bounce 1s infinite alternate ease-in-out;
-    }
-    @keyframes hand-bounce {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-3px); }
+      font-size: 16px;
     }
     .sim-tap-count {
       position: absolute;
-      right: 32px;
+      right: 30px;
       top: 8px;
       background: var(--accent-primary);
       color: var(--accent-on-primary);
       font-size: 9px;
       font-weight: 800;
-      padding: 2px 6px;
-      border-radius: var(--md-shape-corner-full);
+      padding: 1px 6px;
+      border-radius: 9999px;
     }
     .sim-toggle-row {
       display: flex;
@@ -1264,16 +1129,16 @@
       justify-content: space-between;
     }
     .sim-switch {
-      width: 34px;
-      height: 20px;
+      width: 32px;
+      height: 18px;
       background: #333;
       border-radius: 10px;
       position: relative;
     }
     .sim-switch.on { background: var(--accent-primary); }
     .sim-switch-thumb {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       background: #fff;
       border-radius: 50%;
       position: absolute;
@@ -1284,14 +1149,13 @@
     .sim-switch.on .sim-switch-thumb { transform: translateX(14px); }
 
     .sim-dialog {
-      background: #1a1c22;
-      border: 1px solid var(--accent-primary);
+      background: #1c1d22;
       border-radius: 12px;
       padding: 12px;
-      margin-top: 8px;
+      margin-top: 6px;
     }
-    .sim-dialog-title { font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .sim-dialog-desc { font-size: 9.5px; color: #aaa; margin-bottom: 8px; line-height: 1.3; }
+    .sim-dialog-title { font-weight: 700; color: #fff; margin-bottom: 4px; font-size: 10.5px; }
+    .sim-dialog-desc { font-size: 9px; color: #aaa; margin-bottom: 8px; line-height: 1.3; }
     .sim-dialog-btn {
       background: var(--accent-primary);
       color: var(--accent-on-primary);
@@ -1299,7 +1163,7 @@
       padding: 4px 10px;
       font-size: 10px;
       font-weight: 700;
-      border-radius: 10px;
+      border-radius: 8px;
       float: right;
       cursor: pointer;
     }
@@ -1311,38 +1175,37 @@
       align-items: center;
     }
     .sim-cable-head {
-      width: 20px;
-      height: 10px;
+      width: 18px;
+      height: 8px;
       background: #333;
       border-radius: 2px;
-      transition: all 0.3s;
+      transition: background 0.2s;
     }
     .sim-cable-wire {
-      width: 6px;
-      height: 18px;
+      width: 5px;
+      height: 16px;
       background: #222;
     }
     .sim-cable-wrap.connected .sim-cable-head {
       background: var(--accent-primary);
-      box-shadow: 0 0 10px var(--accent-primary);
     }
 
     .sim-nav-controls {
       display: flex;
       justify-content: space-between;
       width: 100%;
-      margin-top: 12px;
-      gap: 8px;
+      margin-top: 10px;
+      gap: 6px;
     }
     .sim-btn-nav {
       flex: 1;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      border: none;
       color: var(--text-main);
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
       padding: 6px 10px;
       font-size: 10.5px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -1350,22 +1213,22 @@
       gap: 4px;
     }
 
-    /* SELECTOR DE PERFILES LINUX EN MODAL SETTINGS */
+    /* SELECTOR PERFIL LINUX */
     .settings-profile-row {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
-      border-radius: var(--md-shape-corner-medium);
+      background: var(--card-bg-inner);
+      border: none;
+      border-radius: 16px;
       padding: 14px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .bento-select {
       background: var(--card-bg-hover);
       color: var(--text-main);
-      border: 1px solid var(--card-border-active);
+      border: none;
       border-radius: 8px;
       padding: 8px 14px;
       font-family: var(--font-brand);
@@ -1375,29 +1238,11 @@
       outline: none;
     }
 
-    /* BOTONES PRIMARIOS Y SECUNDARIOS */
     .btn-primary {
       background: var(--accent-primary);
       color: var(--accent-on-primary);
       border: none;
-      border-radius: var(--md-shape-corner-full);
-      padding: 9px 18px;
-      font-family: var(--font-brand);
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
-
-    .btn-secondary {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      border-radius: var(--md-shape-corner-full);
+      border-radius: 9999px;
       padding: 9px 18px;
       font-family: var(--font-brand);
       font-size: 12px;
@@ -1406,11 +1251,27 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s;
+      transition: opacity 0.2s, transform 0.15s;
     }
-    .btn-secondary:hover { background: var(--card-bg-hover); border-color: var(--accent-primary); }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
 
-    /* VISTA AVANZADA CONTAINER */
+    .btn-secondary {
+      background: var(--card-bg-inner);
+      border: none;
+      color: var(--text-main);
+      border-radius: 9999px;
+      padding: 9px 18px;
+      font-family: var(--font-brand);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: var(--card-bg-inner-hover); }
+
     #view-advanced {
       display: none;
       flex: 1;
@@ -1432,33 +1293,30 @@
       <div class="brand-emblem">
         <span class="icon">drag_click</span>
       </div>
-      <div class="brand-title-wrap">
-        <div class="brand-title">Zen<span>Track</span></div>
-        <div class="brand-tagline">500Hz ULTRA-LOW LATENCY</div>
-      </div>
+      <div class="brand-title">Zen<span>Track</span></div>
+      <div class="brand-tagline">500Hz</div>
     </div>
 
-    <!-- Live Server Status Chip & View Mode Switcher -->
+    <!-- Live Status & Segmented Switcher -->
     <div class="center-status-group">
       <div class="badge-bar">
         <div class="pulse-dot"></div>
         <span id="header-status">Servidor Activo (500Hz)</span>
       </div>
 
-      <!-- Segmented View Mode Switcher -->
       <div class="segmented-switch">
         <button id="btn-mode-wizard" class="segmented-item active" onclick="switchView('wizard')">
           <span class="icon" style="font-size: 17px;">grid_view</span>
-          Dashboard Bento
+          Dashboard
         </button>
         <button id="btn-mode-advanced" class="segmented-item" onclick="switchView('advanced')">
           <span class="icon" style="font-size: 17px;">tune</span>
-          Panel Avanzado
+          Avanzado
         </button>
       </div>
     </div>
 
-    <!-- Right Header: Modal Shortcuts & Ornamental Floating Theme Orbs -->
+    <!-- Modal Shortcuts & Clean Minimalist Flat Theme Dots -->
     <div class="top-actions-group">
       <button class="nav-chip-btn accent" onclick="openUsbGuide()" title="Guía Asistida de Cable USB y Simulador">
         <span class="icon" style="font-size: 17px;">cable</span>
@@ -1480,12 +1338,12 @@
         Ajustes
       </button>
 
-      <!-- ORNAMENTO PURAMENTE VISUAL: BOLITAS MÁGICAS DE TEMA (SIN ETIQUETA "Tema:") -->
-      <div class="magic-theme-dock" title="Cambiar tema visual (Tokyo Night, Claro, Oscuro, OLED)">
-        <div class="theme-orb orb-tokyo active" data-theme="tokyo-night" onclick="setTheme('tokyo-night')" title="Tokyo Night (Neón)"></div>
+      <!-- DOCK DE TEMAS PLANO Y MINIMALISTA -->
+      <div class="magic-theme-dock" title="Cambiar tema (Tokyo Night, Claro, Oscuro, OLED)">
+        <div class="theme-orb orb-tokyo active" data-theme="tokyo-night" onclick="setTheme('tokyo-night')" title="Tokyo Night"></div>
         <div class="theme-orb orb-light" data-theme="light" onclick="setTheme('light')" title="Modo Claro"></div>
-        <div class="theme-orb orb-dark" data-theme="dark" onclick="setTheme('dark')" title="Modo Oscuro (macOS)"></div>
-        <div class="theme-orb orb-oled" data-theme="oled" onclick="setTheme('oled')" title="Modo OLED (Negro Puro)"></div>
+        <div class="theme-orb orb-dark" data-theme="dark" onclick="setTheme('dark')" title="Modo Oscuro"></div>
+        <div class="theme-orb orb-oled" data-theme="oled" onclick="setTheme('oled')" title="Modo OLED"></div>
       </div>
     </div>
   </header>
@@ -1499,9 +1357,9 @@
         <div class="card-header">
           <div class="card-title">
             <span class="icon">qr_code_scanner</span>
-            Escaneo QR Directo
+            Vinculación Wi-Fi
           </div>
-          <span class="card-chip">Wi-Fi LAN</span>
+          <span class="card-chip">Red Local</span>
         </div>
 
         <div id="qrcode" class="qr-frame">
@@ -1509,10 +1367,10 @@
         </div>
 
         <p class="qr-caption">
-          Apunta la cámara de la app <strong>ZenTrack</strong> a este código para vincularte instantáneamente a 500Hz en tu red local.
+          Apunta la cámara de la app <strong>ZenTrack</strong> a este código para vincularte a 500Hz.
         </p>
 
-        <!-- Host Credentials List -->
+        <!-- Credentials List -->
         <div class="creds-compact-list">
           <div class="cred-row">
             <div class="cred-meta">
@@ -1553,7 +1411,7 @@
             <span class="icon">speed</span>
             Diagnóstico de Enlace & Drivers
           </div>
-          <span class="card-chip">500Hz Engine</span>
+          <span class="card-chip">500Hz</span>
         </div>
 
         <div class="health-list">
@@ -1601,7 +1459,7 @@
         <div id="usb-dynamic-feedback"></div>
       </section>
 
-      <!-- ================= TILE 3: MODOS DE TRANSPORTE & ASISTENTE ================= -->
+      <!-- ================= TILE 3: MODOS DE TRANSPORTE ================= -->
       <section class="bento-card">
         <div class="card-header">
           <div class="card-title">
@@ -1621,7 +1479,7 @@
               <span class="transport-tag tag-pro">0.1ms</span>
             </div>
             <div class="transport-desc">
-              Máxima precisión a 500Hz para gaming, emuladores y trabajo sin lag ni interferencias.
+              Máxima precisión a 500Hz para gaming y emuladores sin interferencias.
             </div>
           </div>
 
@@ -1631,10 +1489,10 @@
                 <span class="icon">wifi</span>
                 Red Wi-Fi
               </div>
-              <span class="transport-tag tag-wireless">Sin Cables</span>
+              <span class="transport-tag tag-wireless">Inalámbrico</span>
             </div>
             <div class="transport-desc">
-              Conexión libre mediante escaneo de código QR en tu misma red local doméstica.
+              Conexión libre mediante escaneo de código QR en red local.
             </div>
           </div>
         </div>
@@ -1650,7 +1508,7 @@
         <div class="card-header">
           <div class="card-title">
             <span class="icon">radar</span>
-            Radar LAN (UDP Discovery :37020)
+            Radar LAN (UDP :37020)
           </div>
           <button id="btn-firewall-rules" class="btn-copy-mini" onclick="openFirewallModal()" title="Fijar Reglas Firewall">
             <span class="icon" style="font-size: 13px;">shield</span> Reglas Firewall
@@ -1665,7 +1523,7 @@
         </div>
       </section>
 
-      <!-- ================= TILE 5: ACCIONES RÁPIDAS Y DRIVERS ================= -->
+      <!-- ================= TILE 5: ACCIONES RÁPIDAS ================= -->
       <section class="bento-card">
         <div class="card-header">
           <div class="card-title">
@@ -1705,27 +1563,25 @@
   <main id="view-advanced">
     <div class="bento-container" style="grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr;">
       
-      <!-- Banner de Rendimiento -->
-      <div class="bento-card" style="grid-column: 1 / -1; background: var(--accent-secondary-container); border-color: var(--card-border-active); flex-direction: row; align-items: center; gap: 14px;">
-        <span class="icon" style="font-size: 28px; color: var(--accent-secondary);">speed</span>
+      <div class="bento-card" style="grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 14px;">
+        <span class="icon" style="font-size: 26px; color: var(--accent-primary);">speed</span>
         <div>
-          <strong style="color: var(--text-main); font-size: 13px;">¡Sugerencia de Rendimiento para Latencia Ultra-Baja!</strong>
+          <strong style="color: var(--text-main); font-size: 13px;">Sugerencia de Rendimiento a 500Hz</strong>
           <p style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
-            Para obtener la máxima fluidez a 500Hz estables con jitter menor a 0.2ms, mantén esta pestaña cerrada mientras juegas en pantalla completa.
+            Para obtener la máxima fluidez a 500Hz estables con latencia menor a 0.2ms, mantén esta pestaña cerrada mientras juegas en pantalla completa.
           </p>
         </div>
       </div>
 
-      <!-- Credenciales y Configuración de Red Avanzada -->
       <div class="bento-card">
         <div class="card-header">
           <div class="card-title">
             <span class="icon">key</span>
-            Tokens y Parámetros de Enlace
+            Tokens y Parámetros
           </div>
         </div>
 
-        <div class="creds-compact-list" style="margin-top: 0; gap: 10px;">
+        <div class="creds-compact-list" style="margin-top: 0; gap: 8px;">
           <div class="cred-row">
             <div class="cred-meta">
               <span class="cred-label">Comando ADB Reverse Manual</span>
@@ -1738,7 +1594,7 @@
 
           <div class="cred-row">
             <div class="cred-meta">
-              <span class="cred-label">Regla UFW para Puerto 3000</span>
+              <span class="cred-label">Regla UFW Puerto 3000</span>
               <span class="cred-val">sudo ufw allow 3000/tcp</span>
             </div>
             <button class="btn-copy-mini" onclick="copyRaw('sudo ufw allow 3000/tcp')">
@@ -1748,7 +1604,7 @@
 
           <div class="cred-row">
             <div class="cred-meta">
-              <span class="cred-label">Regla UFW para Radar UDP</span>
+              <span class="cred-label">Regla UFW Radar UDP</span>
               <span class="cred-val">sudo ufw allow 37020/udp</span>
             </div>
             <button class="btn-copy-mini" onclick="copyRaw('sudo ufw allow 37020/udp')">
@@ -1758,17 +1614,16 @@
         </div>
       </div>
 
-      <!-- Control y Reinicio de Motor -->
       <div class="bento-card">
         <div class="card-header">
           <div class="card-title">
             <span class="icon">settings_power</span>
-            Control del Daemon y Kernel
+            Control del Servicio
           </div>
         </div>
 
         <p style="font-size: 12.5px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.5;">
-          El motor de ZenTrack corre en modo Multi-threaded de alta prioridad con anillo de eventos uinput en Linux y Win32 SendInput en Windows.
+          El motor de ZenTrack corre en modo de alta prioridad con inyección uinput en Linux y Win32 SendInput en Windows.
         </p>
 
         <div style="display: flex; gap: 10px;">
@@ -1798,11 +1653,10 @@
         Guía Asistida de Conexión USB & Simulador en Vivo
       </div>
       <div class="modal-subtitle">
-        Sigue estos pasos en tu teléfono para activar la depuración USB y disfrutar de 0.1ms de latencia sin compresión ni lag.
+        Sigue estos pasos en tu teléfono para activar la depuración USB y disfrutar de 0.1ms de latencia.
       </div>
 
       <div id="wizard-usb-section">
-        <!-- Stepper Navigation -->
         <div class="stepper-nav">
           <div id="step-nav-1" class="step-btn active" onclick="setStep(1)">
             <div class="step-num">1</div>
@@ -1823,7 +1677,6 @@
         </div>
 
         <div class="assisted-layout">
-          <!-- Left: Brand Tabs & Instructions -->
           <div>
             <div class="brand-tabs">
               <button class="brand-tab-btn active" onclick="switchBrandTab('xiaomi')">Xiaomi / HyperOS</button>
@@ -1896,11 +1749,10 @@
             </div>
           </div>
 
-          <!-- Right: Interactive Smartphone Simulator -->
           <div class="simulator-container">
             <div class="sim-title">
               <span class="icon">smartphone</span>
-              Simulador en Vivo
+              Simulador
             </div>
 
             <div id="sim-phone" class="phone-body">
@@ -1926,7 +1778,6 @@
         </div>
       </div>
 
-      <!-- Hidden Wi-Fi fallback container to preserve original ID -->
       <div id="wizard-wifi-section" style="display: none;"></div>
     </div>
   </div>
@@ -1935,25 +1786,22 @@
        MODAL 2: AVISO DE WINDOWS SMARTSCREEN & SEGURIDAD
        ========================================================================== -->
   <div id="modal-smartscreen" class="bento-modal-overlay">
-    <div class="bento-modal-dialog" style="max-width: 720px; text-align: center;">
+    <div class="bento-modal-dialog" style="max-width: 700px; text-align: center;">
       <button class="modal-close-btn" onclick="closeModal('modal-smartscreen')">
         <span class="icon">close</span>
       </button>
 
       <div class="modal-title" style="justify-content: center;">
-        <span class="icon" style="color: var(--accent-warning); font-size: 26px;">security</span>
-        Aviso de Seguridad de Windows SmartScreen
+        <span class="icon" style="color: var(--dot-yellow); font-size: 24px;">security</span>
+        Aviso de Windows SmartScreen
       </div>
       <div class="modal-subtitle">
-        ZenTrack es un proyecto de código abierto y no cuenta con un certificado corporativo comercial costoso ($400/año).
-        Si Windows Defender muestra una pantalla azul bloqueando el ejecutable, sigue estos 2 sencillos pasos:
+        ZenTrack es de código abierto. Si Windows Defender muestra pantalla azul, sigue estos 2 pasos:
       </div>
 
-      <!-- SMART SCREEN EXPLAINER GRAPHIC -->
       <div id="smartscreen-explainer" style="display: flex; flex-direction: column; align-items: center;">
         <div style="display: flex; gap: 16px; align-items: stretch; justify-content: center; flex-wrap: wrap; width: 100%; margin-top: 10px;">
-          <!-- Paso 1 Card -->
-          <div style="flex: 1; min-width: 220px; max-width: 280px; background: #005A9E; border-radius: 12px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite;">
+          <div style="flex: 1; min-width: 220px; max-width: 270px; background: #005A9E; border-radius: 12px; padding: 16px; color: white; text-align: left; position: relative;">
             <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Windows protegió su PC</div>
             <div style="font-size: 10.5px; margin-bottom: 18px; opacity: 0.85;">Microsoft Defender SmartScreen impidió que se iniciara una aplicación no reconocida.</div>
             <div style="display: flex; justify-content: flex-end;">
@@ -1961,36 +1809,25 @@
             </div>
             <div style="position: absolute; top: 38px; left: 16px; font-size: 11px; text-decoration: underline; font-weight: bold; cursor: pointer; color: #fff;">
               Más información
-              <div style="position: absolute; top: 6px; left: 40px; width: 12px; height: 12px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
-              <span class="icon" style="position: absolute; top: 10px; left: 46px; font-size: 16px; color: white; animation: hand-click 2s infinite;">touch_app</span>
             </div>
           </div>
 
           <div style="display: flex; align-items: center; justify-content: center;">
-            <span class="icon" style="font-size: 28px; color: var(--accent-primary);">arrow_forward</span>
+            <span class="icon" style="font-size: 24px; color: var(--accent-primary);">arrow_forward</span>
           </div>
 
-          <!-- Paso 2 Card -->
-          <div style="flex: 1; min-width: 220px; max-width: 280px; background: #005A9E; border-radius: 12px; padding: 16px; color: white; text-align: left; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
+          <div style="flex: 1; min-width: 220px; max-width: 270px; background: #005A9E; border-radius: 12px; padding: 16px; color: white; text-align: left; position: relative;">
             <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Windows protegió su PC</div>
             <div style="font-size: 10.5px; margin-bottom: 12px; opacity: 0.85;">
               Aplicación: zentrack-server.exe<br>
               Editor: Desconocido (Open Source)
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 8px;">
-              <span style="font-size: 11px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 4px; font-weight: bold;">Ejecutar de todas formas</span>
-              <span style="font-size: 11px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 10px; border-radius: 4px;">No ejecutar</span>
+              <span style="font-size: 11px; background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 4px; font-weight: bold;">Ejecutar de todas formas</span>
             </div>
-            <div style="position: absolute; bottom: 8px; right: 106px; width: 12px; height: 12px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: ripple-click 2s infinite;"></div>
-            <span class="icon" style="position: absolute; bottom: -2px; right: 98px; font-size: 16px; color: white; animation: hand-click 2s infinite;">touch_app</span>
           </div>
         </div>
       </div>
-      <style>
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        @keyframes hand-click { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
-        @keyframes ripple-click { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
-      </style>
     </div>
   </div>
 
@@ -2004,15 +1841,14 @@
       </button>
 
       <div class="modal-title">
-        <span class="icon" style="color: var(--accent-warning);">local_fire_department</span>
+        <span class="icon" style="color: var(--dot-yellow);">local_fire_department</span>
         Diagnóstico de Red & Reglas de Firewall (Puertos 3000 / 37020)
       </div>
       <div class="modal-subtitle">
-        Si tu celular no detecta el servidor por Wi-Fi o el Radar UDP no responde, el firewall local puede estar bloqueando las conexiones entrantes.
+        Si tu celular no detecta el servidor por Wi-Fi o el Radar UDP no responde, el firewall local puede estar bloqueando las conexiones.
       </div>
 
-      <div class="creds-compact-list" style="margin-top: 0; gap: 12px;">
-        <!-- Regla UFW -->
+      <div class="creds-compact-list" style="margin-top: 0; gap: 10px;">
         <div class="cred-row" style="padding: 12px 16px;">
           <div class="cred-meta">
             <span class="cred-label">UFW (Ubuntu, Debian, Arch Linux)</span>
@@ -2023,7 +1859,6 @@
           </button>
         </div>
 
-        <!-- Regla Firewalld -->
         <div class="cred-row" style="padding: 12px 16px;">
           <div class="cred-meta">
             <span class="cred-label">Firewalld (Fedora, RHEL)</span>
@@ -2034,10 +1869,9 @@
           </button>
         </div>
 
-        <!-- Regla Windows Defender -->
         <div class="cred-row" style="padding: 12px 16px;">
           <div class="cred-meta">
-            <span class="cred-label">Windows Defender Firewall (PowerShell como Administrador)</span>
+            <span class="cred-label">Windows Defender Firewall (PowerShell)</span>
             <span class="cred-val" style="margin-top: 4px;">New-NetFirewallRule -DisplayName "ZenTrack 500Hz" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow</span>
           </div>
           <button class="btn-copy-mini" onclick="copyRaw('New-NetFirewallRule -DisplayName &quot;ZenTrack 500Hz&quot; -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow')">
@@ -2046,9 +1880,9 @@
         </div>
       </div>
 
-      <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-        <button class="btn-primary" onclick="checkHealth(); updateDevices(); alert('Diagnóstico de red ejecutado. Comprueba el estado de los indicadores.');">
-          <span class="icon">sync</span> Re-escanear Red Ahora
+      <div style="margin-top: 18px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-primary" onclick="checkHealth(); updateDevices(); alert('Diagnóstico de red ejecutado.');">
+          <span class="icon">sync</span> Re-escanear Red
         </button>
       </div>
     </div>
@@ -2058,20 +1892,19 @@
        MODAL 4: AJUSTES DEL SISTEMA & PERFILES DE ENTORNO
        ========================================================================== -->
   <div id="modal-settings" class="bento-modal-overlay">
-    <div class="bento-modal-dialog" style="max-width: 650px;">
+    <div class="bento-modal-dialog" style="max-width: 620px;">
       <button class="modal-close-btn" onclick="closeModal('modal-settings')">
         <span class="icon">close</span>
       </button>
 
       <div class="modal-title">
         <span class="icon" style="color: var(--accent-primary);">settings</span>
-        Ajustes del Sistema & Configuración
+        Ajustes del Sistema
       </div>
       <div class="modal-subtitle">
-        Personaliza los atajos de teclado del sistema operativo y gestiona los servicios en segundo plano.
+        Personaliza los atajos del sistema operativo y gestiona los servicios.
       </div>
 
-      <!-- Selector Oculto de Perfiles Linux (sin etiqueta "Entorno Linux:" en la pantalla principal) -->
       <div id="linux-profile-wrapper" class="settings-profile-row" style="display: none;">
         <div style="display: flex; flex-direction: column;">
           <strong style="color: var(--text-main); font-size: 13px;">Perfil de Escritorio Linux</strong>
@@ -2086,11 +1919,11 @@
         </select>
       </div>
 
-      <div class="creds-compact-list" style="margin-top: 14px; gap: 10px;">
+      <div class="creds-compact-list" style="margin-top: 10px; gap: 8px;">
         <div class="cred-row">
           <div class="cred-meta">
             <span class="cred-label">Túnel Inverso ADB USB</span>
-            <span class="cred-val">Redirige el puerto 3000 sobre cable físico</span>
+            <span class="cred-val">Redirige el puerto 3000 sobre cable</span>
           </div>
           <button class="btn-copy-mini" onclick="forceAdbTunnel()">
             <span class="icon" style="font-size: 14px;">sync_alt</span> Forzar
@@ -2099,8 +1932,8 @@
 
         <div class="cred-row">
           <div class="cred-meta">
-            <span class="cred-label">Reinicio del Servicio ZenTrack</span>
-            <span class="cred-val">Reinicia el motor y recarga las interfaces uinput</span>
+            <span class="cred-label">Reinicio del Servicio</span>
+            <span class="cred-val">Reinicia el motor y recarga interfaces uinput</span>
           </div>
           <button class="btn-copy-mini" onclick="restartServer()">
             <span class="icon" style="font-size: 14px;">restart_alt</span> Reiniciar
@@ -2118,7 +1951,7 @@
     let devTaps = 0;
     let autoAdvanced = false;
 
-    // SISTEMA DE 4 TEMAS DINÁMICOS CON ORNAMENTOS CIRCULARES
+    // SISTEMA DE 4 TEMAS PLANOS
     function setTheme(theme) {
       const legacyMap = {
         'blue': 'tokyo-night',
@@ -2139,7 +1972,7 @@
       localStorage.setItem('zentrack_theme', activeTheme);
     }
 
-    // GESTIÓN DE VISTAS (DASHBOARD BENTO VS PANEL AVANZADO)
+    // GESTIÓN DE VISTAS (DASHBOARD VS AVANZADO)
     function switchView(mode) {
       const wizardView = document.getElementById('view-wizard');
       const advView = document.getElementById('view-advanced');
@@ -2160,7 +1993,7 @@
       localStorage.setItem('zentrack_mode', mode);
     }
 
-    // CONTROL DE MODALES FLOTANTES
+    // CONTROL DE MODALES
     function openModal(id) {
       const modal = document.getElementById(id);
       if (modal) modal.classList.add('active');
@@ -2176,14 +2009,12 @@
     function openFirewallModal() { openModal('modal-firewall'); }
     function openSettingsModal() { openModal('modal-settings'); }
 
-    // Cerrar al pulsar el fondo oscuro
     window.addEventListener('click', (e) => {
       if (e.target.classList.contains('bento-modal-overlay')) {
         e.target.classList.remove('active');
       }
     });
 
-    // Cerrar al pulsar la tecla Escape
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         document.querySelectorAll('.bento-modal-overlay.active').forEach(m => m.classList.remove('active'));
@@ -2250,7 +2081,7 @@
       }
     }
 
-    // RENDERIZADO DEL SIMULADOR ANDROID
+    // RENDERIZADO DEL SIMULADOR
     function renderSimulator() {
       const screen = document.getElementById('sim-screen');
       const cable = document.getElementById('sim-cable');
@@ -2301,7 +2132,7 @@
               <div class="sim-switch on"><div class="sim-switch-thumb"></div></div>
             </div>
           </div>
-          <div style="text-align: center; color: var(--accent-success); font-size: 9.5px; font-weight: 700; margin-top: 8px;">
+          <div style="text-align: center; color: var(--dot-green); font-size: 9.5px; font-weight: 700; margin-top: 8px;">
             ✓ Depuración activada correctamente
           </div>
         `;
@@ -2310,7 +2141,7 @@
           <div style="font-size: 10px; font-weight: 700; color: #888; margin-bottom: 8px;">Cable USB Enchufado</div>
           <div class="sim-dialog">
             <div class="sim-dialog-title">¿Permitir depuración por USB?</div>
-            <div class="sim-dialog-desc">La PC con clave RSA 3F:A2:... solicita autorización para conectar.</div>
+            <div class="sim-dialog-desc">La PC con clave RSA solicita autorización para conectar.</div>
             <div style="display: flex; align-items: center; gap: 6px; font-size: 9px; color: var(--accent-primary); margin-bottom: 8px; font-weight: 700;">
               <span>☑️ Permitir siempre</span>
             </div>
@@ -2322,10 +2153,10 @@
         screen.innerHTML = `
           <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <span style="font-weight: 800; color: var(--accent-primary); font-size: 10px;">ZEN-TRACK</span>
-            <span style="background: var(--accent-success-container); color: var(--accent-success); padding: 1px 6px; border-radius: 10px; font-weight: 700; font-size: 8px;">USB 500Hz</span>
+            <span style="background: var(--badge-ok-bg); color: var(--badge-ok-text); padding: 1px 6px; border-radius: 10px; font-weight: 700; font-size: 8px;">USB 500Hz</span>
           </div>
           <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px;">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--accent-success-container); color: var(--accent-success); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--badge-ok-bg); color: var(--badge-ok-text); display: flex; align-items: center; justify-content: center; font-size: 20px;">
               ✓
             </div>
             <div style="font-weight: 700; color: #fff; font-size: 12px;">¡Conexión Activa!</div>
@@ -2344,7 +2175,6 @@
         if (!res.ok) return;
         const h = await res.json();
 
-        // Selector Linux dentro de modal
         const linuxWrapper = document.getElementById('linux-profile-wrapper');
         if (linuxWrapper) {
           linuxWrapper.style.display = (h.os === 'linux') ? 'flex' : 'none';
@@ -2460,21 +2290,14 @@
               </div>
             `;
           }
-
           setStep(3);
-          const p = document.getElementById('sim-phone');
-          if (p) {
-            p.classList.remove('shake');
-            void p.offsetWidth;
-            p.classList.add('shake');
-          }
         } else {
           if (dotPhone) { dotPhone.className = 'pulse-dot red'; badgePhone.className = 'health-badge badge-err'; badgePhone.textContent = 'Desconectado'; }
           if (dotTunnel) { dotTunnel.className = 'pulse-dot red'; badgeTunnel.className = 'health-badge badge-err'; badgeTunnel.textContent = 'En Espera'; }
 
           if (feedback) {
             feedback.innerHTML = `
-              <div class="alert-box" style="background: rgba(0,0,0,0.18); border: 1px dashed var(--card-border);">
+              <div class="alert-box" style="background: var(--card-bg-inner);">
                 <span class="icon">cable</span>
                 <div>
                   <strong>Esperando conexión por cable USB...</strong>
@@ -2607,15 +2430,12 @@
       }
     }
 
-    // IP Local
     const valIpEl = document.getElementById('val-ip');
     if (valIpEl) valIpEl.textContent = window.location.hostname || '127.0.0.1';
 
-    // Cargar Tema Guardado (Default: Tokyo Night)
     const savedTheme = localStorage.getItem('zentrack_theme') || localStorage.getItem('zentrack_material_theme') || 'tokyo-night';
     setTheme(savedTheme);
 
-    // Perfiles Linux
     const profileSelect = document.getElementById('linux-profile-select');
     if (profileSelect) {
       const savedProfile = localStorage.getItem('zentrack_linux_profile');
@@ -2633,11 +2453,9 @@
       });
     }
 
-    // Cargar Modo de Vista Guardado
     const savedMode = localStorage.getItem('zentrack_mode');
     if (savedMode) switchView(savedMode);
 
-    // Inicialización y Polling
     renderSimulator();
     checkHealth();
     updateStatus();
