@@ -1010,6 +1010,16 @@
       <div class="theme-dot mint" title="Mint Android" onclick="setTheme('mint')"></div>
       <div class="theme-dot lavender" title="Lavender Expressive" onclick="setTheme('lavender')"></div>
       <div class="theme-dot sunset" title="Sunset Peach" onclick="setTheme('sunset')"></div>
+      
+      <!-- Linux Shortcut Profile Selector -->
+      <span id="linux-profile-wrapper" style="display: none;">
+        <span class="theme-picker-label" style="margin-left: 20px;"><span class="icon">keyboard</span> Entorno Linux:</span>
+        <select id="linux-profile-select" style="background: var(--surface-container-high); color: var(--on-surface); border: 1px solid var(--outline); border-radius: 8px; padding: 4px 8px; font-family: inherit; font-size: 0.85em; cursor: pointer; outline: none;">
+          <option value="gnome">GNOME (Por defecto)</option>
+          <option value="kde">KDE Plasma</option>
+          <option value="bspwm">BSPWM / i3</option>
+        </select>
+      </span>
     </div>
 
     <div class="badge-bar">
@@ -1623,6 +1633,12 @@
         if (!res.ok) return;
         const h = await res.json();
 
+        if (h.os === 'linux') {
+          document.getElementById('linux-profile-wrapper').style.display = 'inline-flex';
+        } else {
+          document.getElementById('linux-profile-wrapper').style.display = 'none';
+        }
+
         // 1. Driver Mouse/Keyboard
         const dotDriver = document.getElementById('health-driver-dot');
         const badgeDriver = document.getElementById('health-driver-badge');
@@ -1892,6 +1908,23 @@
     // Load saved Material theme
     const savedTheme = localStorage.getItem('zentrack_material_theme') || 'blue';
     setTheme(savedTheme);
+
+    // Linux profile selector logic
+    const profileSelect = document.getElementById('linux-profile-select');
+    const savedProfile = localStorage.getItem('zentrack_linux_profile');
+    if (savedProfile) {
+      profileSelect.value = savedProfile;
+    }
+    profileSelect.addEventListener('change', async (e) => {
+      const val = e.target.value;
+      localStorage.setItem('zentrack_linux_profile', val);
+      try {
+        await fetch('/api/config/profile', { method: 'POST', body: val });
+        alert('Perfil guardado exitosamente. Los atajos cambiarán de inmediato.');
+      } catch (err) {
+        console.error(err);
+      }
+    });
 
     // Load saved view mode
     const savedMode = localStorage.getItem('zentrack_mode');
