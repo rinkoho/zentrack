@@ -52,6 +52,11 @@ pub fn get_programs_dir() -> Option<PathBuf> {
         .or_else(|| std::env::var("APPDATA").ok().map(|p| PathBuf::from(p).join("Microsoft").join("Windows").join("Start Menu").join("Programs")))
 }
 
+pub fn get_startup_dir() -> Option<PathBuf> {
+    get_shell_folder(CSIDL_STARTUP as i32)
+        .or_else(|| std::env::var("APPDATA").ok().map(|p| PathBuf::from(p).join("Microsoft").join("Windows").join("Start Menu").join("Programs").join("Startup")))
+}
+
 pub fn check_vigem_driver() -> bool {
     #[cfg(target_os = "windows")]
     {

@@ -7,8 +7,8 @@ use std::thread;
 use std::time::Duration;
 
 use crate::common::{
-    get_desktop_dir, get_install_directory, get_programs_dir, init_common_controls,
-    terminate_process_by_name, to_wide,
+    get_desktop_dir, get_install_directory, get_programs_dir, get_startup_dir,
+    init_common_controls, terminate_process_by_name, to_wide,
 };
 use crate::ui::{
     show_uninstall_confirm_dialog, show_uninstall_finished_dialog,
@@ -77,11 +77,12 @@ pub fn run_uninstaller() {
     let _ = Command::new("taskkill").args(["/F", "/IM", "adb.exe"]).output();
     thread::sleep(Duration::from_millis(300));
 
-    // 2. Remove Shortcuts from Desktop and Start Menu
+    // 2. Remove Shortcuts from Desktop, Start Menu and Startup
     remove_shortcuts();
 
-    // 3. Remove Windows Registry Uninstall Entry
+    // 3. Remove Windows Registry Uninstall & Autostart Entries
     unregister_uninstall_entry();
+    unregister_autostart_entry();
 
     // 4. Remove all files from %LOCALAPPDATA%\Programs\ZenTrack
     if install_dir.exists() {
@@ -111,6 +112,10 @@ pub fn remove_shortcuts() {
         let lnk = programs.join("ZenTrack.lnk");
         let _ = fs::remove_file(lnk);
     }
+    if let Some(startup) = get_startup_dir() {
+        let lnk = startup.join("ZenTrack.lnk");
+        let _ = fs::remove_file(lnk);
+    }
 }
 
 pub fn unregister_uninstall_entry() {
@@ -118,6 +123,28 @@ pub fn unregister_uninstall_entry() {
     let subkey = to_wide(r"Software\Microsoft\Windows\CurrentVersion\Uninstall\ZenTrack");
     unsafe {
         RegDeleteKeyW(HKEY_CURRENT_USER, subkey.as_ptr());
+    }
+}
+
+pub fn unregister_autostart_entry() {
+    use windows_sys::Win32::System::Registry::*;
+    let subkey = to_wide(r"Software\Microsoft\Windows\CurrentVersion\Run");
+    let mut hkey: HKEY = 0;
+    let res = unsafe {
+        RegOpenKeyExW(
+            HKEY_CURRENT_USER,
+            subkey.as_ptr(),
+            0,
+            KEY_SET_VALUE,
+            &mut hkey,
+        )
+    };
+    if res == 0 {
+        let val_w = to_wide("ZenTrack");
+        unsafe {
+            RegDeleteValueW(hkey, val_w.as_ptr());
+            RegCloseKey(hkey);
+        }
     }
 }
 
