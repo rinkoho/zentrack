@@ -2,9 +2,17 @@
 case "$1" in
     tray)
         shift
-        exec /usr/bin/zentrack-server --tray "$@"
+        if ! pgrep -f "zentrack-server --tray" > /dev/null; then
+            exec /usr/bin/zentrack-server --tray "$@"
+        else
+            exit 0
+        fi
         ;;
     gui|pair)
+        if ! systemctl is-active --quiet zentrack-system@$USER; then
+            systemctl start zentrack-system@$USER 2>/dev/null || pkexec systemctl start zentrack-system@$USER 2>/dev/null || true
+            sleep 0.5
+        fi
         xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair"
         ;;
     status)
@@ -44,8 +52,13 @@ case "$1" in
                 fi
             fi
 
-            # 3. Mostrar el estado y el QR en la terminal, y devolver el prompt
-            exec /usr/bin/zentrack-server --info
+            # 3. Si se invoca desde una terminal, mostrar código QR e info.
+            #    Si se invoca desde el cajón de aplicaciones / menú (sin terminal), abrir la Web GUI de emparejamiento.
+            if [ -t 1 ]; then
+                exec /usr/bin/zentrack-server --info
+            else
+                xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair"
+            fi
         else
             # 4. Si se pasan argumentos como -h, pasarlos directo sin levantar servicio
             exec /usr/bin/zentrack-server "$@"

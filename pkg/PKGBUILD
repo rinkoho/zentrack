@@ -1,6 +1,6 @@
 # Maintainer: Carlos <rrin08455@github.com>
 pkgname=zentrack-git
-pkgver=r91.9104e58
+pkgver=r93.97dff69
 pkgrel=1
 pkgdesc="Ultra-Low Latency trackpad and keyboard server for mobile devices (Commercial Version)"
 arch=('x86_64')
@@ -46,7 +46,7 @@ package() {
 
   # Acceso directo de escritorio (.desktop) e iconos y autoarranque
   install -Dm644 scripts/zentrack.desktop "$pkgdir/usr/share/applications/zentrack.desktop"
-  install -Dm644 scripts/zentrack.desktop "$pkgdir/etc/xdg/autostart/zentrack.desktop"
+  install -Dm644 scripts/zentrack-autostart.desktop "$pkgdir/etc/xdg/autostart/zentrack.desktop"
   install -Dm644 public/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zentrack.svg"
   install -Dm644 public/icon.png "$pkgdir/usr/share/icons/hicolor/48x48/apps/zentrack.png"
 }
