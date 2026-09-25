@@ -1,6 +1,6 @@
 # Maintainer: Carlos <rrin08455@github.com>
 pkgname=zentrack-git
-pkgver=r83.f224bf8
+pkgver=r89.9c120e5
 pkgrel=1
 pkgdesc="Ultra-Low Latency trackpad and keyboard server for mobile devices (Commercial Version)"
 arch=('x86_64')
@@ -37,6 +37,12 @@ package() {
 
   # Udev rules (Permisos para inyectar inputs de mouse/teclado)
   install -Dm644 scripts/99-zentrack.rules "$pkgdir/usr/lib/udev/rules.d/99-zentrack.rules"
+
+  # Early kernel modules load for uinput
+  install -Dm644 scripts/zentrack-modules.conf "$pkgdir/usr/lib/modules-load.d/zentrack.conf"
+
+  # Polkit rules (Permite gestionar servicio sin prompts intrusivos de contraseña)
+  install -Dm644 scripts/50-zentrack.rules "$pkgdir/usr/share/polkit-1/rules.d/50-zentrack.rules"
 
   # Acceso directo de escritorio (.desktop) e iconos y autoarranque
   install -Dm644 scripts/zentrack.desktop "$pkgdir/usr/share/applications/zentrack.desktop"

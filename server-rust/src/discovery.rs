@@ -38,9 +38,36 @@ pub fn new_device_registry() -> DeviceRegistry {
     Arc::new(RwLock::new(HashMap::new()))
 }
 
+/// Helper to retrieve the current, most accurate local network IPv4 address dynamically.
+pub fn get_local_ip() -> String {
+    if let Ok(ip) = local_ip_address::local_ip() {
+        if !ip.is_loopback() {
+            return ip.to_string();
+        }
+    }
+
+    if let Ok(interfaces) = local_ip_address::list_afinet_netifas() {
+        for (name, ip) in interfaces {
+            // Ignore loopback and virtual/container bridges
+            if !ip.is_loopback() && ip.is_ipv4() {
+                let lower = name.to_lowercase();
+                if !lower.starts_with("docker")
+                    && !lower.starts_with("br-")
+                    && !lower.starts_with("veth")
+                    && !lower.starts_with("virbr")
+                {
+                    return ip.to_string();
+                }
+            }
+        }
+    }
+
+    "127.0.0.1".to_string()
+}
+
 /// Spawns the UDP discovery service for zero-config pairing and client detection.
 pub async fn start_discovery(
-    server_ip: String,
+    _initial_ip: String,
     server_port: u16,
     server_token: String,
     registry: DeviceRegistry,
@@ -62,7 +89,6 @@ pub async fn start_discovery(
     // 1. Task: Listen for discovery probes and client announcements
     let recv_socket = socket.clone();
     let reg_clone = registry.clone();
-    let announce_ip = server_ip.clone();
     let announce_token = server_token.clone();
 
     tokio::spawn(async move {
@@ -81,12 +107,13 @@ pub async fn start_discovery(
                                 println!("[Discovery] 📱 Detected ZenTrack client: {} ({})", device_name, peer_ip);
                             }
 
-                            // If client is probing for servers, respond immediately
+                            // If client is probing for servers, respond immediately with the current dynamically resolved IP
                             if packet.cmd == "DISCOVER" {
+                                let current_ip = get_local_ip();
                                 let response = serde_json::json!({
                                     "cmd": "ANNOUNCE",
                                     "name": "ZenTrack Host",
-                                    "ip": announce_ip,
+                                    "ip": current_ip,
                                     "port": server_port,
                                     "token": announce_token,
                                     "platform": std::env::consts::OS,
@@ -106,25 +133,36 @@ pub async fn start_discovery(
         }
     });
 
-    // 2. Task: Periodic beacon to local broadcast
+    // 2. Task: Periodic beacon to local broadcast with dynamic IP evaluation
     let beacon_socket = socket.clone();
     let broadcast_addr: SocketAddr = format!("255.255.255.255:{}", DISCOVERY_PORT).parse().unwrap();
+    let beacon_token = server_token.clone();
 
     tokio::spawn(async move {
-        let beacon_msg = serde_json::json!({
-            "cmd": "BEACON",
-            "name": "ZenTrack Host",
-            "ip": server_ip,
-            "port": server_port,
-            "token": server_token,
-            "platform": std::env::consts::OS,
-        });
-
-        if let Ok(beacon_bytes) = serde_json::to_vec(&beacon_msg) {
-            loop {
-                let _ = beacon_socket.send_to(&beacon_bytes, broadcast_addr).await;
-                tokio::time::sleep(Duration::from_secs(3)).await;
+        let mut last_announced_ip = String::new();
+        loop {
+            let current_ip = get_local_ip();
+            if current_ip != last_announced_ip {
+                if !last_announced_ip.is_empty() {
+                    println!("[Discovery] Network IP transition: {} -> {}", last_announced_ip, current_ip);
+                }
+                last_announced_ip = current_ip.clone();
             }
+
+            let beacon_msg = serde_json::json!({
+                "cmd": "BEACON",
+                "name": "ZenTrack Host",
+                "ip": current_ip,
+                "port": server_port,
+                "token": beacon_token,
+                "platform": std::env::consts::OS,
+            });
+
+            if let Ok(beacon_bytes) = serde_json::to_vec(&beacon_msg) {
+                let _ = beacon_socket.send_to(&beacon_bytes, broadcast_addr).await;
+            }
+
+            tokio::time::sleep(Duration::from_secs(3)).await;
         }
     });
 }
@@ -148,4 +186,18 @@ pub async fn get_discovered_devices(registry: &DeviceRegistry) -> Vec<Discovered
 
     list.sort_by_key(|d| d.last_seen_secs_ago);
     list
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_local_ip_validity() {
+        let ip = get_local_ip();
+        assert!(!ip.is_empty());
+        // Verify it parses as a valid IPv4 address
+        let parsed: Result<std::net::Ipv4Addr, _> = ip.parse();
+        assert!(parsed.is_ok(), "Expected valid IPv4 string, got: {}", ip);
+    }
 }

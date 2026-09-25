@@ -13,7 +13,6 @@ use web::{create_router, AppState};
 use qrcode::render::unicode::Dense1x2;
 use qrcode::QrCode;
 use std::net::SocketAddr;
-use std::path::PathBuf;
 use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -31,16 +30,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // Determine config path (prefer current dir or parent dir if running from server-rust)
-    let config_path = if PathBuf::from("config.json").exists() {
-        PathBuf::from("config.json")
-    } else if PathBuf::from("../config.json").exists() {
-        PathBuf::from("../config.json")
-    } else {
-        PathBuf::from("config.json")
-    };
-
-    let cfg = AppConfig::load_or_create(&config_path);
+    let cfg = AppConfig::load();
     let port = cfg.port;
     let token = cfg.token.clone();
 
@@ -58,9 +48,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     let connected_clients = Arc::new(AtomicUsize::new(0));
     let device_registry = discovery::new_device_registry();
 
-    let local_ip = local_ip_address::local_ip()
-        .map(|ip| ip.to_string())
-        .unwrap_or_else(|_| "127.0.0.1".to_string());
+    let local_ip = discovery::get_local_ip();
 
     // Start background UDP discovery & beacon engine
     discovery::start_discovery(local_ip.clone(), port, token.clone(), device_registry.clone()).await;
@@ -133,7 +121,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn print_banner(port: u16, token: &str, local_ip: &str, pairing_url: &str, mobile_url: &str) {
+fn print_banner(port: u16, token: &str, _local_ip: &str, pairing_url: &str, mobile_url: &str) {
     println!("========================================================");
     println!("        ⚡ ZENTRACK ULTRA-LOW LATENCY NATIVE SERVER ⚡   ");
     println!("========================================================");
@@ -158,6 +146,11 @@ fn print_banner(port: u16, token: &str, local_ip: &str, pairing_url: &str, mobil
     println!("Ready for 500Hz+ connections. Waiting for client...");
 }
 
+fn is_server_already_running(port: u16) -> bool {
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    std::net::TcpStream::connect_timeout(&addr, std::time::Duration::from_millis(150)).is_ok()
+}
+
 fn run_tray() {
     use tao::event_loop::{ControlFlow, EventLoopBuilder};
     use tray_icon::{
@@ -169,8 +162,8 @@ fn run_tray() {
     let tray_menu = Menu::new();
     let open_i = MenuItem::new("Abrir Web GUI", true, None);
     let adb_i = MenuItem::new("Activar USB ADB", true, None);
-    let restart_i = MenuItem::new("Reiniciar", true, None);
-    let quit_i = MenuItem::new("Salir", true, None);
+    let restart_i = MenuItem::new("Reiniciar Servidor", true, None);
+    let quit_i = MenuItem::new("Cerrar Bandeja", true, None);
     
     tray_menu.append_items(&[
         &open_i,
@@ -197,13 +190,11 @@ fn run_tray() {
         if let Ok(event) = menu_channel.try_recv() {
             if event.id == quit_i.id() {
                 tray_icon.take();
-                #[cfg(target_os = "linux")]
-                let _ = std::process::Command::new("zentrack").arg("stop").spawn();
-                
                 *control_flow = ControlFlow::Exit;
                 std::process::exit(0);
             } else if event.id == open_i.id() {
-                let url = "http://127.0.0.1:3000/pair";
+                let port = AppConfig::load().port;
+                let url = format!("http://127.0.0.1:{}/pair", port);
                 #[cfg(target_os = "windows")]
                 let _ = std::process::Command::new("explorer").arg(url).spawn();
                 #[cfg(target_os = "linux")]
@@ -211,10 +202,10 @@ fn run_tray() {
             } else if event.id == restart_i.id() {
                 #[cfg(target_os = "linux")]
                 let _ = std::process::Command::new("zentrack").arg("restart").spawn();
-                std::process::exit(0);
             } else if event.id == adb_i.id() {
+                let port = AppConfig::load().port;
                 if let Some(adb) = health::find_adb_binary() {
-                    let _ = health::run_adb_reverse(&adb, 3000);
+                    let _ = health::run_adb_reverse(&adb, port);
                 }
             }
         }
@@ -233,27 +224,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Opciones:");
         println!("  --info       Muestra el estado del servidor y el código QR de emparejamiento.");
         println!("  --tray       Inicia el ícono en la bandeja del sistema (Dock/Tray).");
+        println!("  --headless   Inicia el servidor en segundo plano sin navegador.");
         println!("  -h, --help   Muestra este mensaje de ayuda.");
         std::process::exit(0);
     }
 
     if info_mode {
-        let config_path = if PathBuf::from("config.json").exists() {
-            PathBuf::from("config.json")
-        } else if PathBuf::from("../config.json").exists() {
-            PathBuf::from("../config.json")
-        } else {
-            PathBuf::from("config.json") // Or whatever standard path we have, but load_or_create handles it
-        };
-        // wait, we can just use the config loading from run_server.
-        let cfg = AppConfig::load_or_create(&config_path);
+        let cfg = AppConfig::load();
         let port = cfg.port;
         let token = cfg.token;
-        let local_ip = local_ip_address::local_ip().map(|ip| ip.to_string()).unwrap_or_else(|_| "127.0.0.1".to_string());
+        let local_ip = discovery::get_local_ip();
         let pairing_url = format!("http://127.0.0.1:{}/pair", port);
         let mobile_url = format!("http://{}:{}/?token={}", local_ip, port, token);
         print_banner(port, &token, &local_ip, &pairing_url, &mobile_url);
         std::process::exit(0);
+    }
+
+    let cfg = AppConfig::load();
+    let port = cfg.port;
+    let already_running = is_server_already_running(port);
+
+    if tray_mode {
+        if already_running {
+            println!("[Tray] Servidor ZenTrack en ejecución en puerto {}. Iniciando interfaz de bandeja en modo monitor.", port);
+            run_tray();
+            return Ok(());
+        }
+    } else if already_running {
+        eprintln!("[ZenTrack] El servidor ya está en ejecución en el puerto {}.", port);
+        return Ok(());
     }
 
     // Start Tokio in a background thread
@@ -273,7 +272,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     if is_gui {
                         // Already running, GUI can operate as client
                     } else {
-                        eprintln!("[ZenTrack] El servidor ya está en ejecución en el puerto 3000.");
+                        eprintln!("[ZenTrack] El servidor ya está en ejecución en el puerto {}.", port);
                         let _ = tx.send(false);
                     }
                 } else {

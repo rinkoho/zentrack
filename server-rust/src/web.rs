@@ -136,10 +136,9 @@ async fn restart_system_handler() -> impl IntoResponse {
 async fn config_profile_handler(body: String) -> impl IntoResponse {
     let profile = body.trim().to_string();
     if ["gnome", "kde", "bspwm"].contains(&profile.as_str()) {
-        let config_path = if std::path::PathBuf::from("config.json").exists() { "config.json" } else { "../config.json" };
-        let mut cfg = crate::config::AppConfig::load_or_create(config_path);
+        let mut cfg = crate::config::AppConfig::load();
         cfg.linux_profile = profile;
-        cfg.save(config_path);
+        cfg.save_default();
         (StatusCode::OK, "OK")
     } else {
         (StatusCode::BAD_REQUEST, "Invalid profile")
@@ -155,9 +154,7 @@ async fn devices_handler(State(state): State<AppState>) -> impl IntoResponse {
 }
 
 async fn qr_svg_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let local_ip = local_ip_address::local_ip()
-        .map(|ip| ip.to_string())
-        .unwrap_or_else(|_| "127.0.0.1".to_string());
+    let local_ip = crate::discovery::get_local_ip();
     let url = format!(
         "http://{}:{}/?token={}",
         local_ip, state.config.port, state.config.token
@@ -409,7 +406,7 @@ async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSo
 }
 
 async fn handle_system_shortcut(action: &str, mut driver: tokio::sync::MutexGuard<'_, Box<dyn crate::driver::InputDriver>>) {
-    let cfg = crate::config::AppConfig::load_or_create(if std::path::PathBuf::from("config.json").exists() { "config.json" } else { "../config.json" });
+    let cfg = crate::config::AppConfig::load();
     let profile = cfg.linux_profile.as_str();
 
     #[cfg(target_os = "linux")]

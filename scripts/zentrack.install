@@ -1,5 +1,5 @@
 post_upgrade() {
-    echo "Reiniciando instancias de zentrack-server..."
+    echo "Actualizando ZenTrack..."
     pkill -f zentrack-server || true
     
     # Enable system service automatically for the installing user
@@ -9,24 +9,48 @@ post_upgrade() {
     fi
 
     if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
+        # Ensure user belongs to input group for /dev/uinput access
+        if getent group input >/dev/null 2>&1; then
+            usermod -a -G input "$REAL_USER" || true
+        fi
+
         # Disable old user service if it existed
         su - $REAL_USER -c "systemctl --user disable --now zentrack 2>/dev/null" || true
-        # Enable system service
+
+        # Reload udev rules for /dev/uinput permissions
+        udevadm control --reload-rules 2>/dev/null || true
+        udevadm trigger --subsystem-match=misc 2>/dev/null || udevadm trigger 2>/dev/null || true
+
+        # Enable and restart system service
+        systemctl daemon-reload 2>/dev/null || true
         systemctl enable --now zentrack-system@$REAL_USER 2>/dev/null || true
     fi
 }
 
 post_install() {
     echo "=========================================================="
-    echo "🚀 ZenTrack instalado correctamente."
+    echo "🚀 Configurando ZenTrack (Permisos y Servicio de Sistema)..."
     
     REAL_USER=$(logname 2>/dev/null || echo $SUDO_USER)
     if [ -z "$REAL_USER" ] || [ "$REAL_USER" = "root" ]; then
         REAL_USER=$(ls -ld /home/* 2>/dev/null | awk 'NR==1 {print $3}')
     fi
 
+    # Ensure user belongs to input group for /dev/uinput access
     if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
-        echo "Habilitando ZenTrack en pantalla de bloqueo para el usuario: $REAL_USER"
+        if getent group input >/dev/null 2>&1; then
+            usermod -a -G input "$REAL_USER" || true
+            echo "✓ Usuario $REAL_USER agregado al grupo 'input'."
+        fi
+    fi
+
+    # Reload udev rules for /dev/uinput permissions
+    udevadm control --reload-rules 2>/dev/null || true
+    udevadm trigger --subsystem-match=misc 2>/dev/null || udevadm trigger 2>/dev/null || true
+
+    if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
+        echo "✓ Habilitando ZenTrack en pantalla de bloqueo para el usuario: $REAL_USER"
+        systemctl daemon-reload 2>/dev/null || true
         systemctl enable --now zentrack-system@$REAL_USER 2>/dev/null || true
     else
         echo ""
