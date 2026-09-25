@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 mod config;
 mod crypto;
 mod discovery;
@@ -355,9 +357,16 @@ fn run_tray() {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_os = "windows")]
+    unsafe {
+        use windows_sys::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
+        AttachConsole(ATTACH_PARENT_PROCESS);
+    }
+
     let args: Vec<String> = std::env::args().collect();
+    let is_headless = args.iter().any(|a| a == "--headless" || a == "--service");
     let is_tray_bin = args.first().map(|a| a.ends_with("zentrack-tray")).unwrap_or(false);
-    let tray_mode = cfg!(target_os = "windows") || is_tray_bin || args.iter().any(|a| a == "--tray");
+    let tray_mode = !is_headless && (cfg!(target_os = "windows") || is_tray_bin || args.iter().any(|a| a == "--tray"));
     let info_mode = args.iter().any(|a| a == "--info");
     let help_mode = args.iter().any(|a| a == "-h" || a == "--help");
 

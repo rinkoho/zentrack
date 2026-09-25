@@ -10,7 +10,7 @@ use std::thread;
 
 use crate::common::{
     check_vigem_driver, get_desktop_dir, get_install_directory, get_programs_dir,
-    init_common_controls, to_wide,
+    get_startup_dir, init_common_controls, to_wide,
 };
 use crate::ui::{
     show_error_dialog, show_installed_dialog, show_progress_dialog, show_vigem_prompt,
@@ -109,10 +109,14 @@ pub fn run_installer() {
         }
     }
 
-    // 7. Register in Windows Registry (Control Panel / Settings)
+    // 7. Register in Windows Registry (Control Panel / Settings & Autostart)
     if let Err(e) = register_uninstall_entry(&install_dir) {
         // Non-fatal, but logged
         eprintln!("No se pudo registrar la entrada de desinstalación: {}", e);
+    }
+    if let Err(e) = register_autostart_entry(&zentrack_exe) {
+        // Non-fatal, but logged
+        eprintln!("No se pudo registrar ZenTrack en el inicio del sistema: {}", e);
     }
 
     // 8. Launch ZenTrack Server
@@ -291,9 +295,54 @@ pub fn create_shortcuts(zentrack_exe: &Path) {
         ));
     }
 
+    if let Some(startup) = get_startup_dir() {
+        let lnk_path = startup.join("ZenTrack.lnk");
+        let lnk_str = lnk_path.to_string_lossy().replace('\'', "''");
+        ps_script.push_str(&format!(
+            "$s3 = $ws.CreateShortcut('{0}'); \
+            $s3.TargetPath = '{1}'; \
+            $s3.Arguments = '--tray'; \
+            $s3.WorkingDirectory = '{2}'; \
+            $s3.IconLocation = '{1},0'; \
+            $s3.Description = 'ZenTrack Ultra-Low Latency Server'; \
+            $s3.Save();\n",
+            lnk_str, exe_str, dir_str
+        ));
+    }
+
     let _ = Command::new("powershell")
         .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_script])
         .status();
+}
+
+pub fn register_autostart_entry(zentrack_exe: &Path) -> Result<(), String> {
+    use windows_sys::Win32::System::Registry::*;
+
+    let subkey = to_wide(r"Software\Microsoft\Windows\CurrentVersion\Run");
+    let mut hkey: HKEY = 0;
+    let res = unsafe {
+        RegCreateKeyExW(
+            HKEY_CURRENT_USER,
+            subkey.as_ptr(),
+            0,
+            std::ptr::null(),
+            REG_OPTION_NON_VOLATILE,
+            KEY_ALL_ACCESS,
+            std::ptr::null(),
+            &mut hkey,
+            std::ptr::null_mut(),
+        )
+    };
+
+    if res != 0 {
+        return Err(format!("RegCreateKeyExW error {}", res));
+    }
+
+    let cmd = format!("\"{}\" --tray", zentrack_exe.display());
+    set_reg_sz(hkey, "ZenTrack", &cmd);
+
+    unsafe { RegCloseKey(hkey) };
+    Ok(())
 }
 
 pub fn register_uninstall_entry(install_dir: &Path) -> Result<(), String> {
