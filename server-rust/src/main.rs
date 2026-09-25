@@ -177,7 +177,25 @@ fn load_tray_icon() -> Option<tray_icon::Icon> {
     tray_icon::Icon::from_rgba(rgba, info.width, info.height).ok()
 }
 
-fn acquire_tray_lock() -> Option<std::fs::File> {
+pub struct TrayLockGuard {
+    #[cfg(target_os = "linux")]
+    _file: std::fs::File,
+    #[cfg(target_os = "windows")]
+    handle: windows_sys::Win32::Foundation::HANDLE,
+}
+
+#[cfg(target_os = "windows")]
+impl Drop for TrayLockGuard {
+    fn drop(&mut self) {
+        if self.handle != 0 && self.handle != windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE {
+            unsafe {
+                windows_sys::Win32::Foundation::CloseHandle(self.handle);
+            }
+        }
+    }
+}
+
+fn acquire_tray_lock() -> Option<TrayLockGuard> {
     #[cfg(target_os = "linux")]
     {
         let lock_dir = std::env::var("XDG_RUNTIME_DIR")
@@ -201,14 +219,33 @@ fn acquire_tray_lock() -> Option<std::fs::File> {
             let fd = file.as_raw_fd();
             let ret = unsafe { libc::flock(fd, libc::LOCK_EX | libc::LOCK_NB) };
             if ret == 0 {
-                return Some(file);
+                return Some(TrayLockGuard { _file: file });
             } else {
                 return None;
             }
         }
         return None;
     }
-    #[cfg(not(target_os = "linux"))]
+
+    #[cfg(target_os = "windows")]
+    {
+        use windows_sys::Win32::System::Threading::*;
+        use windows_sys::Win32::Foundation::*;
+
+        let mutex_name: Vec<u16> = "Local\\ZenTrack_Tray_SingleInstance_Mutex\0".encode_utf16().collect();
+        let handle = unsafe { CreateMutexW(std::ptr::null(), 0, mutex_name.as_ptr()) };
+        if handle != 0 && handle != INVALID_HANDLE_VALUE {
+            let err = unsafe { GetLastError() };
+            if err == ERROR_ALREADY_EXISTS {
+                unsafe { CloseHandle(handle) };
+                return None;
+            }
+            return Some(TrayLockGuard { handle });
+        }
+        return None;
+    }
+
+    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
     None
 }
 
@@ -255,10 +292,26 @@ fn run_tray() {
     let mut tray_icon = Some(builder.build().unwrap());
 
     let menu_channel = tray_icon::menu::MenuEvent::receiver();
-    let _tray_channel = TrayIconEvent::receiver();
+    let tray_channel = TrayIconEvent::receiver();
 
     event_loop.run(move |_event, _, control_flow| {
         *control_flow = ControlFlow::WaitUntil(std::time::Instant::now() + std::time::Duration::from_millis(50));
+
+        // Handle left-click on the tray icon to open Web GUI
+        if let Ok(event) = tray_channel.try_recv() {
+            if let TrayIconEvent::Click { button: tray_icon::MouseButton::Left, .. } = event {
+                let port = AppConfig::load().port;
+                let url = format!("http://127.0.0.1:{}/pair", port);
+                #[cfg(target_os = "windows")]
+                {
+                    if std::process::Command::new("explorer").arg(&url).spawn().is_err() {
+                        let _ = std::process::Command::new("cmd").args(["/C", "start", "", &url]).spawn();
+                    }
+                }
+                #[cfg(target_os = "linux")]
+                let _ = std::process::Command::new("xdg-open").arg(&url).spawn();
+            }
+        }
 
         if let Ok(event) = menu_channel.try_recv() {
             if event.id == quit_i.id() {
@@ -272,12 +325,25 @@ fn run_tray() {
                 let port = AppConfig::load().port;
                 let url = format!("http://127.0.0.1:{}/pair", port);
                 #[cfg(target_os = "windows")]
-                let _ = std::process::Command::new("explorer").arg(url).spawn();
+                {
+                    if std::process::Command::new("explorer").arg(&url).spawn().is_err() {
+                        let _ = std::process::Command::new("cmd").args(["/C", "start", "", &url]).spawn();
+                    }
+                }
                 #[cfg(target_os = "linux")]
-                let _ = std::process::Command::new("xdg-open").arg(url).spawn();
+                let _ = std::process::Command::new("xdg-open").arg(&url).spawn();
             } else if event.id == restart_i.id() {
                 #[cfg(target_os = "linux")]
                 let _ = std::process::Command::new("zentrack").arg("restart").spawn();
+
+                #[cfg(target_os = "windows")]
+                {
+                    if let Ok(current_exe) = std::env::current_exe() {
+                        let _ = std::process::Command::new(current_exe).spawn();
+                        tray_icon.take();
+                        std::process::exit(0);
+                    }
+                }
             } else if event.id == adb_i.id() {
                 let port = AppConfig::load().port;
                 if let Some(adb) = health::find_adb_binary() {

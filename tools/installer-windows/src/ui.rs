@@ -208,6 +208,57 @@ pub fn show_vigem_prompt() -> bool {
     }
 }
 
+pub fn show_vigem_repair_prompt() -> bool {
+    let title = to_wide("Controlador de Mando Xbox 360 - ZenTrack");
+    let instruction = to_wide("Controlador ViGEmBus detectado en este equipo");
+    let content = to_wide(
+        "🎮 Driver de Mando Xbox 360 (ViGEmBus):\n\n\
+        Se ha detectado que el controlador oficial ViGEmBus ya se encuentra instalado en tu sistema.\n\n\
+        • Estado: Operativo y listo para emulación de mando virtual Xbox 360.\n\n\
+        ¿Deseas conservar la instalación existente o ejecutar el instalador de ViGEmBus para reinstalarlo o repararlo?"
+    );
+    let footer = to_wide("Controlador oficial open-source ViGEmBus (Nefarius)");
+
+    let btn1 = to_wide("Conservar controlador actual (Recomendado)\nEl soporte para Mando Xbox 360 continuará usando el driver existente.");
+    let btn2 = to_wide("Reinstalar o Reparar controlador\nEjecuta el instalador oficial de ViGEmBus con permisos de Administrador para reparar el driver.");
+
+    let buttons = [
+        TASKDIALOG_BUTTON {
+            nButtonID: 201,
+            pszButtonText: btn1.as_ptr(),
+        },
+        TASKDIALOG_BUTTON {
+            nButtonID: 202,
+            pszButtonText: btn2.as_ptr(),
+        },
+    ];
+
+    let mut config: TASKDIALOGCONFIG = unsafe { std::mem::zeroed() };
+    config.cbSize = std::mem::size_of::<TASKDIALOGCONFIG>() as u32;
+    config.dwFlags = TDF_USE_COMMAND_LINKS | TDF_POSITION_RELATIVE_TO_WINDOW;
+    config.pszWindowTitle = title.as_ptr();
+    config.pszMainInstruction = instruction.as_ptr();
+    config.pszContent = content.as_ptr();
+    config.pszFooter = footer.as_ptr();
+    config.Anonymous1.pszMainIcon = TD_INFORMATION_ICON;
+    config.Anonymous2.pszFooterIcon = TD_INFORMATION_ICON;
+    config.cButtons = buttons.len() as u32;
+    config.pButtons = buttons.as_ptr();
+    config.nDefaultButton = 201;
+
+    let mut clicked: i32 = 0;
+    let res = unsafe {
+        TaskDialogIndirect(&config, &mut clicked, std::ptr::null_mut(), std::ptr::null_mut())
+    };
+
+    if res == 0 {
+        // Return true only if user explicitly picked "Reinstalar o Reparar" (202)
+        clicked == 202
+    } else {
+        false
+    }
+}
+
 pub fn show_installed_dialog() -> bool {
     let title = to_wide("Instalación Completada - ZenTrack");
     let instruction = to_wide("🎉 ¡ZenTrack se ha instalado con éxito!");

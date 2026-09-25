@@ -2,7 +2,6 @@
 
 use std::path::PathBuf;
 use windows_sys::Win32::Foundation::*;
-use windows_sys::Win32::Storage::FileSystem::*;
 use windows_sys::Win32::UI::Controls::*;
 use windows_sys::Win32::UI::Shell::*;
 use windows_sys::Win32::System::Diagnostics::ToolHelp::*;
@@ -54,25 +53,33 @@ pub fn get_programs_dir() -> Option<PathBuf> {
 }
 
 pub fn check_vigem_driver() -> bool {
-    let dev_name = to_wide(r"\\.\ViGEmBus");
-    let handle = unsafe {
-        CreateFileW(
-            dev_name.as_ptr(),
-            GENERIC_READ | GENERIC_WRITE,
-            FILE_SHARE_READ | FILE_SHARE_WRITE,
-            std::ptr::null(),
-            OPEN_EXISTING,
-            FILE_ATTRIBUTE_NORMAL,
-            0,
-        )
-    };
+    #[cfg(target_os = "windows")]
+    {
+        // 1. Check if vigem-client can establish a session with the driver
+        if vigem_client::Client::connect().is_ok() {
+            return true;
+        }
 
-    if handle != INVALID_HANDLE_VALUE && handle != 0 {
-        unsafe { CloseHandle(handle) };
-        true
-    } else {
-        false
+        // 2. Check Windows Registry for ViGEmBus service in HKLM
+        use windows_sys::Win32::System::Registry::*;
+        let subkey = to_wide(r"SYSTEM\CurrentControlSet\Services\ViGEmBus");
+        let mut hkey: HKEY = 0;
+        let res = unsafe {
+            RegOpenKeyExW(
+                HKEY_LOCAL_MACHINE,
+                subkey.as_ptr(),
+                0,
+                KEY_READ,
+                &mut hkey,
+            )
+        };
+        if res == 0 {
+            unsafe { RegCloseKey(hkey) };
+            return true;
+        }
     }
+
+    false
 }
 
 pub fn terminate_process_by_name(process_name: &str) {

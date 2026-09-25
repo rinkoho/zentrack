@@ -406,11 +406,10 @@ async fn execute_command(cmd: InputCommand, state: &AppState, socket: &mut WebSo
 }
 
 async fn handle_system_shortcut(action: &str, mut driver: tokio::sync::MutexGuard<'_, Box<dyn crate::driver::InputDriver>>) {
-    let cfg = crate::config::AppConfig::load();
-    let profile = cfg.linux_profile.as_str();
-
     #[cfg(target_os = "linux")]
     {
+        let cfg = crate::config::AppConfig::load();
+        let profile = cfg.linux_profile.as_str();
         let keys = match action {
             "terminal" => match profile {
                 "bspwm" => vec!["Super_L", "Return"],
