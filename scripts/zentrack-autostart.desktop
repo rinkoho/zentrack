@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=ZenTrack
+GenericName=Ultra-Low Latency Trackpad & Gamepad
+Comment=ZenTrack Background Tray Interface
+Exec=zentrack tray
+Icon=zentrack
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=false

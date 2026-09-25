@@ -151,7 +151,76 @@ fn is_server_already_running(port: u16) -> bool {
     std::net::TcpStream::connect_timeout(&addr, std::time::Duration::from_millis(150)).is_ok()
 }
 
+fn load_tray_icon() -> Option<tray_icon::Icon> {
+    let png_bytes = include_bytes!("../../public/icon.png");
+    let decoder = png::Decoder::new(std::io::Cursor::new(png_bytes));
+    let mut reader = decoder.read_info().ok()?;
+    let mut buf = vec![0; reader.output_buffer_size()?];
+    let info = reader.next_frame(&mut buf).ok()?;
+    let bytes = &buf[..info.buffer_size()];
+
+    let rgba = match info.color_type {
+        png::ColorType::Rgba => bytes.to_vec(),
+        png::ColorType::Rgb => {
+            let mut rgba_vec = Vec::with_capacity((info.width * info.height * 4) as usize);
+            for chunk in bytes.chunks(3) {
+                rgba_vec.push(chunk[0]);
+                rgba_vec.push(chunk[1]);
+                rgba_vec.push(chunk[2]);
+                rgba_vec.push(255);
+            }
+            rgba_vec
+        }
+        _ => return None,
+    };
+
+    tray_icon::Icon::from_rgba(rgba, info.width, info.height).ok()
+}
+
+fn acquire_tray_lock() -> Option<std::fs::File> {
+    #[cfg(target_os = "linux")]
+    {
+        let lock_dir = std::env::var("XDG_RUNTIME_DIR")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|_| {
+                AppConfig::get_canonical_path()
+                    .parent()
+                    .map(|p| p.to_path_buf())
+                    .unwrap_or_else(|| std::path::PathBuf::from("/tmp"))
+            });
+        let lock_path = lock_dir.join("zentrack_tray.lock");
+
+        if let Ok(file) = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(&lock_path)
+        {
+            use std::os::unix::io::AsRawFd;
+            let fd = file.as_raw_fd();
+            let ret = unsafe { libc::flock(fd, libc::LOCK_EX | libc::LOCK_NB) };
+            if ret == 0 {
+                return Some(file);
+            } else {
+                return None;
+            }
+        }
+        return None;
+    }
+    #[cfg(not(target_os = "linux"))]
+    None
+}
+
 fn run_tray() {
+    let _tray_lock = match acquire_tray_lock() {
+        Some(f) => f,
+        None => {
+            println!("[Tray] Una instancia del icono de bandeja de ZenTrack ya se encuentra en ejecución.");
+            return;
+        }
+    };
+
     use tao::event_loop::{ControlFlow, EventLoopBuilder};
     use tray_icon::{
         menu::{Menu, MenuItem, PredefinedMenuItem},
@@ -173,13 +242,17 @@ fn run_tray() {
         &quit_i,
     ]).unwrap();
 
-    let mut tray_icon = Some(
-        TrayIconBuilder::new()
-            .with_menu(Box::new(tray_menu))
-            .with_tooltip("ZenTrack Server")
-            .build()
-            .unwrap(),
-    );
+    let mut builder = TrayIconBuilder::new()
+        .with_menu(Box::new(tray_menu))
+        .with_tooltip("ZenTrack Server");
+
+    if let Some(icon) = load_tray_icon() {
+        builder = builder.with_icon(icon);
+    } else {
+        eprintln!("[Tray] Advertencia: No se pudo cargar el icono del sistema.");
+    }
+
+    let mut tray_icon = Some(builder.build().unwrap());
 
     let menu_channel = tray_icon::menu::MenuEvent::receiver();
     let _tray_channel = TrayIconEvent::receiver();
