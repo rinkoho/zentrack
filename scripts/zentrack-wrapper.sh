@@ -2,8 +2,12 @@
 case "$1" in
     tray)
         shift
-        if ! pgrep -f "zentrack-server --tray" > /dev/null; then
-            exec /usr/bin/zentrack-server --tray "$@"
+        if ! pgrep -x "zentrack-tray" > /dev/null && ! pgrep -f "zentrack-server --tray" > /dev/null; then
+            if [ -x /usr/bin/zentrack-tray ]; then
+                exec /usr/bin/zentrack-tray "$@"
+            else
+                exec /usr/bin/zentrack-server --tray "$@"
+            fi
         else
             exit 0
         fi
@@ -13,7 +17,7 @@ case "$1" in
             systemctl start zentrack-system@$USER 2>/dev/null || pkexec systemctl start zentrack-system@$USER 2>/dev/null || true
             sleep 0.5
         fi
-        xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair"
+        ( xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair" 2>/dev/null ) &
         ;;
     status)
         curl -s "http://127.0.0.1:3000/status" || echo "Servidor no está en ejecución."
@@ -28,11 +32,13 @@ case "$1" in
         systemctl start zentrack-system@$USER 2>/dev/null || pkexec systemctl start zentrack-system@$USER 2>/dev/null
         ;;
     stop)
-        systemctl stop zentrack-system@$USER 2>/dev/null || pkexec systemctl stop zentrack-system@$USER 2>/dev/null
+        systemctl stop zentrack-system@$USER 2>/dev/null || pkexec systemctl stop zentrack-system@$USER 2>/dev/null || true
+        pkill -x zentrack-tray 2>/dev/null || true
         pkill -f "zentrack-server --tray" 2>/dev/null || true
+        pkill -x zentrack-server 2>/dev/null || true
         ;;
     restart)
-        systemctl restart zentrack-system@$USER 2>/dev/null || pkexec systemctl restart zentrack-system@$USER 2>/dev/null
+        systemctl restart zentrack-system@$USER 2>/dev/null || pkexec systemctl restart zentrack-system@$USER 2>/dev/null || true
         ;;
     logs)
         journalctl -u zentrack-system@$USER -f
@@ -47,8 +53,12 @@ case "$1" in
 
             # 2. Asegurar que el icono del system tray está visible si hay entorno gráfico
             if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-                if ! pgrep -f "zentrack-server --tray" > /dev/null; then
-                    nohup /usr/bin/zentrack-server --tray >/dev/null 2>&1 &
+                if ! pgrep -x "zentrack-tray" > /dev/null && ! pgrep -f "zentrack-server --tray" > /dev/null; then
+                    if [ -x /usr/bin/zentrack-tray ]; then
+                        nohup /usr/bin/zentrack-tray >/dev/null 2>&1 &
+                    else
+                        nohup /usr/bin/zentrack-server --tray >/dev/null 2>&1 &
+                    fi
                 fi
             fi
 
@@ -57,7 +67,8 @@ case "$1" in
             if [ -t 1 ]; then
                 exec /usr/bin/zentrack-server --info
             else
-                xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair"
+                ( xdg-open "http://127.0.0.1:3000/pair" 2>/dev/null || sensible-browser "http://127.0.0.1:3000/pair" 2>/dev/null ) &
+                exit 0
             fi
         else
             # 4. Si se pasan argumentos como -h, pasarlos directo sin levantar servicio
