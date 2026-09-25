@@ -283,10 +283,6 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
         }
     });
 
-    let mut last_packet = std::time::Instant::now();
-    let mut batch_count = 0;
-    use std::io::Write;
-
     while let Some(msg_result) = socket.recv().await {
         let msg = match msg_result {
             Ok(m) => m,
@@ -295,20 +291,6 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
 
         match msg {
             Message::Binary(bytes) => {
-                let now = std::time::Instant::now();
-                let dt = now.duration_since(last_packet).as_millis();
-                last_packet = now;
-                
-                // Only log if dt > 0 to avoid massive spam, or just log everything to a file
-                batch_count += 1;
-                if batch_count % 50 == 0 {
-                    let mut file = std::fs::OpenOptions::new().create(true).append(true).open("/tmp/zentrack_jitter.log").unwrap();
-                    writeln!(file, "Binary packet received. dt={}ms", dt).unwrap();
-                } else if dt > 12 {
-                    let mut file = std::fs::OpenOptions::new().create(true).append(true).open("/tmp/zentrack_jitter.log").unwrap();
-                    writeln!(file, "LARGE JITTER DETECTED: dt={}ms", dt).unwrap();
-                }
-
                 if let Some(cmd) = InputCommand::parse_binary(&bytes) {
                     execute_command(cmd, &state, &mut socket, &tx).await;
                 }

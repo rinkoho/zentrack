@@ -254,6 +254,15 @@ fn acquire_tray_lock() -> Option<TrayLockGuard> {
     None
 }
 
+pub fn get_log_file_path() -> std::path::PathBuf {
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            return dir.join("server.log");
+        }
+    }
+    std::path::PathBuf::from("server.log")
+}
+
 fn run_tray() {
     let _tray_lock = match acquire_tray_lock() {
         Some(f) => f,
@@ -273,12 +282,14 @@ fn run_tray() {
     let tray_menu = Menu::new();
     let open_i = MenuItem::new("Abrir Web GUI", true, None);
     let adb_i = MenuItem::new("Activar USB ADB", true, None);
+    let logs_i = MenuItem::new("Ver Registros (Logs)", true, None);
     let restart_i = MenuItem::new("Reiniciar Servidor", true, None);
     let quit_i = MenuItem::new("Cerrar ZenTrack", true, None);
     
     tray_menu.append_items(&[
         &open_i,
         &adb_i,
+        &logs_i,
         &PredefinedMenuItem::separator(),
         &restart_i,
         &quit_i,
@@ -343,6 +354,16 @@ fn run_tray() {
                 }
                 #[cfg(target_os = "linux")]
                 let _ = std::process::Command::new("xdg-open").arg(&url).spawn();
+            } else if event.id == logs_i.id() {
+                let log_path = get_log_file_path();
+                #[cfg(target_os = "windows")]
+                {
+                    let _ = std::process::Command::new("notepad").arg(&log_path).spawn();
+                }
+                #[cfg(target_os = "linux")]
+                {
+                    let _ = std::process::Command::new("xdg-open").arg(&log_path).spawn();
+                }
             } else if event.id == restart_i.id() {
                 #[cfg(target_os = "linux")]
                 let _ = std::process::Command::new("zentrack").arg("restart").spawn();
@@ -366,13 +387,31 @@ fn run_tray() {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    #[cfg(target_os = "windows")]
-    unsafe {
-        use windows_sys::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
-        AttachConsole(ATTACH_PARENT_PROCESS);
-    }
+    let log_path = get_log_file_path();
+    let log_path_clone = log_path.clone();
+    std::panic::set_hook(Box::new(move |info| {
+        let msg = format!("[FATAL PANIC] {}\n", info);
+        eprintln!("{}", msg);
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&log_path_clone) {
+            use std::io::Write;
+            let _ = f.write_all(msg.as_bytes());
+        }
+    }));
 
     let args: Vec<String> = std::env::args().collect();
+    #[allow(unused_variables)]
+    let debug_mode = args.iter().any(|a| a == "--debug" || a == "--console" || a == "-v");
+
+    #[cfg(target_os = "windows")]
+    unsafe {
+        use windows_sys::Win32::System::Console::{AllocConsole, AttachConsole, ATTACH_PARENT_PROCESS};
+        if debug_mode {
+            AllocConsole();
+        } else {
+            AttachConsole(ATTACH_PARENT_PROCESS);
+        }
+    }
+
     let is_headless = args.iter().any(|a| a == "--headless" || a == "--service");
     let is_tray_bin = args.first().map(|a| a.ends_with("zentrack-tray")).unwrap_or(false);
     let tray_mode = !is_headless && (cfg!(target_os = "windows") || is_tray_bin || args.iter().any(|a| a == "--tray"));
