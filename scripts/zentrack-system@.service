@@ -1,11 +1,13 @@
 [Unit]
 Description=ZenTrack Ultra-Low Latency System Server for %i
-After=network.target
+After=network.target network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 User=%i
-WorkingDirectory=~
+SupplementaryGroups=input
+WorkingDirectory=/home/%i
 ExecStart=/usr/bin/zentrack-server --headless
 Restart=on-failure
 RestartSec=3

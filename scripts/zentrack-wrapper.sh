@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 case "$1" in
     tray)
+        shift
         exec /usr/bin/zentrack-server --tray "$@"
         ;;
     gui|pair)
@@ -16,14 +17,14 @@ case "$1" in
         curl -s -X POST "http://127.0.0.1:3000/api/usb/reverse"
         ;;
     start)
-        pkexec systemctl start zentrack-system@$USER 2>/dev/null
+        systemctl start zentrack-system@$USER 2>/dev/null || pkexec systemctl start zentrack-system@$USER 2>/dev/null
         ;;
     stop)
-        pkexec systemctl stop zentrack-system@$USER 2>/dev/null
-        pkill -f zentrack-server || true
+        systemctl stop zentrack-system@$USER 2>/dev/null || pkexec systemctl stop zentrack-system@$USER 2>/dev/null
+        pkill -f "zentrack-server --tray" 2>/dev/null || true
         ;;
     restart)
-        pkexec systemctl restart zentrack-system@$USER 2>/dev/null
+        systemctl restart zentrack-system@$USER 2>/dev/null || pkexec systemctl restart zentrack-system@$USER 2>/dev/null
         ;;
     logs)
         journalctl -u zentrack-system@$USER -f
@@ -32,13 +33,15 @@ case "$1" in
         if [ "$#" -eq 0 ]; then
             # 1. Asegurar que el servidor está corriendo en segundo plano
             if ! systemctl is-active --quiet zentrack-system@$USER; then
-                pkexec systemctl start zentrack-system@$USER 2>/dev/null || true
+                systemctl start zentrack-system@$USER 2>/dev/null || pkexec systemctl start zentrack-system@$USER 2>/dev/null || true
                 sleep 0.5 # Esperar a que levante el puerto
             fi
 
-            # 2. Asegurar que el icono del system tray está visible
-            if ! pgrep -f "zentrack-server --tray" > /dev/null; then
-                nohup /usr/bin/zentrack-server --tray >/dev/null 2>&1 &
+            # 2. Asegurar que el icono del system tray está visible si hay entorno gráfico
+            if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+                if ! pgrep -f "zentrack-server --tray" > /dev/null; then
+                    nohup /usr/bin/zentrack-server --tray >/dev/null 2>&1 &
+                fi
             fi
 
             # 3. Mostrar el estado y el QR en la terminal, y devolver el prompt
