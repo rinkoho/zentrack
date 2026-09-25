@@ -232,7 +232,7 @@ fn run_tray() {
     let open_i = MenuItem::new("Abrir Web GUI", true, None);
     let adb_i = MenuItem::new("Activar USB ADB", true, None);
     let restart_i = MenuItem::new("Reiniciar Servidor", true, None);
-    let quit_i = MenuItem::new("Cerrar Bandeja", true, None);
+    let quit_i = MenuItem::new("Cerrar ZenTrack", true, None);
     
     tray_menu.append_items(&[
         &open_i,
@@ -263,6 +263,9 @@ fn run_tray() {
         if let Ok(event) = menu_channel.try_recv() {
             if event.id == quit_i.id() {
                 tray_icon.take();
+                #[cfg(target_os = "linux")]
+                let _ = std::process::Command::new("zentrack").arg("stop").spawn();
+
                 *control_flow = ControlFlow::Exit;
                 std::process::exit(0);
             } else if event.id == open_i.id() {
@@ -287,7 +290,8 @@ fn run_tray() {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().collect();
-    let tray_mode = cfg!(target_os = "windows") || args.iter().any(|a| a == "--tray");
+    let is_tray_bin = args.first().map(|a| a.ends_with("zentrack-tray")).unwrap_or(false);
+    let tray_mode = cfg!(target_os = "windows") || is_tray_bin || args.iter().any(|a| a == "--tray");
     let info_mode = args.iter().any(|a| a == "--info");
     let help_mode = args.iter().any(|a| a == "-h" || a == "--help");
 
