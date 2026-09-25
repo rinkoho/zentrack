@@ -29,10 +29,23 @@ pub struct SystemHealth {
     pub reverse_active: bool,
 }
 
+/// Spawn a process silently without creating or flickering a console window on Windows
+pub fn silent_command(program: impl AsRef<std::ffi::OsStr>) -> Command {
+    #[allow(unused_mut)]
+    let mut cmd = Command::new(program);
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+    cmd
+}
+
 /// Locate adb binary on the system
 pub fn find_adb_binary() -> Option<String> {
     // 1. Try PATH
-    if let Ok(output) = Command::new("adb").arg("version").output() {
+    if let Ok(output) = silent_command("adb").arg("version").output() {
         if output.status.success() {
             return Some("adb".to_string());
         }
@@ -48,7 +61,7 @@ pub fn find_adb_binary() -> Option<String> {
         ];
         for path in &candidates {
             if fs::metadata(path).is_ok() {
-                if let Ok(output) = Command::new(path).arg("version").output() {
+                if let Ok(output) = silent_command(path).arg("version").output() {
                     if output.status.success() {
                         return Some(path.to_string());
                     }
@@ -60,7 +73,7 @@ pub fn find_adb_binary() -> Option<String> {
         if let Ok(home) = std::env::var("HOME") {
             let sdk_adb = format!("{}/Android/Sdk/platform-tools/adb", home);
             if fs::metadata(&sdk_adb).is_ok() {
-                if let Ok(output) = Command::new(&sdk_adb).arg("version").output() {
+                if let Ok(output) = silent_command(&sdk_adb).arg("version").output() {
                     if output.status.success() {
                         return Some(sdk_adb);
                     }
@@ -92,7 +105,7 @@ pub fn find_adb_binary() -> Option<String> {
 
         for path in &candidates {
             if fs::metadata(path).is_ok() {
-                if let Ok(output) = Command::new(path).arg("version").output() {
+                if let Ok(output) = silent_command(path).arg("version").output() {
                     if output.status.success() {
                         return Some(path.clone());
                     }
@@ -106,7 +119,7 @@ pub fn find_adb_binary() -> Option<String> {
 
 /// Extract short adb version string
 pub fn get_adb_version(adb_bin: &str) -> Option<String> {
-    if let Ok(output) = Command::new(adb_bin).arg("version").output() {
+    if let Ok(output) = silent_command(adb_bin).arg("version").output() {
         if output.status.success() {
             let text = String::from_utf8_lossy(&output.stdout);
             for line in text.lines() {
@@ -123,7 +136,7 @@ pub fn get_adb_version(adb_bin: &str) -> Option<String> {
 /// Query connected devices using adb devices -l
 pub fn get_adb_devices(adb_bin: &str) -> Vec<AdbDevice> {
     let mut devices = Vec::new();
-    if let Ok(output) = Command::new(adb_bin).args(["devices", "-l"]).output() {
+    if let Ok(output) = silent_command(adb_bin).args(["devices", "-l"]).output() {
         if output.status.success() {
             let text = String::from_utf8_lossy(&output.stdout);
             for line in text.lines() {
@@ -164,7 +177,7 @@ pub fn get_adb_devices(adb_bin: &str) -> Vec<AdbDevice> {
 
 /// Check if reverse tunnel for port exists
 pub fn is_adb_reverse_active(adb_bin: &str, port: u16) -> bool {
-    if let Ok(output) = Command::new(adb_bin).args(["reverse", "--list"]).output() {
+    if let Ok(output) = silent_command(adb_bin).args(["reverse", "--list"]).output() {
         if output.status.success() {
             let text = String::from_utf8_lossy(&output.stdout);
             let port_str = format!("tcp:{}", port);
@@ -177,13 +190,13 @@ pub fn is_adb_reverse_active(adb_bin: &str, port: u16) -> bool {
 /// Trigger adb reverse for port
 pub fn run_adb_reverse(adb_bin: &str, port: u16) -> Result<(), String> {
     // 1. Restart ADB Daemon to fix ghost connections
-    let _ = Command::new(adb_bin).arg("kill-server").output();
-    let _ = Command::new(adb_bin).arg("start-server").output();
+    let _ = silent_command(adb_bin).arg("kill-server").output();
+    let _ = silent_command(adb_bin).arg("start-server").output();
     std::thread::sleep(std::time::Duration::from_millis(500));
 
     // 2. Map reverse tunnel
     let port_str = format!("tcp:{}", port);
-    match Command::new(adb_bin).args(["reverse", &port_str, &port_str]).output() {
+    match silent_command(adb_bin).args(["reverse", &port_str, &port_str]).output() {
         Ok(output) => {
             if output.status.success() {
                 Ok(())

@@ -119,11 +119,13 @@ pub fn run_installer() {
         eprintln!("No se pudo registrar ZenTrack en el inicio del sistema: {}", e);
     }
 
-    // 8. Launch ZenTrack Server
-    let _ = Command::new(&zentrack_exe).spawn();
+    // 8. Show Success Dialog
+    let should_launch = show_installed_dialog();
 
-    // 9. Show Success Dialog
-    show_installed_dialog();
+    // 9. Launch ZenTrack Server only if requested by user
+    if should_launch {
+        let _ = Command::new(&zentrack_exe).spawn();
+    }
 }
 
 fn extract_payload_worker(dest_dir: PathBuf, state: Arc<ProgressState>) {
@@ -310,7 +312,13 @@ pub fn create_shortcuts(zentrack_exe: &Path) {
         ));
     }
 
-    let _ = Command::new("powershell")
+    let mut ps_cmd = Command::new("powershell");
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        ps_cmd.creation_flags(0x08000000);
+    }
+    let _ = ps_cmd
         .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &ps_script])
         .status();
 }

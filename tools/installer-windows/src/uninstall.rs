@@ -73,8 +73,16 @@ pub fn run_uninstaller() {
     // 1. Terminate running ZenTrack and ADB instances
     terminate_process_by_name("ZenTrack.exe");
     terminate_process_by_name("adb.exe");
-    let _ = Command::new("taskkill").args(["/F", "/IM", "ZenTrack.exe"]).output();
-    let _ = Command::new("taskkill").args(["/F", "/IM", "adb.exe"]).output();
+    let mut cmd1 = Command::new("taskkill");
+    let mut cmd2 = Command::new("taskkill");
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd1.creation_flags(0x08000000);
+        cmd2.creation_flags(0x08000000);
+    }
+    let _ = cmd1.args(["/F", "/IM", "ZenTrack.exe"]).output();
+    let _ = cmd2.args(["/F", "/IM", "adb.exe"]).output();
     thread::sleep(Duration::from_millis(300));
 
     // 2. Remove Shortcuts from Desktop, Start Menu and Startup
@@ -151,7 +159,13 @@ pub fn unregister_autostart_entry() {
 fn schedule_self_delete(exe_path: &Path) {
     let path_str = exe_path.to_string_lossy();
     let cmd = format!("ping 127.0.0.1 -n 2 > nul & del /F /Q \"{}\"", path_str);
-    let _ = Command::new("cmd")
+    let mut c = Command::new("cmd");
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        c.creation_flags(0x08000000);
+    }
+    let _ = c
         .args(["/C", &cmd])
         .spawn();
 }

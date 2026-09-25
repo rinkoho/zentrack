@@ -67,15 +67,19 @@ async fn install_vigem_handler() -> impl IntoResponse {
         ];
         for path in &candidates {
             if std::path::Path::new(path).exists() {
-                let _ = std::process::Command::new("cmd")
-                    .args(["/C", "start", "", path])
-                    .spawn();
+                let mut cmd = std::process::Command::new("cmd");
+                use std::os::windows::process::CommandExt;
+                cmd.creation_flags(0x08000000);
+                let _ = cmd.args(["/C", "start", "", path]).spawn();
                 let res = json!({"success": true, "message": "Instalador oficial ViGEmBus iniciado. Sigue los pasos en pantalla."});
                 return ([(header::CONTENT_TYPE, "application/json; charset=utf-8")], res.to_string());
             }
         }
 
-        let _ = std::process::Command::new("cmd")
+        let mut cmd = std::process::Command::new("cmd");
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x08000000);
+        let _ = cmd
             .args(["/C", "start", "", "https://github.com/nefarius/ViGEmBus/releases/download/v1.22.0/ViGEmBus_1.22.0_x64_x86_arm64.exe"])
             .spawn();
 
