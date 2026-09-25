@@ -49,36 +49,21 @@ impl Drop for WindowsDriver {
 }
 
 #[cfg(target_os = "windows")]
-struct InputDesktopScope {
-    h_desk: windows_sys::Win32::System::StationsAndDesktops::HDESK,
-}
-
-#[cfg(target_os = "windows")]
-impl InputDesktopScope {
-    #[inline]
-    pub fn enter() -> Self {
-        unsafe {
-            use windows_sys::Win32::System::StationsAndDesktops::{OpenInputDesktop, SetThreadDesktop};
-            use windows_sys::Win32::Foundation::GENERIC_ALL;
-
-            let h_desk = OpenInputDesktop(0, 0, GENERIC_ALL);
-            if h_desk != 0 {
-                SetThreadDesktop(h_desk);
-            }
-            Self { h_desk }
-        }
-    }
-}
-
-#[cfg(target_os = "windows")]
-impl Drop for InputDesktopScope {
-    #[inline]
-    fn drop(&mut self) {
-        unsafe {
-            use windows_sys::Win32::System::StationsAndDesktops::CloseDesktop;
-            if self.h_desk != 0 {
-                CloseDesktop(self.h_desk);
-            }
+#[inline]
+unsafe fn send_input_with_fallback(inputs: &[INPUT]) {
+    let count = inputs.len() as u32;
+    let size = std::mem::size_of::<INPUT>() as i32;
+    let res = SendInput(count, inputs.as_ptr(), size);
+    if res == 0 {
+        // If SendInput failed (e.g. desktop switched to lockscreen / UAC secure desktop),
+        // try switching thread desktop to the active input desktop and retry.
+        use windows_sys::Win32::System::StationsAndDesktops::{OpenInputDesktop, SetThreadDesktop, CloseDesktop};
+        use windows_sys::Win32::Foundation::GENERIC_ALL;
+        let h_desk = OpenInputDesktop(0, 0, GENERIC_ALL);
+        if h_desk != 0 {
+            SetThreadDesktop(h_desk);
+            SendInput(count, inputs.as_ptr(), size);
+            CloseDesktop(h_desk);
         }
     }
 }
@@ -86,7 +71,6 @@ impl Drop for InputDesktopScope {
 #[cfg(target_os = "windows")]
 impl InputDriver for WindowsDriver {
     fn mouse_move(&mut self, dx: i32, dy: i32) {
-        let _scope = InputDesktopScope::enter();
         unsafe {
             let mut input: INPUT = std::mem::zeroed();
             input.r#type = INPUT_MOUSE;
@@ -98,7 +82,7 @@ impl InputDriver for WindowsDriver {
                 time: 0,
                 dwExtraInfo: 0,
             };
-            SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+            send_input_with_fallback(&[input]);
         }
     }
 
@@ -109,12 +93,11 @@ impl InputDriver for WindowsDriver {
             3 => MOUSEEVENTF_RIGHTDOWN,
             _ => return,
         };
-        let _scope = InputDesktopScope::enter();
         unsafe {
             let mut input: INPUT = std::mem::zeroed();
             input.r#type = INPUT_MOUSE;
             input.Anonymous.mi.dwFlags = flag;
-            SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+            send_input_with_fallback(&[input]);
         }
     }
 
@@ -125,12 +108,11 @@ impl InputDriver for WindowsDriver {
             3 => MOUSEEVENTF_RIGHTUP,
             _ => return,
         };
-        let _scope = InputDesktopScope::enter();
         unsafe {
             let mut input: INPUT = std::mem::zeroed();
             input.r#type = INPUT_MOUSE;
             input.Anonymous.mi.dwFlags = flag;
-            SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+            send_input_with_fallback(&[input]);
         }
     }
 
@@ -145,7 +127,6 @@ impl InputDriver for WindowsDriver {
     }
 
     fn smooth_scroll(&mut self, dx: f64, dy: f64) {
-        let _scope = InputDesktopScope::enter();
         // High-resolution Windows wheel input
         self.accum_scroll_y += -dy * 12.0;
         self.accum_scroll_x += dx * 12.0;
@@ -164,7 +145,7 @@ impl InputDriver for WindowsDriver {
                     time: 0,
                     dwExtraInfo: 0,
                 };
-                SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+                send_input_with_fallback(&[input]);
             }
         }
 
@@ -182,7 +163,7 @@ impl InputDriver for WindowsDriver {
                     time: 0,
                     dwExtraInfo: 0,
                 };
-                SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+                send_input_with_fallback(&[input]);
             }
         }
     }
@@ -204,7 +185,6 @@ impl InputDriver for WindowsDriver {
         }
 
         if let Some(vk) = map_windows_key(key) {
-            let _scope = InputDesktopScope::enter();
             let scan = unsafe { MapVirtualKeyW(vk as u32, 0) as u16 };
             let is_extended = is_extended_key(vk);
             let mut flags = if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
@@ -224,7 +204,7 @@ impl InputDriver for WindowsDriver {
                     time: 0,
                     dwExtraInfo: 0,
                 };
-                SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+                send_input_with_fallback(&[input]);
             }
 
             if is_repeatable_key(key) {
@@ -244,7 +224,6 @@ impl InputDriver for WindowsDriver {
                         tokio::select! {
                             _ = &mut rx => break,
                             _ = interval.tick() => {
-                                let _scope = InputDesktopScope::enter();
                                 unsafe {
                                     let mut input: INPUT = std::mem::zeroed();
                                     input.r#type = INPUT_KEYBOARD;
@@ -255,7 +234,7 @@ impl InputDriver for WindowsDriver {
                                         time: 0,
                                         dwExtraInfo: 0,
                                     };
-                                    SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+                                    send_input_with_fallback(&[input]);
                                 }
                             }
                         }
@@ -271,7 +250,6 @@ impl InputDriver for WindowsDriver {
         }
 
         if let Some(vk) = map_windows_key(key) {
-            let _scope = InputDesktopScope::enter();
             let scan = unsafe { MapVirtualKeyW(vk as u32, 0) as u16 };
             let is_extended = is_extended_key(vk);
             let mut flags = KEYEVENTF_KEYUP | if is_extended { KEYEVENTF_EXTENDEDKEY } else { 0 };
@@ -291,7 +269,7 @@ impl InputDriver for WindowsDriver {
                     time: 0,
                     dwExtraInfo: 0,
                 };
-                SendInput(1, &input, std::mem::size_of::<INPUT>() as i32);
+                send_input_with_fallback(&[input]);
             }
         }
     }

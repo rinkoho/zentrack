@@ -119,6 +119,19 @@ pub fn run_installer() {
         eprintln!("No se pudo registrar ZenTrack en el inicio del sistema: {}", e);
     }
 
+    // 8. Register Windows Firewall exception for ZenTrack
+    let mut fw_cmd = Command::new("netsh");
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        fw_cmd.creation_flags(0x08000000);
+    }
+    let _ = fw_cmd.args([
+        "advfirewall", "firewall", "add", "rule",
+        "name=ZenTrack Server", "dir=in", "action=allow",
+        &format!("program={}", zentrack_exe.display()), "enable=yes"
+    ]).output();
+
     // 8. Show Success Dialog
     let should_launch = show_installed_dialog();
 

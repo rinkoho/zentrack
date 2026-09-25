@@ -92,6 +92,18 @@ pub fn run_uninstaller() {
     unregister_uninstall_entry();
     unregister_autostart_entry();
 
+    // 4. Remove Windows Firewall exception
+    let mut fw_cmd = Command::new("netsh");
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        fw_cmd.creation_flags(0x08000000);
+    }
+    let _ = fw_cmd.args([
+        "advfirewall", "firewall", "delete", "rule",
+        "name=ZenTrack Server"
+    ]).output();
+
     // 4. Remove all files from %LOCALAPPDATA%\Programs\ZenTrack
     if install_dir.exists() {
         for _ in 0..5 {
