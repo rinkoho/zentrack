@@ -1367,7 +1367,7 @@
           <div class="health-tile">
             <div class="health-title-group">
               <span id="health-driver-dot" class="pulse-dot"></span>
-              <span>Driver de Ratón / Teclado (uinput / Win32)</span>
+              <span id="health-driver-name">Driver de Ratón / Teclado (uinput / Win32)</span>
             </div>
             <span id="health-driver-badge" class="health-badge badge-ok">Operativo</span>
           </div>
@@ -1375,7 +1375,7 @@
           <div class="health-tile">
             <div class="health-title-group">
               <span id="health-gamepad-dot" class="pulse-dot yellow"></span>
-              <span>Driver Mando Xbox 360 (ViGEmBus)</span>
+              <span id="health-gamepad-name">Driver Mando Xbox 360 (ViGEmBus)</span>
             </div>
             <span id="health-gamepad-badge" class="health-badge badge-warn">Comprobando...</span>
           </div>
@@ -1411,7 +1411,7 @@
           <div class="health-tile">
             <div class="health-title-group">
               <span id="health-wifi-driver-dot" class="pulse-dot"></span>
-              <span>Driver de Ratón / Teclado (uinput / Win32)</span>
+              <span id="health-wifi-driver-name">Driver de Ratón / Teclado (uinput / Win32)</span>
             </div>
             <span id="health-wifi-driver-badge" class="health-badge badge-ok">Operativo</span>
           </div>
@@ -1419,7 +1419,7 @@
           <div class="health-tile">
             <div class="health-title-group">
               <span id="health-wifi-gamepad-dot" class="pulse-dot yellow"></span>
-              <span>Driver Mando Xbox 360 (ViGEmBus)</span>
+              <span id="health-wifi-gamepad-name">Driver Mando Xbox 360 (ViGEmBus)</span>
             </div>
             <span id="health-wifi-gamepad-badge" class="health-badge badge-warn">Comprobando...</span>
           </div>
@@ -1530,7 +1530,7 @@
             <span>Instalar Driver ViGEmBus</span>
           </button>
 
-          <button class="bento-action-tile" onclick="openSmartScreenModal()">
+          <button id="btn-smartscreen" class="bento-action-tile" onclick="openSmartScreenModal()">
             <span class="icon">verified_user</span>
             <span>Aviso Windows SmartScreen</span>
           </button>
@@ -1840,7 +1840,17 @@
       </div>
 
       <div class="creds-compact-list" style="margin-top: 0; gap: 10px;">
-        <div class="cred-row" style="padding: 12px 16px;">
+        <div id="firewall-rule-win" class="cred-row" style="padding: 12px 16px;">
+          <div class="cred-meta">
+            <span class="cred-label">Windows Defender Firewall (PowerShell - Administrador)</span>
+            <span class="cred-val" style="margin-top: 4px;">New-NetFirewallRule -DisplayName "ZenTrack 500Hz TCP" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow; New-NetFirewallRule -DisplayName "ZenTrack 500Hz UDP" -Direction Inbound -LocalPort 37020 -Protocol UDP -Action Allow</span>
+          </div>
+          <button class="btn-copy-mini" onclick="copyRaw('New-NetFirewallRule -DisplayName &quot;ZenTrack 500Hz TCP&quot; -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow; New-NetFirewallRule -DisplayName &quot;ZenTrack 500Hz UDP&quot; -Direction Inbound -LocalPort 37020 -Protocol UDP -Action Allow')">
+            <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
+          </button>
+        </div>
+
+        <div id="firewall-rule-ufw" class="cred-row" style="padding: 12px 16px;">
           <div class="cred-meta">
             <span class="cred-label">UFW (Ubuntu, Debian, Arch Linux)</span>
             <span class="cred-val" style="margin-top: 4px;">sudo ufw allow 3000/tcp && sudo ufw allow 37020/udp && sudo ufw reload</span>
@@ -1850,22 +1860,12 @@
           </button>
         </div>
 
-        <div class="cred-row" style="padding: 12px 16px;">
+        <div id="firewall-rule-firewalld" class="cred-row" style="padding: 12px 16px;">
           <div class="cred-meta">
             <span class="cred-label">Firewalld (Fedora, RHEL)</span>
             <span class="cred-val" style="margin-top: 4px;">sudo firewall-cmd --add-port=3000/tcp --add-port=37020/udp --permanent && sudo firewall-cmd --reload</span>
           </div>
           <button class="btn-copy-mini" onclick="copyRaw('sudo firewall-cmd --add-port=3000/tcp --add-port=37020/udp --permanent && sudo firewall-cmd --reload')">
-            <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
-          </button>
-        </div>
-
-        <div class="cred-row" style="padding: 12px 16px;">
-          <div class="cred-meta">
-            <span class="cred-label">Windows Defender Firewall (PowerShell)</span>
-            <span class="cred-val" style="margin-top: 4px;">New-NetFirewallRule -DisplayName "ZenTrack 500Hz" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow</span>
-          </div>
-          <button class="btn-copy-mini" onclick="copyRaw('New-NetFirewallRule -DisplayName &quot;ZenTrack 500Hz&quot; -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow')">
             <span class="icon" style="font-size: 14px;">content_copy</span> Copiar
           </button>
         </div>
@@ -2199,11 +2199,48 @@
         const res = await fetch('/api/system-health');
         if (!res.ok) return;
         const h = await res.json();
+        const isWindows = (h.os || '').toLowerCase() === 'windows';
 
+        // Adapt UI controls and profiles by OS
         const linuxWrapper = document.getElementById('linux-profile-wrapper');
         if (linuxWrapper) {
-          linuxWrapper.style.display = (h.os === 'linux') ? 'flex' : 'none';
+          linuxWrapper.style.display = isWindows ? 'none' : 'flex';
         }
+
+        const btnSmartScreen = document.getElementById('btn-smartscreen');
+        if (btnSmartScreen) {
+          btnSmartScreen.style.display = isWindows ? 'flex' : 'none';
+        }
+
+        const btnInstallVigem = document.getElementById('btn-install-vigem');
+        if (btnInstallVigem) {
+          btnInstallVigem.style.display = (isWindows && !h.gamepad_driver_installed) ? 'flex' : 'none';
+        }
+
+        const btnFirewall = document.getElementById('btn-firewall-rules');
+        if (btnFirewall) {
+          if (isWindows) {
+            btnFirewall.innerHTML = '<span class="icon">content_copy</span> Copiar Reglas PowerShell';
+            btnFirewall.onclick = () => copyRaw('New-NetFirewallRule -DisplayName "ZenTrack 500Hz TCP" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow; New-NetFirewallRule -DisplayName "ZenTrack 500Hz UDP" -Direction Inbound -LocalPort 37020 -Protocol UDP -Action Allow');
+          } else {
+            btnFirewall.innerHTML = '<span class="icon">content_copy</span> Copiar Reglas UFW';
+            btnFirewall.onclick = () => copyRaw('sudo ufw allow 3000/tcp && sudo ufw allow 37020/udp && sudo ufw reload');
+          }
+        }
+
+        // Driver Labels
+        const driverLabel = isWindows ? 'Driver de Ratón / Teclado (Win32 SendInput)' : 'Driver de Ratón / Teclado (Linux uinput)';
+        const gamepadLabel = isWindows ? 'Mando Virtual Xbox 360 (ViGEmBus)' : 'Driver de Kernel Xbox 360 (/dev/uinput)';
+
+        const elDriverName = document.getElementById('health-driver-name');
+        if (elDriverName) elDriverName.textContent = driverLabel;
+        const elWifiDriverName = document.getElementById('health-wifi-driver-name');
+        if (elWifiDriverName) elWifiDriverName.textContent = driverLabel;
+
+        const elGamepadName = document.getElementById('health-gamepad-name');
+        if (elGamepadName) elGamepadName.textContent = gamepadLabel;
+        const elWifiGamepadName = document.getElementById('health-wifi-gamepad-name');
+        if (elWifiGamepadName) elWifiGamepadName.textContent = gamepadLabel;
 
         // Driver Mouse / Keyboard (USB & Wi-Fi)
         const dotDriver = document.getElementById('health-driver-dot');

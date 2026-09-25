@@ -14,7 +14,7 @@ use crate::common::{
 };
 use crate::ui::{
     show_error_dialog, show_installed_dialog, show_progress_dialog, show_vigem_prompt,
-    show_welcome_dialog, ProgressState,
+    show_vigem_repair_prompt, show_welcome_dialog, ProgressState,
 };
 
 pub const PAYLOAD: &[u8] = include_bytes!("../../../dist/windows/ZenTrack-Windows-x64-Portable.zip");
@@ -63,33 +63,36 @@ pub fn run_installer() {
 
     let zentrack_exe = install_dir.join("ZenTrack.exe");
 
-    // 4. ViGEmBus Driver Detection & Synchronous Installation
+    // 4. ViGEmBus Driver Detection & Synchronous Installation / Repair
     let vigem_installed = check_vigem_driver();
-    if !vigem_installed {
-        let vigem_setup = install_dir.join("drivers").join("ViGEmBus_Setup.exe");
-        if vigem_setup.exists() {
-            let should_install = show_vigem_prompt();
-            if should_install {
-                match install_vigem_driver_sync(&vigem_setup) {
-                    Ok(true) => {
-                        // Driver installed and confirmed active in kernel
-                    }
-                    Ok(false) => {
-                        show_error_dialog(
-                            "Aviso del Controlador ViGEmBus",
-                            "El controlador ViGEmBus no pudo ser verificado en el kernel",
-                            "El instalador de ViGEmBus finalizó, pero el dispositivo virtual no respondió a tiempo.\n\
-                            Puedes instalarlo manualmente ejecutando:\n\
-                            'Instalar_Driver_Mando_Xbox.bat' en la carpeta de ZenTrack.",
-                        );
-                    }
-                    Err(e) => {
-                        show_error_dialog(
-                            "Aviso del Controlador ViGEmBus",
-                            "No se completó la instalación del controlador ViGEmBus",
-                            &format!("{}\n\nPuedes instalarlo manualmente más adelante.", e),
-                        );
-                    }
+    let vigem_setup = install_dir.join("drivers").join("ViGEmBus_Setup.exe");
+    if vigem_setup.exists() {
+        let should_run_setup = if vigem_installed {
+            show_vigem_repair_prompt()
+        } else {
+            show_vigem_prompt()
+        };
+
+        if should_run_setup {
+            match install_vigem_driver_sync(&vigem_setup) {
+                Ok(true) => {
+                    // Driver installed/repaired and confirmed active
+                }
+                Ok(false) => {
+                    show_error_dialog(
+                        "Aviso del Controlador ViGEmBus",
+                        "El controlador ViGEmBus no pudo ser verificado en el sistema",
+                        "El instalador de ViGEmBus finalizó, pero el dispositivo virtual no respondió a tiempo.\n\
+                        Si Windows requiere reiniciar para activar el controlador, reinicia tu equipo.\n\
+                        También puedes reinstalarlo con 'Instalar_Driver_Mando_Xbox.bat' en la carpeta de ZenTrack.",
+                    );
+                }
+                Err(e) => {
+                    show_error_dialog(
+                        "Aviso del Controlador ViGEmBus",
+                        "No se completó la instalación del controlador ViGEmBus",
+                        &format!("{}\n\nPuedes instalarlo manualmente más adelante.", e),
+                    );
                 }
             }
         }
@@ -222,22 +225,29 @@ pub fn install_vigem_driver_sync(installer_path: &Path) -> Result<bool, String> 
         return Err("El usuario canceló la elevación de permisos (UAC) o el driver no pudo ser ejecutado.".to_string());
     }
 
+    let mut exit_code: u32 = 0;
     if sei.hProcess != 0 && sei.hProcess != INVALID_HANDLE_VALUE {
         unsafe {
             // CRÍTICO: Esperar a que el proceso termine determinísticamente
             WaitForSingleObject(sei.hProcess, INFINITE);
-            let mut exit_code: u32 = 0;
             GetExitCodeProcess(sei.hProcess, &mut exit_code);
             CloseHandle(sei.hProcess);
         }
     }
 
-    // Re-verificar con CreateFileW(r"\\.\ViGEmBus") para garantizar que el kernel montó el dispositivo
+    // 0 = Success, 3010 = Success (Reboot required), 1641 = Success (Reboot initiated)
+    let is_success_exit = exit_code == 0 || exit_code == 3010 || exit_code == 1641;
+
+    // Re-verificar con vigem_client y registro
     for _ in 0..10 {
         if check_vigem_driver() {
             return Ok(true);
         }
         unsafe { windows_sys::Win32::System::Threading::Sleep(500) };
+    }
+
+    if is_success_exit {
+        return Ok(check_vigem_driver() || is_success_exit);
     }
 
     Ok(check_vigem_driver())

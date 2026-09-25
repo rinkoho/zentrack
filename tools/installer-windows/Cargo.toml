@@ -27,6 +27,9 @@ windows-sys = { version = "0.52", features = [
     "Win32_System_LibraryLoader",
 ] }
 
+[target.'cfg(target_os = "windows")'.dependencies]
+vigem-client = "0.1.4"
+
 [profile.release]
 opt-level = "z"
 lto = true
