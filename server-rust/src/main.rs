@@ -90,7 +90,10 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
             {
                 // On Windows, explorer.exe <url> launches default browser reliably via Shell
                 if std::process::Command::new("explorer").arg(&open_url).spawn().is_err() {
-                    let _ = std::process::Command::new("cmd").args(["/C", "start", "", &open_url]).spawn();
+                    let mut cmd = std::process::Command::new("cmd");
+                    use std::os::windows::process::CommandExt;
+                    cmd.creation_flags(0x08000000);
+                    let _ = cmd.args(["/C", "start", "", &open_url]).spawn();
                 }
             }
 
@@ -307,7 +310,10 @@ fn run_tray() {
                 #[cfg(target_os = "windows")]
                 {
                     if std::process::Command::new("explorer").arg(&url).spawn().is_err() {
-                        let _ = std::process::Command::new("cmd").args(["/C", "start", "", &url]).spawn();
+                        let mut cmd = std::process::Command::new("cmd");
+                        use std::os::windows::process::CommandExt;
+                        cmd.creation_flags(0x08000000);
+                        let _ = cmd.args(["/C", "start", "", &url]).spawn();
                     }
                 }
                 #[cfg(target_os = "linux")]
@@ -329,7 +335,10 @@ fn run_tray() {
                 #[cfg(target_os = "windows")]
                 {
                     if std::process::Command::new("explorer").arg(&url).spawn().is_err() {
-                        let _ = std::process::Command::new("cmd").args(["/C", "start", "", &url]).spawn();
+                        let mut cmd = std::process::Command::new("cmd");
+                        use std::os::windows::process::CommandExt;
+                        cmd.creation_flags(0x08000000);
+                        let _ = cmd.args(["/C", "start", "", &url]).spawn();
                     }
                 }
                 #[cfg(target_os = "linux")]

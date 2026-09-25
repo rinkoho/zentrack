@@ -265,16 +265,21 @@ pub fn show_installed_dialog() -> bool {
     let content = to_wide(
         "El servidor de ultra-baja latencia se ha instalado correctamente en tu equipo.\n\n\
         • Accesos directos creados en tu Escritorio y Menú Inicio.\n\
-        • El servidor iniciará en segundo plano y abrirá el Centro de Conexión en tu navegador web.\n\n\
-        ¡Gracias por elegir ZenTrack!"
+        • Inicio automático configurado con Windows.\n\n\
+        ¿Deseas iniciar ZenTrack ahora mismo?"
     );
 
     let btn1 = to_wide("Iniciar ZenTrack Ahora\nArranca el servidor de baja latencia y abre el navegador web.");
+    let btn2 = to_wide("Finalizar\nCerrar el instalador (ZenTrack se iniciará automáticamente con Windows o desde el acceso directo).");
 
     let buttons = [
         TASKDIALOG_BUTTON {
             nButtonID: 301,
             pszButtonText: btn1.as_ptr(),
+        },
+        TASKDIALOG_BUTTON {
+            nButtonID: 302,
+            pszButtonText: btn2.as_ptr(),
         },
     ];
 
@@ -295,12 +300,17 @@ pub fn show_installed_dialog() -> bool {
     };
 
     if res == 0 {
-        true
+        clicked == 301
     } else {
-        unsafe {
-            MessageBoxW(0, content.as_ptr(), title.as_ptr(), MB_OK | MB_ICONINFORMATION);
+        let fallback = unsafe {
+            MessageBoxW(
+                0,
+                content.as_ptr(),
+                title.as_ptr(),
+                MB_YESNO | MB_ICONINFORMATION | MB_DEFBUTTON1,
+            )
         };
-        true
+        fallback == IDYES
     }
 }
 
